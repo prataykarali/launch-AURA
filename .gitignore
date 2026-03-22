@@ -1,4 +1,5 @@
-﻿target/
+﻿@"
+target/
 *.gguf
 *.bin
 .dart_tool/
@@ -9,3 +10,7 @@ apk_contents/
 app-debug.zip
 .flutter-plugins
 .flutter-plugins-dependencies
+*.rlib
+*.pdb
+models/
+"@ | Out-File -FilePath .gitignore -Encoding utf8
