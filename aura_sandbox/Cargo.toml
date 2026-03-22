@@ -1,0 +1,29 @@
+[package]
+name = "aura_sandbox"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5.60", features = ["derive"] }
+itertools = "0.14.0"
+maud = "0.27.0"
+pulldown-cmark = "0.13.1"
+rand = "0.8"
+[[bin]]
+name = "data"
+path = "src/data.rs"
+[[bin]]
+name = "fun"
+path = "src/func.rs"
+[[bin]]
+name = "game"
+path = "src/guess.rs"
+[[bin]]
+name="shape"
+path="src/shape.rs"
+[[bin]]
+name="course"
+path="src/course.rs"
+[[bin]]
+name="count"
+path="src/counter.rs"

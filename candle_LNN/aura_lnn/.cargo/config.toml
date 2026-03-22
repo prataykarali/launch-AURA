@@ -1,0 +1,11 @@
+# This applies fast math ONLY when building for a desktop/laptop (x86_64)
+[target.'cfg(target_arch = "x86_64")']
+rustflags = ["-C", "target-feature=+avx2,+fma"]
+
+# Keep your universal release optimizations exactly as they are
+[profile.release]
+opt-level        = 3
+lto              = "fat"
+codegen-units    = 1
+panic            = "abort"
+overflow-checks  = false

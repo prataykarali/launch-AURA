@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://3jdegrf2os63"
+
+[deps]
+
+files=["res://AURA-Proj/todo/task.task.translation", "res://AURA-Proj/todo/task.task.translation"]
+
+source_file="res://AURA-Proj/todo/task.csv"
+dest_files=["res://AURA-Proj/todo/task.task.translation", "res://AURA-Proj/todo/task.task.translation"]
+
+[params]
+
+compress=true
+delimiter=0
