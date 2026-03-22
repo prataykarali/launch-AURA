@@ -1,0 +1,11 @@
+﻿target/
+*.gguf
+*.bin
+.dart_tool/
+build/
+*.so
+*.dll
+apk_contents/
+app-debug.zip
+.flutter-plugins
+.flutter-plugins-dependencies
