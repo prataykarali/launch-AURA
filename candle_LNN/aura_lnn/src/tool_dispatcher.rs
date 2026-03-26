@@ -1,11 +1,10 @@
 use crate::tools::datetime::{DateTimeTool, DateTimeArgs};
 use rig::tool::Tool;
+use std::panic;
 
 /// Parse model-generated tool JSON from output
-/// Returns (tool_name, args) only if output is pure JSON
 pub fn parse_tool_call(output: &str) -> Option<(String, serde_json::Value)> {
     let trimmed = output.trim();
-    // Must start AND end with braces — reject mixed text like "JSON + extra words"
     if !trimmed.starts_with('{') || !trimmed.ends_with('}') {
         return None;
     }
@@ -15,7 +14,7 @@ pub fn parse_tool_call(output: &str) -> Option<(String, serde_json::Value)> {
     Some((tool_name, args))
 }
 
-/// Keyword-based fast path — bypasses LLM entirely for obvious tool calls
+/// Keyword-based fast path — bypasses LLM for common queries
 pub fn needs_tool(input: &str) -> Option<String> {
     let lower = input.to_lowercase();
 
@@ -32,21 +31,66 @@ pub fn needs_tool(input: &str) -> Option<String> {
         "current date", "what day", "what's today",
     ];
 
-    let has_time_phrase = time_phrases.iter().any(|p| lower.contains(p));
-
-    if is_question && has_time_phrase {
+    if is_question && time_phrases.iter().any(|p| lower.contains(p)) {
         return Some(r#"{"tool":"get_time","args":{}}"#.to_string());
     }
     None
 }
 
-/// Execute a tool by name with given args
+/// The entry point called by Flutter
+pub fn handle_tool_call_sync(raw: &str) -> String {
+    // Wrap the WHOLE logic to prevent ANY panic from hitting the Android OS
+    let result = panic::catch_unwind(|| {
+        let mut results = Vec::new();
+
+        // Use a proper JSON stream deserializer instead of manual index slicing
+        let stream = serde_json::Deserializer::from_str(raw).into_iter::<serde_json::Value>();
+
+        for value in stream {
+            if let Ok(v) = value {
+                if let (Some(name), Some(args)) = (v.get("tool").and_then(|n| n.as_str()), v.get("args")) {
+                    results.push(run_tool_blocking(name, args.clone()));
+                }
+            }
+        }
+
+        if results.is_empty() { String::new() } else { results.join(" ") }
+    });
+
+    match result {
+        Ok(output) => output,
+        Err(_) => "CRITICAL_RUST_PANIC".to_string(),
+    }
+}
+
+/// SAFE synchronous execution for Android NDK
+fn run_tool_blocking(name: &str, args: serde_json::Value) -> String {
+    // CRITICAL: catch_unwind stops the SIGABRT crash on Android
+    let result = panic::catch_unwind(|| {
+        match name {
+            "get_time" => {
+                // Utc is used to avoid missing timezone DB crashes on mobile
+                let now = chrono::Utc::now(); 
+                format!("It's {} UTC", now.format("%I:%M %p"))
+            }
+            _ => format!("unknown tool: {name}"),
+        }
+    });
+
+    match result {
+        Ok(output) => output,
+        Err(_) => "Error: Rust tool panic caught".to_string(),
+    }
+}
+
+/// Async execution for non-blocking UI tasks
 pub async fn run_tool(name: &str, args: serde_json::Value) -> String {
     match name {
         "get_time" => {
             let tool = DateTimeTool;
             let parsed: DateTimeArgs = serde_json::from_value(args)
                 .unwrap_or(DateTimeArgs { format: None });
+            
             match Tool::call(&tool, parsed).await {
                 Ok(out) => out.datetime,
                 Err(e)  => format!("error: {e}"),
@@ -56,33 +100,11 @@ pub async fn run_tool(name: &str, args: serde_json::Value) -> String {
     }
 }
 
-// ── Dead code suppressed — kept for future use ───────────────────────────────
-
 #[allow(dead_code)]
 pub fn get_device() -> candle_core::Result<candle_core::Device> {
     #[cfg(feature = "cuda")]
     {
-        match candle_core::Device::new_cuda(0) {
-            Ok(d) => { println!("🚀 Using CUDA GPU"); return Ok(d); }
-            Err(e) => { println!("⚠️  CUDA failed: {e} — falling back to CPU"); }
-        }
+        if let Ok(d) = candle_core::Device::new_cuda(0) { return Ok(d); }
     }
-    println!("💻 Using CPU");
     Ok(candle_core::Device::Cpu)
-}
-
-#[allow(dead_code)]
-pub async fn dispatch(user_input: &str) -> Option<String> {
-    let lower = user_input.to_lowercase();
-    // Tight match — not loose contains("time")
-    let triggers = ["what time", "current time", "what date", "current date", "what day"];
-    if triggers.iter().any(|t| lower.contains(t)) {
-        let tool = DateTimeTool;
-        let args = DateTimeArgs { format: None };
-        match tool.call(args).await {
-            Ok(out) => return Some(format!("It's {} ✨", out.datetime)),
-            Err(e)  => return Some(format!("Tool error: {}", e)),
-        }
-    }
-    None
 }

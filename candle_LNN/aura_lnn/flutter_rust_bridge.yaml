@@ -1,0 +1,3 @@
+rust_input: "crate::api"
+rust_root: "./"
+dart_output: "/home/pratay-karali/AURA-Proj/aura_notebook/lib/src/rust/api.dart"

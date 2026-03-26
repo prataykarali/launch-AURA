@@ -1,16 +1,28 @@
-﻿@"
-target/
-*.gguf
-*.bin
-.dart_tool/
-build/
-*.so
-*.dll
-apk_contents/
-app-debug.zip
-.flutter-plugins
-.flutter-plugins-dependencies
-*.rlib
-*.pdb
-models/
-"@ | Out-File -FilePath .gitignore -Encoding utf8
+# --- Rust & Candle ---
+**/target/
+**/candle_local/**/target/
+rust_builder/
+Cargo.lock
+
+# --- Flutter ---
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.pub-cache/
+**/.packages
+pubspec.lock
+
+# --- AI Models (The Heavy Stuff) ---
+**/*.gguf
+**/*.bin
+**/*.onnx
+**/models/*
+
+# --- OS & IDE Junk ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.log
+output.txt

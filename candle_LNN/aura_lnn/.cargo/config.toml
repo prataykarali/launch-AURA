@@ -1,6 +1,7 @@
 # This applies fast math ONLY when building for a desktop/laptop (x86_64)
-[target.'cfg(target_arch = "x86_64")']
-rustflags = ["-C", "target-feature=+avx2,+fma"]
+[target.x86_64-unknown-linux-gnu]
+linker = "clang"
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 
 # Keep your universal release optimizations exactly as they are
 [profile.release]
