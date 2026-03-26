@@ -1,0 +1,8 @@
+Launching lib/main.dart on SM A166P in debug mode...
+Running Gradle task 'assembleDebug'...                            134.0s
+✓ Built build/app/outputs/flutter-apk/app-debug.apk
+Installing build/app/outputs/flutter-apk/app-debug.apk...          12.0s
+D/FlutterJNI(21293): Beginning load of flutter...
+D/FlutterJNI(21293): flutter (null) was loaded normally!
+I/flutter (21293): [IMPORTANT:flutter/shell/platform/android/android_context_vk_impeller.cc(62)] Using the Impeller rendering backend (Vulkan).
+Error connecting to the service protocol: failed to connect to http://127.0.0.1:33525/ZOURXNQUB3I=/ HttpException: Connection closed before full header was received, uri = http://127.0.0.1:33525/ZOURXNQUB3I=/ws
