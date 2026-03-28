@@ -87,7 +87,7 @@ fn run_tool_blocking(name: &str, args: serde_json::Value) -> String {
 pub async fn run_tool(name: &str, args: serde_json::Value) -> String {
     match name {
         "get_time" => {
-            let tool = DateTimeTool;
+            let tool = DateTimeTool{};
             let parsed: DateTimeArgs = serde_json::from_value(args)
                 .unwrap_or(DateTimeArgs { format: None });
             

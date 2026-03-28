@@ -26,3 +26,18 @@ pubspec.lock
 *.swp
 *.log
 output.txt
+
+# Model files
+*.gguf
+*.bin
+*.safetensors
+models/
+
+# Rust build
+candle_LNN/aura_lnn/target/
+
+# Flutter build
+aura_notebook/build/
+
+# Candle local fork (large — only push if you want it on GitHub)
+# candle_LNN/aura_lnn/candle_local/

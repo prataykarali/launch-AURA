@@ -5,7 +5,7 @@ use candle_transformers::models::quantized_lfm2::ModelWeights;
 use tokenizers::Tokenizer;
 use crate::llm_engine::get_device;
 
-const MAX_NEW_TOKENS: usize = 80;
+const MAX_NEW_TOKENS: usize = 512;
 const TEMPERATURE:    f64   = 0.85;
 const TOP_P:          f64   = 0.92;
 const REPEAT_PENALTY: f32   = 1.35;
@@ -46,26 +46,44 @@ fn encode(tok: &Tokenizer, text: &str) -> Result<Vec<u32>> {
         .map_err(|e| anyhow::anyhow!("{e}"))
 }
 
+// ── STRUCT ────────────────────────────────────────────────────────────────────
+// device is stored here so infer_stream never calls get_device() per token.
+// That was causing the "💻 Using CPU" spam — one print per forward pass.
 pub struct AuraEngine {
     pub model:     ModelWeights,
     pub tok:       Tokenizer,
-    pub sys_cache: Vec<Option<(Tensor, Tensor)>>,
+    pub sys_cache: Vec<(Option<(Tensor, Tensor)>, Option<Tensor>)>,
     pub sys_pos:   usize,
+    pub device:    candle_core::Device,   // ← stored once at load time
 }
 
 impl AuraEngine {
     pub fn load(model_path: &str, tokenizer_path: &str) -> Result<Self> {
+        // ── 1. Device (called ONCE, stored on struct) ─────────────────────
         let device = get_device()?;
 
+        // ── 2. Tokenizer first — fast, surfaces path errors early ─────────
         let tok = Tokenizer::from_file(tokenizer_path)
-            .map_err(|e| anyhow::anyhow!("{e}"))?;
+            .map_err(|e| anyhow::anyhow!("tokenizer: {e}"))?;
 
-        let mut file  = std::fs::File::open(model_path)?;
-        let content   = gguf_file::Content::read(&mut file)
-            .map_err(|e| anyhow::anyhow!("{e}"))?;
-        let mut model = ModelWeights::from_gguf(content, &mut file, &device)?;
+        // ── 3. mmap the model file — OS loads pages on demand, no 700MB ──
+        //    read() into RAM. .populate() starts background prefetch so
+        //    first-inference page faults are minimized.
+        let file = std::fs::File::open(model_path)
+            .map_err(|e| anyhow::anyhow!("model file: {e}"))?;
+        let mmap = unsafe {
+            memmap2::MmapOptions::new()
+                .populate()   // background prefetch — removes first-token stall
+                .map(&file)?
+        };
 
-        // ── Cache system prompt once ─────────────────────────────
+        let mut cursor = std::io::Cursor::new(&mmap[..]);
+        let content = gguf_file::Content::read(&mut cursor)
+            .map_err(|e| anyhow::anyhow!("gguf read: {e}"))?;
+        let mut model = ModelWeights::from_gguf(content, &mut cursor, &device)
+            .map_err(|e| anyhow::anyhow!("model weights: {e}"))?;
+
+        // ── 4. Prefill system prompt once — warm KV cache for every turn ──
         let sys_ids = Self::build_sys_ids(&tok)?;
         model.clear_kv_cache();
         let t = Tensor::new(sys_ids.as_slice(), &device)?.unsqueeze(0)?;
@@ -73,7 +91,10 @@ impl AuraEngine {
         let sys_pos   = sys_ids.len();
         let sys_cache = model.snapshot_kv_cache();
 
-        Ok(Self { model, tok, sys_cache, sys_pos })
+        eprintln!("AURA_ENGINE_READY pos={sys_pos}");
+
+        // ── 5. Ok(Self{...}) is at the BOTTOM, after all variables exist ──
+        Ok(Self { model, tok, sys_cache, sys_pos, device })
     }
 
     fn build_sys_ids(tok: &Tokenizer) -> Result<Vec<u32>> {
@@ -100,25 +121,20 @@ impl AuraEngine {
         Ok(ids)
     }
 
-    /// Main entry — dispatcher decides fast-path vs LLM, streams tokens via callback
     pub fn infer_stream<F>(&mut self, user: &str, mut on_token: F)
     where
         F: FnMut(String),
     {
-        // ── Fast path: keyword dispatcher bypasses LLM entirely ──
+        // Tool interception (time/date)
         if let Some(tool_json) = crate::tool_dispatcher::needs_tool(user) {
-    let result = crate::tool_dispatcher::handle_tool_call_sync(&tool_json);
-    if !result.is_empty() { on_token(result); }
-    return;
+            let result = crate::tool_dispatcher::handle_tool_call_sync(&tool_json);
+            if !result.is_empty() { on_token(result); }
+            return;
         }
 
-        // ── Slow path: run LLM ───────────────────────────────────
-        let device = match get_device() {
-            Ok(d) => d,
-            Err(e) => { on_token(format!("device error: {e}")); return; }
-        };
+        // ── Use stored device — NOT get_device() — zero overhead per token
+        let device = &self.device;
 
-        // restore KV cache — zero re-prefill cost
         self.model.restore_kv_cache(&self.sys_cache);
         let mut global_pos = self.sys_pos;
 
@@ -127,7 +143,7 @@ impl AuraEngine {
             Err(e)  => { on_token(format!("encode error: {e}")); return; }
         };
 
-        let input = match Tensor::new(turn_ids.as_slice(), &device)
+        let input = match Tensor::new(turn_ids.as_slice(), device)
             .and_then(|t| t.unsqueeze(0))
         {
             Ok(t)  => t,
@@ -135,7 +151,7 @@ impl AuraEngine {
         };
 
         let logits = match self.model.forward(&input, global_pos)
-            .and_then(|t| t.squeeze(0))
+            .and_then(|l| l.squeeze(0))
         {
             Ok(l)  => l,
             Err(e) => { on_token(format!("forward error: {e}")); return; }
@@ -146,71 +162,60 @@ impl AuraEngine {
             299792458,
             Sampling::TopP { p: TOP_P, temperature: TEMPERATURE },
         );
+
         let mut next = match lp.sample(&logits) {
             Ok(n)  => n,
             Err(e) => { on_token(format!("sample error: {e}")); return; }
         };
 
-        let mut token_ids:  Vec<u32> = Vec::new();
-        let mut silent_ids: Vec<u32> = Vec::new();
-        let mut is_streaming = false;
-        let mut decided = false;
+        let mut generated_ids: Vec<u32> = Vec::with_capacity(MAX_NEW_TOKENS);
+        let mut pending_ids:   Vec<u32> = Vec::with_capacity(4);
 
         loop {
-            if next == EOS || silent_ids.len() + token_ids.len() >= MAX_NEW_TOKENS {
+            if next == EOS || next == IM_START || generated_ids.len() >= MAX_NEW_TOKENS {
+                if !pending_ids.is_empty() {
+                    if let Ok(piece) = self.tok.decode(&pending_ids, true) {
+                        let piece = piece.trim_end_matches('\u{FFFD}');
+                        if !piece.is_empty() { on_token(piece.to_string()); }
+                    }
+                }
                 break;
             }
 
-            // ── Decide stream vs silent on first real token ──────
-            if !decided {
-                let first = self.tok.decode(&[next], false).unwrap_or_default();
-                is_streaming = !first.trim().starts_with('{');
-                decided = true;
-            }
+            generated_ids.push(next);
+            pending_ids.push(next);
 
-            if is_streaming {
-                token_ids.push(next);
-                // UTF-8 safe decode — same byte-buffer trick as main.rs
-                let piece = self.tok.decode(&[next], false).unwrap_or_default();
+            if let Ok(piece) = self.tok.decode(&pending_ids, true) {
                 if !piece.is_empty() && !piece.contains('\u{FFFD}') {
                     on_token(piece);
+                    pending_ids.clear();
                 }
-            } else {
-                silent_ids.push(next);
             }
 
-            // next token
-            let inp = match Tensor::new(&[next], &device).and_then(|t| t.unsqueeze(0)) {
+            let inp = match Tensor::new(&[next], device)
+                .and_then(|t| t.unsqueeze(0))
+            {
                 Ok(t)  => t,
                 Err(_) => break,
             };
-            let lg = match self.model.forward(&inp, global_pos).and_then(|t| t.squeeze(0)) {
-                Ok(l)  => l,
-                Err(_) => break,
-            };
-            let active = if is_streaming { &token_ids } else { &silent_ids };
-            let s  = active.len().saturating_sub(REPEAT_LAST_N);
-            let lg = match candle_transformers::utils::apply_repeat_penalty(
-                &lg, REPEAT_PENALTY, &active[s..])
+
+            let lg = match self.model.forward(&inp, global_pos)
+                .and_then(|l| l.squeeze(0))
             {
                 Ok(l)  => l,
                 Err(_) => break,
             };
+
+            let s  = generated_ids.len().saturating_sub(REPEAT_LAST_N);
+            let lg = candle_transformers::utils::apply_repeat_penalty(
+                &lg, REPEAT_PENALTY, &generated_ids[s..],
+            ).unwrap_or(lg);
+
             next = match lp.sample(&lg) {
                 Ok(n)  => n,
                 Err(_) => break,
             };
             global_pos += 1;
         }
-
-        // ── LLM produced tool JSON — dispatch it ─────────────────
-        if !is_streaming && !silent_ids.is_empty() {
-            let raw = self.tok.decode(&silent_ids, false).unwrap_or_default();
-            if let Some((name, args)) = crate::tool_dispatcher::parse_tool_call(&raw) {
-                let result = crate::tool_dispatcher::handle_tool_call_sync(&raw);
-                on_token(result);
-            }
-        }
     }
-
 }

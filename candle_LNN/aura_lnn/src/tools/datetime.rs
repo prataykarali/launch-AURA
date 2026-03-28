@@ -16,8 +16,8 @@ pub struct DateTimeOutput{
 
 #[derive(Debug, thiserror::Error)]
 #[error("DateTime error")]
-pub struct DateTimeError;
-pub struct DateTimeTool;
+pub struct DateTimeError {}
+pub struct DateTimeTool {}
 
 impl Tool for DateTimeTool{
     const NAME:&'static str="get_time";

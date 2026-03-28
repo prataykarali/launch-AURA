@@ -6,11 +6,13 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-bool auraInit({required String modelPath, required String tokenizerPath}) =>
-    RustLib.instance.api.crateApiAuraInit(
-      modelPath: modelPath,
-      tokenizerPath: tokenizerPath,
-    );
+Future<bool> auraInit({
+  required String modelPath,
+  required String tokenizerPath,
+}) => RustLib.instance.api.crateApiAuraInit(
+  modelPath: modelPath,
+  tokenizerPath: tokenizerPath,
+);
 
 Stream<String> auraChat({required String prompt}) =>
     RustLib.instance.api.crateApiAuraChat(prompt: prompt);

@@ -5,7 +5,7 @@ use crate::tools::datetime::DateTimeTool;
 
 pub fn build_tool_registry() -> ToolSet {
     let mut tools = ToolSet::default();
-    tools.add_tool(DateTimeTool);
+    tools.add_tool(DateTimeTool {});
     // future tools go here:
     // tools.add_tool(KnapsackTool);
     // tools.add_tool(WeatherTool);

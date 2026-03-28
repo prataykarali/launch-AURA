@@ -1,12 +1,2 @@
-# This applies fast math ONLY when building for a desktop/laptop (x86_64)
 [target.x86_64-unknown-linux-gnu]
-linker = "clang"
-rustflags = ["-C", "link-arg=-fuse-ld=lld"]
-
-# Keep your universal release optimizations exactly as they are
-[profile.release]
-opt-level        = 3
-lto              = "fat"
-codegen-units    = 1
-panic            = "abort"
-overflow-checks  = false
+rustflags = ["-C", "target-cpu=native"]
