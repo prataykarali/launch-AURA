@@ -26,27 +26,28 @@ name = "aura_cli"
 path = "src/main.rs"
 
 [dependencies]
-flutter_rust_bridge     = "=2.11.1"
-memmap2                 = "0.9"
-thiserror               = "1"
-anyhow                  = "1"
-serde                   = { version = "1.0", features = ["derive"] }
-serde_json              = "1"
-rig                     = { package = "rig-core", version = "0.33.0", features = ["derive"] }
+flutter_rust_bridge         = "=2.11.1"
+memmap2                     = "0.9"
+thiserror                   = "1"
+anyhow                      = "1"
+serde                       = { version = "1.0", features = ["derive"] }
+serde_json                  = "1"
+rig                         = { package = "rig-core", version = "0.33.0", features = ["derive"] }
 
-candle-core             = { path = "candle_local/candle-core" }
-candle-nn               = { path = "candle_local/candle-nn" }
-candle-transformers     = { path = "candle_local/candle-transformers" }
+# ── candle from crates.io — no more local fork needed ────────────────────────
+candle-core                 = { version = "0.8" }
+candle-nn                   = { version = "0.8" }
+candle-transformers         = { version = "0.8" }
 
-tokenizers              = { version = "0.22", default-features = false, features = ["fancy-regex"] }
-tokio                   = { version = "1.0", features = ["full"] }
-rayon                   = "1.10"
-mimalloc                = { version = "0.1", default-features = false }
-chrono                  = "0.4"
+tokenizers                  = { version = "0.22", default-features = false, features = ["fancy-regex"] }
+tokio                       = { version = "1.0", features = ["full"] }
+rayon                       = "1.10"
+mimalloc                    = { version = "0.1", default-features = false }
+chrono                      = "0.4"
 flutter_rust_bridge_codegen = "2.11.1"
-once_cell               = "1.21.4"
+once_cell                   = "1.21.4"
+tracing = "0.1.44"
 
-# ── ADD THIS ─────────────────────────────────────────────────────────────────
 [profile.release]
 opt-level     = 3
 lto           = "thin"
@@ -54,8 +55,6 @@ codegen-units = 1
 panic         = "abort"
 strip         = true
 
-[patch.crates-io]
-# Redirect internal candle dependencies to your local folders
-candle-kernels = { path = "candle_local/candle-kernels" }
-candle-ug      = { path = "candle_local/candle-ug" }
+# ── ADD THIS ─────────────────────────────────────────────────────────────────
 
+tracing = "0.1"

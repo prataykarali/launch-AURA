@@ -1,6 +1,9 @@
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
+mod lfm2;
+mod quantized_nn;
+mod ct_utils;
 mod tool_dispatcher;
 mod tools;
 mod llm_engine;
@@ -8,7 +11,7 @@ use anyhow::Result;
 use candle_core::quantized::gguf_file;
 use candle_core::Tensor;
 use candle_transformers::generation::{LogitsProcessor, Sampling};
-use candle_transformers::models::quantized_lfm2::ModelWeights;
+use crate::lfm2::ModelWeights;
 use std::io::{self, BufRead, Write};
 use std::path::Path;
 use std::time::Instant;

@@ -1,5 +1,5 @@
 use candle_core::Device;
-use candle_transformers::models::quantized_lfm2::ModelWeights;
+use crate::lfm2::ModelWeights;
 use tokenizers::Tokenizer;
 use std::sync::{Arc, Mutex};
 

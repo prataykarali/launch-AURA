@@ -1,43 +1,16 @@
-# --- Rust & Candle ---
-**/target/
-**/candle_local/**/target/
-rust_builder/
-Cargo.lock
-
-# --- Flutter ---
-**/build/
-**/.dart_tool/
-**/.flutter-plugins
-**/.flutter-plugins-dependencies
-**/.pub-cache/
-**/.packages
-pubspec.lock
-
-# --- AI Models (The Heavy Stuff) ---
-**/*.gguf
-**/*.bin
-**/*.onnx
-**/models/*
-
-# --- OS & IDE Junk ---
-.DS_Store
-.idea/
-.vscode/
-*.swp
-*.log
-output.txt
-
-# Model files
-*.gguf
-*.bin
-*.safetensors
-models/
-
-# Rust build
+# Rust build artifacts — 3GB+, never commit
 candle_LNN/aura_lnn/target/
 
-# Flutter build
+# Flutter build artifacts
 aura_notebook/build/
+aura_notebook/.dart_tool/
+aura_notebook/.flutter-plugins
+aura_notebook/.flutter-plugins-dependencies
 
-# Candle local fork (large — only push if you want it on GitHub)
-# candle_LNN/aura_lnn/candle_local/
+# Model weights — keep local only, never push
+*.gguf
+candle_LNN/aura_lnn/models/
+
+# IDE
+.vscode/
+.idea/

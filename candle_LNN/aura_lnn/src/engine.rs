@@ -1,7 +1,7 @@
 use anyhow::Result;
 use candle_core::{quantized::gguf_file, Tensor};
 use candle_transformers::generation::{LogitsProcessor, Sampling};
-use candle_transformers::models::quantized_lfm2::ModelWeights;
+use crate::lfm2::ModelWeights;
 use tokenizers::Tokenizer;
 use crate::llm_engine::get_device;
 
