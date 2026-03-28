@@ -77,7 +77,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 abstract class RustLibApi extends BaseApi {
   Stream<String> crateApiAuraChat({required String prompt});
 
-  bool crateApiAuraInit({
+  Future<bool> crateApiAuraInit({
     required String modelPath,
     required String tokenizerPath,
   });
@@ -110,7 +110,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           },
           codec: SseCodec(
             decodeSuccessData: sse_decode_unit,
-            decodeErrorData: null,
+            decodeErrorData: sse_decode_AnyhowException,
           ),
           constMeta: kCrateApiAuraChatConstMeta,
           argValues: [sink, prompt],
@@ -125,17 +125,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "aura_chat", argNames: ["sink", "prompt"]);
 
   @override
-  bool crateApiAuraInit({
+  Future<bool> crateApiAuraInit({
     required String modelPath,
     required String tokenizerPath,
   }) {
-    return handler.executeSync(
-      SyncTask(
-        callFfi: () {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(modelPath, serializer);
           sse_encode_String(tokenizerPath, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2)!;
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 2,
+            port: port_,
+          );
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
