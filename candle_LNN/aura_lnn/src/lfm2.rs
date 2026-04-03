@@ -672,6 +672,10 @@ impl ModelWeights {
     /// `x`         – token ids, shape [batch, seq_len]
     /// `index_pos` – position of the first token in `x` (0 for the initial
     ///               prefill, `sys_pos + turn_len` for decode steps)
+    // ── ADD TO ModelWeights impl in lfm2.rs ──────────────────────────────────────
+    pub fn layer_count(&self) -> usize {
+        self.layers.len()
+    }
     pub fn forward(&mut self, x: &Tensor, index_pos: usize) -> Result<Tensor> {
         let (_b_sz, seq_len) = x.dims2()?;
 

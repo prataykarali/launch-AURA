@@ -1,3 +1,4 @@
+use crate::kv_cache_io;
 use anyhow::Result;
 use candle_core::{quantized::gguf_file, Tensor};
 use candle_transformers::generation::{LogitsProcessor, Sampling};
@@ -5,14 +6,16 @@ use crate::lfm2::ModelWeights;
 use tokenizers::Tokenizer;
 use crate::llm_engine::get_device;
 
-const MAX_NEW_TOKENS: usize = 512;
-const TEMPERATURE:    f64   = 0.85;
-const TOP_P:          f64   = 0.92;
-const REPEAT_PENALTY: f32   = 1.35;
-const REPEAT_LAST_N:  usize = 64;
+const MAX_NEW_TOKENS:  usize = 80;
+const TEMPERATURE:     f64   = 0.85;
+const TOP_P:           f64   = 0.92;
+const REPEAT_PENALTY:  f32   = 1.35;
+const REPEAT_LAST_N:   usize = 64;
 const BOS:      u32 = 1;
 const EOS:      u32 = 7;
 const IM_START: u32 = 6;
+
+pub const THINKING_SENTINEL: &str = "\x00__THINKING__\x00";
 
 const SYSTEM_PROMPT: &str = "\
 You are AURA (Adaptive Unified Responsive Agent) — a 17-year-old girl \
@@ -46,55 +49,120 @@ fn encode(tok: &Tokenizer, text: &str) -> Result<Vec<u32>> {
         .map_err(|e| anyhow::anyhow!("{e}"))
 }
 
-// ── STRUCT ────────────────────────────────────────────────────────────────────
-// device is stored here so infer_stream never calls get_device() per token.
-// That was causing the "💻 Using CPU" spam — one print per forward pass.
+fn random_seed() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.subsec_nanos() as u64)
+        .unwrap_or(42)
+}
+
 pub struct AuraEngine {
     pub model:     ModelWeights,
     pub tok:       Tokenizer,
     pub sys_cache: Vec<(Option<(Tensor, Tensor)>, Option<Tensor>)>,
     pub sys_pos:   usize,
-    pub device:    candle_core::Device,   // ← stored once at load time
+    pub device:    candle_core::Device,
+    pub cache_path: String, 
 }
 
-impl AuraEngine {
-    pub fn load(model_path: &str, tokenizer_path: &str) -> Result<Self> {
-        // ── 1. Device (called ONCE, stored on struct) ─────────────────────
+impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<Self> {
         let device = get_device()?;
-
-        // ── 2. Tokenizer first — fast, surfaces path errors early ─────────
         let tok = Tokenizer::from_file(tokenizer_path)
             .map_err(|e| anyhow::anyhow!("tokenizer: {e}"))?;
-
-        // ── 3. mmap the model file — OS loads pages on demand, no 700MB ──
-        //    read() into RAM. .populate() starts background prefetch so
-        //    first-inference page faults are minimized.
         let file = std::fs::File::open(model_path)
             .map_err(|e| anyhow::anyhow!("model file: {e}"))?;
-        let mmap = unsafe {
-            memmap2::MmapOptions::new()
-                .populate()   // background prefetch — removes first-token stall
-                .map(&file)?
-        };
-
+        let mmap = unsafe { memmap2::MmapOptions::new().map(&file)? };
         let mut cursor = std::io::Cursor::new(&mmap[..]);
         let content = gguf_file::Content::read(&mut cursor)
             .map_err(|e| anyhow::anyhow!("gguf read: {e}"))?;
-        let mut model = ModelWeights::from_gguf(content, &mut cursor, &device)
+        let model = ModelWeights::from_gguf(content, &mut cursor, &device)
             .map_err(|e| anyhow::anyhow!("model weights: {e}"))?;
+            
+        // Create a path for the cache file right next to the model file
+        let cache_path = format!("{}.kvcache", model_path);
+        
+        eprintln!("AURA_ENGINE_READY");
+        Ok(Self { model, tok, sys_cache: vec![], sys_pos: 0, device, cache_path })
+    }
 
-        // ── 4. Prefill system prompt once — warm KV cache for every turn ──
-        let sys_ids = Self::build_sys_ids(&tok)?;
-        model.clear_kv_cache();
-        let t = Tensor::new(sys_ids.as_slice(), &device)?.unsqueeze(0)?;
-        let _ = model.forward(&t, 0)?;
-        let sys_pos   = sys_ids.len();
-        let sys_cache = model.snapshot_kv_cache();
+    pub fn warmup(&mut self) -> Result<()> {
+        // 1. TRY TO LOAD INSTANTLY FROM DISK
+        if self.load_kv_cache(&self.cache_path.clone()).is_ok() {
+            eprintln!("AURA_WARMUP: Loaded instantly from fast cache!");
+            return Ok(());
+        }
 
-        eprintln!("AURA_ENGINE_READY pos={sys_pos}");
+        // 2. IF NO CACHE EXISTS, DO THE 40-SECOND MATH
+        eprintln!("AURA_WARMUP: No cache found. Doing 40s math once...");
+        let t0 = std::time::Instant::now();
+        let sys_ids = Self::build_sys_ids(&self.tok)?;
+        
+        let t = Tensor::new(sys_ids.as_slice(), &self.device)?.unsqueeze(0)?;
+        let _ = self.model.forward(&t, 0)?;
+        self.sys_cache = self.model.snapshot_kv_cache();
+        self.sys_pos   = sys_ids.len();
+        
+        eprintln!("AURA_WARMUP_OK {}ms", t0.elapsed().as_millis());
 
-        // ── 5. Ok(Self{...}) is at the BOTTOM, after all variables exist ──
-        Ok(Self { model, tok, sys_cache, sys_pos, device })
+        // 3. SAVE IT TO DISK SO WE NEVER WAIT 40 SECONDS AGAIN!
+        if let Err(e) = self.save_kv_cache(&self.cache_path.clone()) {
+            eprintln!("AURA_CACHE_SAVE_FAILED: {}", e);
+        }
+        
+        Ok(())
+    }
+    /// Save KV cache to disk. Next launch loads in ~100ms instead of 30s.
+    pub fn save_kv_cache(&self, path: &str) -> Result<()> {
+        if self.sys_cache.is_empty() {
+            anyhow::bail!("no cache to save — call warmup() first");
+        }
+        let pos_path = format!("{}.pos", path);
+        std::fs::write(&pos_path, self.sys_pos.to_le_bytes())?;
+        kv_cache_io::save_cache(&self.sys_cache, path)?;
+        eprintln!("AURA_CACHE_SAVED: {} layers pos={}", self.sys_cache.len(), self.sys_pos);
+        Ok(())
+    }
+
+    /// Load KV cache from disk. Replaces warmup() on subsequent launches.
+    pub fn load_kv_cache(&mut self, path: &str) -> Result<()> {
+        let pos_path = format!("{}.pos", path);
+        let pos_bytes = std::fs::read(&pos_path)
+            .map_err(|_| anyhow::anyhow!("missing .pos file"))?;
+        if pos_bytes.len() != 8 {
+            anyhow::bail!("corrupt .pos file");
+        }
+        let pos = usize::from_le_bytes(pos_bytes.try_into().unwrap());
+        let cache = kv_cache_io::load_cache(path, &self.device)?;
+        if cache.len() != self.model.layer_count() {
+            anyhow::bail!(
+                "cache has {} layers but model has {} — stale",
+                cache.len(), self.model.layer_count()
+            );
+        }
+        self.model.restore_kv_cache(&cache);
+        self.sys_cache = cache;
+        self.sys_pos   = pos;
+        eprintln!("AURA_CACHE_LOADED: pos={}", pos);
+        Ok(())
+    }
+
+    pub fn inject_context(&mut self, extra: &str) -> Result<()> {
+        if self.sys_cache.is_empty() { self.warmup()?; }
+        let nl  = encode(&self.tok, "\n")?;
+        let sys = encode(&self.tok, "system")?;
+        let mut ids = vec![IM_START];
+        ids.extend(&sys);
+        ids.extend(&nl);
+        ids.extend(encode(&self.tok, extra)?);
+        ids.push(EOS);
+        ids.extend(&nl);
+        self.model.restore_kv_cache(&self.sys_cache);
+        let t = Tensor::new(ids.as_slice(), &self.device)?.unsqueeze(0)?;
+        let _ = self.model.forward(&t, self.sys_pos)?;
+        self.sys_cache = self.model.snapshot_kv_cache();
+        self.sys_pos  += ids.len();
+        eprintln!("AURA_INJECT_OK pos={}", self.sys_pos);
+        Ok(())
     }
 
     fn build_sys_ids(tok: &Tokenizer) -> Result<Vec<u32>> {
@@ -125,16 +193,22 @@ impl AuraEngine {
     where
         F: FnMut(String),
     {
-        // Tool interception (time/date)
+        // Sentinel already fired from api.rs — emit again as no-op fallback.
+        // Flutter's sentinel check is idempotent so duplicate is harmless.
+
+        if self.sys_cache.is_empty() {
+            if let Err(e) = self.warmup() {
+                on_token(format!("warmup error: {e}")); return;
+            }
+        }
+
         if let Some(tool_json) = crate::tool_dispatcher::needs_tool(user) {
             let result = crate::tool_dispatcher::handle_tool_call_sync(&tool_json);
             if !result.is_empty() { on_token(result); }
             return;
         }
 
-        // ── Use stored device — NOT get_device() — zero overhead per token
-        let device = &self.device;
-
+        let t0 = std::time::Instant::now();
         self.model.restore_kv_cache(&self.sys_cache);
         let mut global_pos = self.sys_pos;
 
@@ -143,7 +217,9 @@ impl AuraEngine {
             Err(e)  => { on_token(format!("encode error: {e}")); return; }
         };
 
-        let input = match Tensor::new(turn_ids.as_slice(), device)
+        eprintln!("AURA_PREFILL: {} tokens", turn_ids.len());
+
+        let input = match Tensor::new(turn_ids.as_slice(), &self.device)
             .and_then(|t| t.unsqueeze(0))
         {
             Ok(t)  => t,
@@ -157,9 +233,10 @@ impl AuraEngine {
             Err(e) => { on_token(format!("forward error: {e}")); return; }
         };
         global_pos += turn_ids.len();
+        eprintln!("AURA_TTFT: {}ms", t0.elapsed().as_millis());
 
         let mut lp = LogitsProcessor::from_sampling(
-            299792458,
+            random_seed(),
             Sampling::TopP { p: TOP_P, temperature: TEMPERATURE },
         );
 
@@ -176,7 +253,7 @@ impl AuraEngine {
                 if !pending_ids.is_empty() {
                     if let Ok(piece) = self.tok.decode(&pending_ids, true) {
                         let piece = piece.trim_end_matches('\u{FFFD}');
-                        if !piece.is_empty() { on_token(piece.to_string()); }
+                        if !piece.is_empty() { emit_chars(piece, &mut on_token); }
                     }
                 }
                 break;
@@ -187,12 +264,12 @@ impl AuraEngine {
 
             if let Ok(piece) = self.tok.decode(&pending_ids, true) {
                 if !piece.is_empty() && !piece.contains('\u{FFFD}') {
-                    on_token(piece);
+                    emit_chars(&piece, &mut on_token);
                     pending_ids.clear();
                 }
             }
 
-            let inp = match Tensor::new(&[next], device)
+            let inp = match Tensor::new(&[next], &self.device)
                 .and_then(|t| t.unsqueeze(0))
             {
                 Ok(t)  => t,
@@ -217,5 +294,15 @@ impl AuraEngine {
             };
             global_pos += 1;
         }
+
+        eprintln!("AURA_DONE: {} tokens {}ms total",
+            generated_ids.len(), t0.elapsed().as_millis());
+    }
+}
+
+#[inline]
+fn emit_chars<F: FnMut(String)>(piece: &str, on_token: &mut F) {
+    for ch in piece.chars() {
+        on_token(ch.to_string());
     }
 }

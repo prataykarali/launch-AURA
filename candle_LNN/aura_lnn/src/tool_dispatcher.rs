@@ -64,7 +64,7 @@ pub fn handle_tool_call_sync(raw: &str) -> String {
 }
 
 /// SAFE synchronous execution for Android NDK
-fn run_tool_blocking(name: &str, args: serde_json::Value) -> String {
+fn run_tool_blocking(name: &str, _args: serde_json::Value) -> String {
     // CRITICAL: catch_unwind stops the SIGABRT crash on Android
     let result = panic::catch_unwind(|| {
         match name {

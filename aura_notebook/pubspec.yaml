@@ -38,12 +38,13 @@ dependencies:
   flutter_rust_bridge: ^2.11.1
   ffi: ^2.2.0
   build_runner: ^2.13.1
+  wakelock_plus: ^1.2.8
   
 
 dev_dependencies:
+  permission_handler: ^11.3.1
   flutter_test:
     sdk: flutter
-  path_provider: ^2.1.2
   flutter_rust_bridge: ^2.11.1
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -66,6 +67,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - Assets/images/
+#    - assets/models/LFM2.5-1.2B-Instruct-Q4_K_M.gguf
+#    - assets/tokenizer.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

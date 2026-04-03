@@ -1,32 +1,32 @@
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
+
+const _kModelFile     = 'LFM2.5-1.2B-Instruct-Q4_K_M.gguf';
+const _kTokenizerFile = 'Q4_K_M.json';
 
 class PathManager {
-  static Future<String> getModelPath() async {
-    // 1. Check for Android
-    if (Platform.isAndroid) {
-      final dir = await getExternalStorageDirectory(); // Usually /storage/emulated/0/Android/data/...
-      return "${dir!.path}/LFM2.5-1.2B-Instruct-Q4_K_M.gguf";
-    }
+  // Internal app data dir — always accessible, no permissions, no plugins
+  static const _internalBase = '/data/data/com.example.aura_notebook/files';
+  static const _sdcardBase   = '/sdcard/Android/data/com.example.aura_notebook/files/models';
 
-    // 2. Check for Linux/Windows/macOS (Desktop)
-    if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-      // While developing, you can use your hardcoded path
-      // But for a REAL launch, you'd use the user's document folder:
-      // final dir = await getApplicationSupportDirectory();
-      // return "${dir.path}/models/model.gguf";
-
-      return "/home/pratay-karali/AURA-Proj/candle_LNN/aura_lnn/models/LFM2.5-1.2B-Instruct-Q4_K_M.gguf";
-    }
-
-    throw UnsupportedError("This platform is not supported yet!");
+  static Future<String> getModelsDir() async {
+    final dir = Directory('$_internalBase/models');
+    if (!dir.existsSync()) dir.createSync(recursive: true);
+    return dir.path;
   }
 
-  static Future<String> getTokenizerPath() async {
-    if (Platform.isAndroid) {
-      final dir = await getExternalStorageDirectory();
-      return "${dir!.path}/Q4_K_M.json";
-    }
-    return "/home/pratay-karali/AURA-Proj/candle_LNN/aura_lnn/models/Q4_K_M.json";
+  static Future<String> getModelPath() async =>
+      '${await getModelsDir()}/$_kModelFile';
+
+  static Future<String> getTokenizerPath() async =>
+      '${await getModelsDir()}/$_kTokenizerFile';
+
+  static String get sdcardModelPath => '$_sdcardBase/$_kModelFile';
+  static String get sdcardTokenizerPath => '$_sdcardBase/$_kTokenizerFile';
+
+  static Future<bool> modelExists() async {
+    final mFile = File(await getModelPath());
+    final tFile = File(await getTokenizerPath());
+    return mFile.existsSync() && mFile.lengthSync() > 0 &&
+        tFile.existsSync() && tFile.lengthSync() > 0;
   }
 }

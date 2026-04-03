@@ -1,2 +1,29 @@
-[target.x86_64-unknown-linux-gnu]
+# .cargo/config.toml
+# Place at: rust/.cargo/config.toml  (inside your Rust crate root)
+
+# ── DESKTOP (Linux/Intel) ─────────────────────────────────────────────────────
+[build]
 rustflags = ["-C", "target-cpu=native"]
+
+# ── ANDROID ARM64 (Galaxy A16 — Cortex-A55) ──────────────────────────────────
+# 0xd05 = Cortex-A55 confirmed via /proc/cpuinfo
+# cortex-a55 is correct — do NOT use cortex-a78, it generates instructions
+# the A55 cannot execute and will SIGILL crash on device.
+#
+# +neon    — 128-bit SIMD, baseline for aarch64
+# +dotprod — UDOT/SDOT: 4-wide int8 dot product per cycle
+#            This is the #1 speedup for Q4_K quantized matmul
+#            Each UDOT does: acc += a[0]*b[0] + a[1]*b[1] + a[2]*b[2] + a[3]*b[3]
+#            Without it, Q4 dequant+mul is scalar — 4x slower
+# +fp16    — native f16 arithmetic for KV cache ops
+#
+# NOTE: +i8mm is NOT available on Cortex-A55 — it requires ARMv8.6-A
+# which is Cortex-A78 and above. Using it on A55 would cause SIGILL crash.
+[target.aarch64-linux-android]
+# This unlocks the Cortex-A55's specific AI math accelerators
+rustflags = [
+    "-C", "target-cpu=cortex-a55",
+    "-C", "target-feature=+neon,+dotprod",
+    "-C", "opt-level=3"
+]
+

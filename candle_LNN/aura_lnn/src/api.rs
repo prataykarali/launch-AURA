@@ -1,62 +1,77 @@
-use flutter_rust_bridge::frb;
+use crate::engine::AuraEngine;
 use crate::frb_generated::StreamSink;
 use once_cell::sync::OnceCell;
 use std::sync::mpsc;
-use crate::engine::AuraEngine;
+use anyhow::Result;
 
-type InferRequest = (String, StreamSink<String>);
+const THINKING_SENTINEL: &str = "\x00__THINKING__\x00";
 
-static TX: OnceCell<mpsc::SyncSender<InferRequest>> = OnceCell::new();
-
-pub fn aura_init(model_path: String, tokenizer_path: String) -> bool {
-    if TX.get().is_some() { return true; }
-
-    match AuraEngine::load(&model_path, &tokenizer_path) {
-        Ok(mut engine) => {
-            eprintln!("AURA_INIT_OK");
-
-            // Channel capacity 4: enough headroom so the inference thread
-            // never blocks waiting for Dart to consume, but small enough
-            // that we don't queue stale requests.
-            let (tx, rx) = mpsc::sync_channel::<InferRequest>(4);
-
-            std::thread::spawn(move || {
-                while let Ok((prompt, sink)) = rx.recv() {
-                    // Send EVERY token immediately — no batching.
-                    // Flutter's drain queue handles the pacing on the Dart side.
-                    // Each token is typically 1-4 chars; sending raw gives
-                    // Flutter the finest granularity to animate char-by-char.
-                    engine.infer_stream(&prompt, |token: String| {
-                        let _ = sink.add(token);
-                    });
-                    // sink drop signals stream end to Dart automatically
-                }
-            });
-
-            TX.set(tx).is_ok()
-        }
-        Err(e) => {
-            eprintln!("AURA_INIT_FAILED: {e:?}");
-            false
-        }
-    }
+enum EngineMsg {
+    Chat { prompt: String, sink: StreamSink<String> },
+    Inject { context: String },
 }
 
-pub fn aura_chat(sink: StreamSink<String>, prompt: String) -> anyhow::Result<()> {
-    match TX.get() {
-        None => {
-            let _ = sink.add("❌ AURA engine not loaded.".to_string());
+static TX: OnceCell<mpsc::SyncSender<EngineMsg>> = OnceCell::new();
+pub fn aura_init(model_path: String, tokenizer_path: String) -> bool {
+    // CRITICAL FIX 1: Only use 2 threads for AI to stop UI lag
+    let _ = rayon::ThreadPoolBuilder::new().num_threads(2).build_global();
+
+    // Remove `crate::` here, just use TX directly
+    if TX.get().is_some() { return true; }
+    
+    let mut engine = match crate::engine::AuraEngine::load(&model_path, &tokenizer_path) {
+        Ok(e)  => e,
+        Err(e) => { eprintln!("AURA_INIT_FAILED: {e:?}"); return false; }
+    };
+    
+    // Remove `crate::` from EngineMsg
+    let (tx, rx) = std::sync::mpsc::sync_channel::<EngineMsg>(10);
+    
+    // Remove `crate::` here
+    if TX.set(tx).is_err() { 
+        return false; 
+    }
+    
+    std::thread::spawn(move || {
+        // Warmup runs silently in the background
+        if let Err(e) = engine.warmup() {
+            eprintln!("Warmup error: {}", e);
         }
-        Some(tx) => {
-            match tx.try_send((prompt, sink)) {
-                Ok(_) => {}
-                Err(mpsc::TrySendError::Full(_)) => {
-                    eprintln!("AURA: inference queue full");
+        
+        while let Ok(msg) = rx.recv() {
+            match msg {
+                // Remove `crate::` from EngineMsg
+                EngineMsg::Chat { prompt, sink } => {
+                    engine.infer_stream(&prompt, |tok| { let _ = sink.add(tok); });
                 }
-                Err(mpsc::TrySendError::Disconnected(_)) => {
-                    eprintln!("AURA: inference thread died");
+                EngineMsg::Inject { context } => {
+                    let _ = engine.inject_context(&context);
                 }
             }
+        }
+    });
+    
+    true
+}
+
+pub fn aura_inject(context: String) -> bool {
+    match TX.get() {
+        Some(tx) => tx.try_send(EngineMsg::Inject { context }).is_ok(),
+        None     => false,
+    }
+}
+pub fn aura_chat(sink: StreamSink<String>, prompt: String) -> Result<()> {
+    match TX.get() {
+        None => { 
+            // Use .map_err to convert the bridge error into something anyhow understands
+            sink.add("\u{274C} Engine not loaded.".to_string())
+                .map_err(|e| anyhow::anyhow!("Stream error: {:?}", e))?; 
+        }
+        Some(tx) => {
+            sink.add(THINKING_SENTINEL.to_string())
+                .map_err(|e| anyhow::anyhow!("Stream error: {:?}", e))?;
+                
+            let _ = tx.try_send(EngineMsg::Chat { prompt, sink });
         }
     }
     Ok(())
