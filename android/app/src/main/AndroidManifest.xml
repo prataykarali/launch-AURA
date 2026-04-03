@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <application
-        android:label="aura_notebook"
+        android:label="AURA"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <meta-data
