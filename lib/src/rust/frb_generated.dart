@@ -64,7 +64,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => 524869937;
+  int get rustContentHash => 699732708;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -81,6 +81,8 @@ abstract class RustLibApi extends BaseApi {
     required String modelPath,
     required String tokenizerPath,
   });
+
+  Future<bool> crateApiAuraInject({required String context});
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -157,6 +159,34 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     debugName: "aura_init",
     argNames: ["modelPath", "tokenizerPath"],
   );
+
+  @override
+  Future<bool> crateApiAuraInject({required String context}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(context, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 3,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiAuraInjectConstMeta,
+        argValues: [context],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiAuraInjectConstMeta =>
+      const TaskConstMeta(debugName: "aura_inject", argNames: ["context"]);
 
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw) {

@@ -4,11 +4,9 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
-
 android {
-    namespace = "com.example.aura_notebook"
+    namespace = "com.example.aura_notebook" // Ensure this matches your package name
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -16,12 +14,13 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "17"
+        // This replaces the deprecated jvmTarget line
+        freeCompilerArgs += listOf("-P", "plugin:org.jetbrains.kotlin.panel:jvmTarget=17")
     }
 
     defaultConfig {
         applicationId = "com.example.aura_notebook"
-        minSdk = flutter.minSdkVersion
+        minSdk = flutter.minSdkVersion // Required for many Rust-based libraries
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -29,14 +28,19 @@ android {
 
     buildTypes {
         getByName("release") {
-            // Change "release" to "debug" here for now
+            // Using debug signing for local cable deployment
             signingConfig = signingConfigs.getByName("debug")
 
             isMinifyEnabled = false
             isShrinkResources = false
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
-} // <--- Only ONE brace here to close the 'android' block
+}
 
 flutter {
     source = "../.."

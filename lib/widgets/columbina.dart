@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:collection';
+import 'package:characters/characters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:aura_notebook/src/rust/api.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
-class ChatMessage {
-  final String text;
-  final bool isUser;
-  const ChatMessage({required this.text, required this.isUser});
-}
+// Must match THINKING_SENTINEL in engine.rs exactly
+const _kThinkingSentinel = '\x00__THINKING__\x00';
 
 const _kSuggestions = [
   'Tell me a short story ✨',
@@ -24,131 +23,101 @@ class AuraChatWidget extends StatefulWidget {
   State<AuraChatWidget> createState() => _AuraChatWidgetState();
 }
 
-class _AuraChatWidgetState extends State<AuraChatWidget>
-    with SingleTickerProviderStateMixin {
+class _AuraChatWidgetState extends State<AuraChatWidget> {
 
   final _messages   = <ChatMessage>[];
   final _streamText = ValueNotifier<String>('');
   final _streaming  = ValueNotifier<bool>(false);
-  final _loading    = ValueNotifier<bool>(false);
+  final _thinking   = ValueNotifier<bool>(false);
   final _scroll     = ScrollController();
-  final _charQueue  = Queue<String>();
-  final _rendered   = StringBuffer();
 
-  late final Ticker _ticker;
-  bool _busy       = false;
-  bool _streamDone = false;
-  bool _jumpPending = false;
+  StreamSubscription<String>? _chatSub;
+  bool _busy          = false;
+  bool _jumpScheduled = false;
 
-  // chars per frame at 60 fps
-  // 3 = ~180 chars/sec — Claude-like smooth feel
-  // 5 = ~300 chars/sec — fast, good for longer replies
-  static const _cpf = 3;
-
-  @override
-  void initState() {
-    super.initState();
-    _ticker = createTicker(_onTick);
-  }
-
-  // ── TICKER ────────────────────────────────────────────────────────────────
-  void _onTick(Duration _) {
-    if (_charQueue.isEmpty) {
-      if (_streamDone) {
-        _ticker.stop();
-        _commitBubble();
-      }
-      return;
-    }
-    int n = _cpf;
-    while (_charQueue.isNotEmpty && n-- > 0) {
-      _rendered.write(_charQueue.removeFirst());
-    }
-    // Inline cursor — cheapest possible: just append ▍ to existing string
-    _streamText.value = '${_rendered}▍';
-    _scheduleJump();
-  }
+  // ── SEND ──────────────────────────────────────────────────────────────────
 
   // ── SEND ──────────────────────────────────────────────────────────────────
   Future<void> _send(String text) async {
+    await WakelockPlus.enable();
     if (text.isEmpty || _busy) return;
     _busy = true;
-    _streamDone = false;
-    _charQueue.clear();
-    _rendered.clear();
 
     HapticFeedback.lightImpact();
 
-    // ── FIX A: setState so user bubble renders immediately ────────────────
+    // 1. Instantly add user message and turn on thinking dots
     setState(() => _messages.add(ChatMessage(text: text, isUser: true)));
-    _scheduleJump();
-
-    // ── FIX B: dots ON, bubble OFF — user sees response is coming ─────────
-    _streamText.value = '';
-    _loading.value    = true;
-    _streaming.value  = false;   // ← NOT true yet; avoids empty bubble flash
-
-    // Yield one microtask so the dots paint before we block on the stream
-    await Future.microtask(() {});
-
-    try {
-      bool first = true;
-      await for (final token in auraChat(prompt: text)) {
-        if (first) {
-          // ── FIX C: bubble appears exactly when first char arrives ───────
-          _loading.value   = false;
-          _streaming.value = true;
-          if (!_ticker.isActive) _ticker.start();
-          first = false;
-        }
-        for (final ch in token.characters) {
-          _charQueue.add(ch);
-        }
-      }
-    } catch (e) {
-      debugPrint('stream error: $e');
-      _loading.value = false;
-    }
-
-    _streamDone = true;
-    _loading.value = false;
-    if (!_ticker.isActive) {
-      if (_charQueue.isNotEmpty) _ticker.start();
-      else _commitBubble();
-    }
-  }
-
-  void _commitBubble() {
-    if (!_busy) return;
-    setState(() {
-      _messages.add(ChatMessage(text: _rendered.toString(), isUser: false));
-    });
     _streamText.value = '';
     _streaming.value  = false;
-    _busy             = false;
+    _thinking.value   = true;
+    _scheduleJump();
+
+    // 2. Tiny 10ms yield to guarantee Flutter draws the user bubble instantly
+    await Future.delayed(const Duration(milliseconds: 10));
+
+    final buf = StringBuffer();
+
+    try {
+      // 3. Connect to the Rust stream at MAX SPEED
+      await for (final token in auraChat(prompt: text)) {
+        if (token == _kThinkingSentinel) {
+          continue;
+        }
+
+        if (_thinking.value) {
+          _thinking.value  = false;
+          _streaming.value = true;
+        }
+
+        // 4. Instantly append the character and update UI.
+        // Flutter's ValueNotifier automatically batches screen draws at 60 FPS,
+        // so this gives you the absolute lowest latency possible!
+        buf.write(token);
+        _streamText.value = '$buf▍';
+
+        // This is safe because _scheduleJump already has an internal throttle
+        _scheduleJump();
+      }
+
+    } catch (e) {
+      debugPrint('stream error: $e');
+    }
+
+    // Commit final text as permanent bubble
+    final finalText = buf.toString();
+    _streamText.value = '';
+    _streaming.value  = false;
+    _thinking.value   = false;
+
+    setState(() {
+      _messages.add(ChatMessage(text: finalText, isUser: false));
+    });
+
+    _busy = false;
+    await WakelockPlus.disable();
     _scheduleJump();
   }
 
   // ── SCROLL ────────────────────────────────────────────────────────────────
   void _scheduleJump() {
-    if (_jumpPending || !_scroll.hasClients) return;
-    if (_scroll.position.maxScrollExtent - _scroll.position.pixels < 200) {
-      _jumpPending = true;
-      SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (_scroll.hasClients) {
-          _scroll.jumpTo(_scroll.position.maxScrollExtent);
-        }
-        _jumpPending = false;
-      });
-    }
+    if (_jumpScheduled || !_scroll.hasClients) return;
+    final pos = _scroll.position;
+    if (pos.maxScrollExtent - pos.pixels > 300) return;
+    _jumpScheduled = true;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _jumpScheduled = false;
+      if (_scroll.hasClients) {
+        _scroll.jumpTo(_scroll.position.maxScrollExtent);
+      }
+    });
   }
 
   @override
   void dispose() {
-    _ticker.dispose();
+    _chatSub?.cancel();
     _streamText.dispose();
     _streaming.dispose();
-    _loading.dispose();
+    _thinking.dispose();
     _scroll.dispose();
     super.dispose();
   }
@@ -165,15 +134,20 @@ class _AuraChatWidgetState extends State<AuraChatWidget>
           onSuggestion: _send,
         ),
       ),
-      _Thinking(loading: _loading),
-      _InputBar(onSend: _send),
+      _Thinking(thinking: _thinking),
+      _InputBar(onSend: _send, busy: _streaming),
     ],
   );
 }
 
+// ── DATA MODEL ────────────────────────────────────────────────────────────────
+class ChatMessage {
+  final String text;
+  final bool   isUser;
+  const ChatMessage({required this.text, required this.isUser});
+}
+
 // ── MESSAGE LIST ──────────────────────────────────────────────────────────────
-// Two-sliver layout: static messages never rebuild during streaming.
-// Only the RepaintBoundary streaming bubble repaints per tick.
 class _MsgList extends StatelessWidget {
   final List<ChatMessage>             messages;
   final ValueNotifier<String>         streamText;
@@ -199,9 +173,10 @@ class _MsgList extends StatelessWidget {
         }
         return CustomScrollView(
           controller: scroll,
-          cacheExtent: 1500,
+          cacheExtent: 3000,
+          physics: const ClampingScrollPhysics(),
           slivers: [
-            // Static committed messages — zero rebuilds during streaming
+            // Committed messages — never rebuild during streaming
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               sliver: SliverList.builder(
@@ -213,18 +188,20 @@ class _MsgList extends StatelessWidget {
                 ),
               ),
             ),
-            // Live bubble — only this node repaints per ticker frame
+            // Live streaming bubble — RepaintBoundary isolates repaints
             SliverToBoxAdapter(
               child: RepaintBoundary(
                 child: isStreaming
                     ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: ValueListenableBuilder<String>(
-                    valueListenable: streamText,
-                    builder: (_, txt, __) => _Bubble(
-                      key:    const ValueKey('live'),
-                      text:   txt,
-                      isUser: false,
+                  child: RepaintBoundary(
+                    child: ValueListenableBuilder<String>(
+                      valueListenable: streamText,
+                      builder: (_, txt, __) => _Bubble(
+                        key:    const ValueKey('live'),
+                        text:   txt,
+                        isUser: false,
+                      ),
                     ),
                   ),
                 )
@@ -275,14 +252,14 @@ class _EmptyState extends StatelessWidget {
 
 // ── THINKING DOTS ─────────────────────────────────────────────────────────────
 class _Thinking extends StatelessWidget {
-  final ValueNotifier<bool> loading;
-  const _Thinking({required this.loading});
+  final ValueNotifier<bool> thinking;
+  const _Thinking({required this.thinking});
 
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<bool>(
-    valueListenable: loading,
+    valueListenable: thinking,
     builder: (_, on, __) => AnimatedSwitcher(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 150),
       child: on
           ? Padding(
         key: const ValueKey('on'),
@@ -318,6 +295,7 @@ class _Dots extends StatefulWidget {
 
 class _DotsState extends State<_Dots> with SingleTickerProviderStateMixin {
   late final AnimationController _ac;
+
   @override
   void initState() {
     super.initState();
@@ -326,8 +304,10 @@ class _DotsState extends State<_Dots> with SingleTickerProviderStateMixin {
       duration: const Duration(milliseconds: 900),
     )..repeat();
   }
+
   @override
   void dispose() { _ac.dispose(); super.dispose(); }
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: _ac,
@@ -352,7 +332,9 @@ class _DotsState extends State<_Dots> with SingleTickerProviderStateMixin {
 // ── INPUT BAR ─────────────────────────────────────────────────────────────────
 class _InputBar extends StatefulWidget {
   final Future<void> Function(String) onSend;
-  const _InputBar({required this.onSend});
+  final ValueNotifier<bool>           busy;
+  const _InputBar({required this.onSend, required this.busy});
+
   @override
   State<_InputBar> createState() => _InputBarState();
 }
@@ -360,7 +342,7 @@ class _InputBar extends StatefulWidget {
 class _InputBarState extends State<_InputBar> {
   final _ctrl  = TextEditingController();
   final _focus = FocusNode();
-  bool _hasText = false;
+  bool  _hasText = false;
 
   @override
   void initState() {
@@ -383,61 +365,66 @@ class _InputBarState extends State<_InputBar> {
   void dispose() { _ctrl.dispose(); _focus.dispose(); super.dispose(); }
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-    child: DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [BoxShadow(
-          color: Colors.indigo.withOpacity(0.08),
-          blurRadius: 16, spreadRadius: 1,
-          offset: const Offset(0, 4),
-        )],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller:       _ctrl,
-              focusNode:        _focus,
-              onSubmitted:      (_) => _submit(),
-              textInputAction:  TextInputAction.send,
-              enableSuggestions: false,
-              autocorrect:      false,
-              style: const TextStyle(fontSize: 15, color: Colors.black87),
-              decoration: const InputDecoration(
-                hintText: 'Talk to AURA...',
-                hintStyle: TextStyle(color: Colors.black38, fontSize: 15),
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 20, vertical: 15,
+  Widget build(BuildContext context) => ValueListenableBuilder<bool>(
+    valueListenable: widget.busy,
+    builder: (_, isBusy, __) => Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+          boxShadow: [BoxShadow(
+            color:      Colors.indigo.withOpacity(0.08),
+            blurRadius: 16,
+            spreadRadius: 1,
+            offset: const Offset(0, 4),
+          )],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller:        _ctrl,
+                focusNode:         _focus,
+                onSubmitted:       (_) => isBusy ? null : _submit(),
+                textInputAction:   TextInputAction.send,
+                enableSuggestions: false,
+                autocorrect:       false,
+                style: const TextStyle(fontSize: 15, color: Colors.black87),
+                decoration: const InputDecoration(
+                  hintText:       'Talk to AURA...',
+                  hintStyle:      TextStyle(color: Colors.black38, fontSize: 15),
+                  border:         InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 15),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(right: 6),
-            child: GestureDetector(
-              onTap: _submit,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                width: 40, height: 40,
-                decoration: BoxDecoration(
-                  color: _hasText
-                      ? Colors.indigoAccent
-                      : Colors.indigo.shade100,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(
-                  Icons.send_rounded,
-                  color: _hasText ? Colors.white : Colors.indigo.shade300,
-                  size: 18,
+            Padding(
+              padding: const EdgeInsets.only(right: 6),
+              child: GestureDetector(
+                onTap: isBusy ? null : _submit,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 150),
+                  width: 40, height: 40,
+                  decoration: BoxDecoration(
+                    color: (_hasText && !isBusy)
+                        ? Colors.indigoAccent
+                        : Colors.indigo.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Icon(
+                    Icons.send_rounded,
+                    color: (_hasText && !isBusy)
+                        ? Colors.white
+                        : Colors.indigo.shade300,
+                    size: 18,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     ),
   );

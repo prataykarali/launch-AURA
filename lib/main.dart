@@ -1,11 +1,17 @@
+import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:aura_notebook/utils/path_manager.dart';
 import 'screens/screens.dart';
 import 'package:aura_notebook/src/rust/frb_generated.dart';
 import 'package:aura_notebook/src/rust/api.dart';
+
+// ── HuggingFace URLs — update to your real repo ───────────────────────────────
+const _kModelUrl          = 'https://huggingface.co/Prataykarali/aura-lfm2/resolve/main/LFM2.5-1.2B-Instruct-Q4_K_M.gguf';
+const _kTokenizerUrl      = 'https://huggingface.co/Prataykarali/aura-lfm2/resolve/main/Q4_K_M.json';
+const _kModelFilename     = 'LFM2.5-1.2B-Instruct-Q4_K_M.gguf';
+const _kTokenizerFilename = 'tokenizer.json';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,21 +34,22 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ── LOADING STEP MODEL ───────────────────────────────────────────────────────
-enum _Step { wake, paths, model, ready }
+// ── STEPS ─────────────────────────────────────────────────────────────────────
+enum _Step { wake, check, download, engine, ready }
 
 extension _StepLabel on _Step {
   String get label {
     switch (this) {
-      case _Step.wake:  return 'Waking up AURA';
-      case _Step.paths: return 'Finding model files';
-      case _Step.model: return 'Loading model weights';
-      case _Step.ready: return 'Ready!';
+      case _Step.wake:     return 'Waking up AURA';
+      case _Step.check:    return 'Checking model files';
+      case _Step.download: return 'Downloading model...';
+      case _Step.engine:   return 'Loading AURA...';
+      case _Step.ready:    return 'Ready!';
     }
   }
 }
 
-// ── MODEL LOADER SCREEN ──────────────────────────────────────────────────────
+// ── MODEL LOADER ──────────────────────────────────────────────────────────────
 class _ModelLoader extends StatefulWidget {
   const _ModelLoader();
   @override
@@ -52,27 +59,24 @@ class _ModelLoader extends StatefulWidget {
 class _ModelLoaderState extends State<_ModelLoader>
     with SingleTickerProviderStateMixin {
 
-  // Balloon float animation
   late final AnimationController _floatCtrl;
-  late final Animation<double> _floatAnim;
+  late final Animation<double>   _floatAnim;
 
-  _Step _currentStep = _Step.wake;
+  _Step   _currentStep      = _Step.wake;
   String? _errorMsg;
+  double? _downloadProgress;   // 0.0–1.0 while downloading, null otherwise
+  bool    _loadingLock      = false;
 
   @override
   void initState() {
     super.initState();
-
-    // Gentle float: 8px up and down, 2-second cycle
     _floatCtrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
-
     _floatAnim = Tween<double>(begin: 0, end: -8).animate(
       CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut),
     );
-
     _load();
   }
 
@@ -82,85 +86,149 @@ class _ModelLoaderState extends State<_ModelLoader>
     super.dispose();
   }
 
-  // ── LOADING LOGIC ──────────────────────────────────────────────────────────
+  // ── DOWNLOAD helper ───────────────────────────────────────────────────────
+  Future<void> _download(String url, String destPath) async {
+    Uri uri = Uri.parse(url);
+    HttpClientResponse? response;
+    final client = HttpClient();
+
+    // Follow up to 5 redirects manually
+    for (int i = 0; i < 5; i++) {
+      final req = await client.getUrl(uri);
+      req.headers.set('User-Agent', 'Mozilla/5.0');
+      response = await req.close();
+
+      if (response.statusCode == 301 ||
+          response.statusCode == 302 ||
+          response.statusCode == 307 ||
+          response.statusCode == 308) {
+        final location = response.headers.value('location');
+        if (location == null) break;
+        await response.drain<void>();
+        uri = Uri.parse(location);
+        continue;
+      }
+      break;
+    }
+
+    if (response == null || response.statusCode != 200) {
+      client.close();
+      throw Exception('HTTP ${response?.statusCode} for $url');
+    }
+
+    final total    = response.contentLength;
+    final sink     = File(destPath).openWrite();
+    int   received = 0;
+
+    await for (final chunk in response) {
+      sink.add(chunk);
+      received += chunk.length;
+      if (total > 0 && mounted) {
+        setState(() => _downloadProgress = received / total);
+      }
+    }
+
+    await sink.flush();
+    await sink.close();
+    client.close();
+  }
+
+  // ── MAIN LOAD SEQUENCE ────────────────────────────────────────────────────
   Future<void> _load() async {
+    if (_loadingLock) return;
+    _loadingLock = true;
+
     _setStep(_Step.wake);
-    // One frame yield so the UI paints before we do any work
     await Future.delayed(const Duration(milliseconds: 80));
 
     try {
-      _setStep(_Step.paths);
+      _setStep(_Step.check);
       await Future.delayed(const Duration(milliseconds: 32));
 
-      final mPath = await PathManager.getModelPath();
-      final tPath = await PathManager.getTokenizerPath();
+      final dir       = await PathManager.getModelsDir();
+      final modelPath = '$dir/$_kModelFilename';
+      final tokPath   = '$dir/$_kTokenizerFilename';
 
-      if (!File(mPath).existsSync()) {
-        _setError('Model file not found:\n$mPath');
-        return;
+      // ── Model: download if missing or too small (corrupted partial) ───────
+      final modelFile   = File(modelPath);
+      final modelExists = modelFile.existsSync() &&
+          modelFile.lengthSync() > 100 * 1024 * 1024;
+
+      if (!modelExists) {
+        _setStep(_Step.download);
+        if (mounted) setState(() => _downloadProgress = 0.0);
+        try {
+          await Directory(dir).create(recursive: true);
+          await _download(_kModelUrl, modelPath);
+        } catch (e) {
+          if (modelFile.existsSync()) modelFile.deleteSync();
+          _setError('Model download failed:\n$e\n\nCheck internet connection.');
+          _loadingLock = false;
+          return;
+        }
+        if (mounted) setState(() => _downloadProgress = null);
       }
-      if (!File(tPath).existsSync()) {
-        _setError('Tokenizer not found:\n$tPath');
-        return;
+
+      // ── Tokenizer: download if missing ────────────────────────────────────
+      final tokFile   = File(tokPath);
+      final tokExists = tokFile.existsSync() && tokFile.lengthSync() > 1024;
+
+      if (!tokExists) {
+        if (mounted) setState(() => _downloadProgress = 0.0);
+        try {
+          await _download(_kTokenizerUrl, tokPath);
+        } catch (e) {
+          if (tokFile.existsSync()) tokFile.deleteSync();
+          _setError('Tokenizer download failed:\n$e');
+          _loadingLock = false;
+          return;
+        }
+        if (mounted) setState(() => _downloadProgress = null);
       }
 
-      _setStep(_Step.model);
-
-      // Yield one more frame so the "Loading model weights" step paints,
-      // then call auraInit. The Rust call will block this isolate, but the
-      // spinner and balloon float are driven by the Ticker on the raster
-      // thread and keep animating even when Dart is blocked on FFI.
-      //
-      // If your FRB version supports Isolate.run, swap this for:
-      //   final ok = await Isolate.run(() => auraInit(...));
-      await Future.delayed(const Duration(milliseconds: 16));
-      final String modelPath = mPath;
-      final String tokenizerPath = tPath;
-
-      final ok = await Isolate.run(() async {
-        // 1. Initialize the bridge INSIDE the background isolate
-        await RustLib.init();
-
-        // 2. Now call your engine initialization
-        return auraInit(
-            modelPath: modelPath,
-            tokenizerPath: tokenizerPath
-        );
-      });
+      // ── Engine init — blocks until Rust warmup() is done ─────────────────
+      // auraInit only returns true AFTER warmup() completes in api.rs.
+      // The loading screen stays here for the full warmup (~8-15s on A16).
+      // This is correct — user cannot send a message before warmup is done.
+      _setStep(_Step.engine);
+      final ok = await auraInit(modelPath: modelPath, tokenizerPath: tokPath);
       if (!ok) {
-        _setError('Engine failed to start. Check your model file.');
+        _setError('Engine failed to start.\nCheck model file integrity.');
+        _loadingLock = false;
         return;
       }
 
+      // ── Navigate ──────────────────────────────────────────────────────────
       _setStep(_Step.ready);
-      // Brief pause so the user sees the "Ready!" checkmark
       await Future.delayed(const Duration(milliseconds: 300));
-
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const home()),
       );
+
     } catch (e, st) {
       _setError('Unexpected error:\n$e');
       debugPrint('$e\n$st');
+      _loadingLock = false;
     }
   }
 
   void _setStep(_Step step) {
     if (!mounted) return;
     setState(() {
-      _currentStep = step;
-      _errorMsg = null;
+      _currentStep      = step;
+      _errorMsg         = null;
+      _downloadProgress = null;
     });
   }
 
   void _setError(String msg) {
     if (!mounted) return;
-    setState(() => _errorMsg = msg);
+    setState(() { _errorMsg = msg; _downloadProgress = null; });
     HapticFeedback.heavyImpact();
   }
 
-  // ── BUILD ──────────────────────────────────────────────────────────────────
+  // ── BUILD ─────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,22 +244,19 @@ class _ModelLoaderState extends State<_ModelLoader>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // ── Floating balloon ──────────────────────────────────────────
+
+              // Floating balloon
               AnimatedBuilder(
                 animation: _floatAnim,
                 builder: (_, child) => Transform.translate(
                   offset: Offset(0, _floatAnim.value),
                   child: child,
                 ),
-                child: Image.asset(
-                  'Assets/images/balloon2.png',
-                  height: 130,
-                ),
+                child: Image.asset('Assets/images/balloon2.png', height: 130),
               ),
 
               const SizedBox(height: 28),
 
-              // ── App title ─────────────────────────────────────────────────
               const Text(
                 'AURA NOTEBOOK',
                 style: TextStyle(
@@ -204,11 +269,7 @@ class _ModelLoaderState extends State<_ModelLoader>
 
               const SizedBox(height: 32),
 
-              // ── Progress steps ────────────────────────────────────────────
-              if (_errorMsg == null)
-                _StepList(currentStep: _currentStep),
-
-              // ── Error state ───────────────────────────────────────────────
+              // ── Error ─────────────────────────────────────────────────────
               if (_errorMsg != null)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -221,9 +282,7 @@ class _ModelLoaderState extends State<_ModelLoader>
                         _errorMsg!,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                          color: Color(0xFF991A66),
-                          fontSize: 13,
-                        ),
+                            color: Color(0xFF991A66), fontSize: 13),
                       ),
                       const SizedBox(height: 16),
                       TextButton(
@@ -232,7 +291,48 @@ class _ModelLoaderState extends State<_ModelLoader>
                       ),
                     ],
                   ),
-                ),
+                )
+
+              // ── Download progress ──────────────────────────────────────────
+              else if (_downloadProgress != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Column(
+                    children: [
+                      Text(
+                        _currentStep == _Step.download
+                            ? 'Downloading model (~700 MB)'
+                            : 'Downloading tokenizer...',
+                        style: const TextStyle(
+                          color: Color(0xFF991A66),
+                          fontSize: 13,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: _downloadProgress,
+                          minHeight: 8,
+                          backgroundColor: Colors.indigo.shade50,
+                          valueColor: const AlwaysStoppedAnimation(
+                              Color(0xFF991A66)),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${((_downloadProgress ?? 0) * 100).toStringAsFixed(1)}%',
+                        style: TextStyle(
+                            color: Colors.indigo.shade300, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                )
+
+              // ── Step list ─────────────────────────────────────────────────
+              else
+                _StepList(currentStep: _currentStep),
             ],
           ),
         ),
@@ -241,7 +341,7 @@ class _ModelLoaderState extends State<_ModelLoader>
   }
 }
 
-// ── STEP LIST WIDGET ─────────────────────────────────────────────────────────
+// ── STEP LIST ─────────────────────────────────────────────────────────────────
 class _StepList extends StatelessWidget {
   final _Step currentStep;
   const _StepList({super.key, required this.currentStep});
@@ -252,45 +352,33 @@ class _StepList extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: _Step.values.map((step) {
-        final isDone    = step.index < currentStep.index;
-        final isActive  = step == currentStep;
-        final isPending = step.index > currentStep.index;
-
+        final isDone   = step.index < currentStep.index;
+        final isActive = step == currentStep;
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 48),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Icon / spinner
               SizedBox(
-                width: 20,
-                height: 20,
+                width: 20, height: 20,
                 child: isDone
                     ? const Icon(Icons.check_circle_rounded,
                     color: Color(0xFF991A66), size: 18)
                     : isActive
                     ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(
-                    color: Color(0xFF991A66),
-                    strokeWidth: 2,
-                  ),
-                )
+                    width: 16, height: 16,
+                    child: CircularProgressIndicator(
+                        color: Color(0xFF991A66), strokeWidth: 2))
                     : Icon(Icons.radio_button_unchecked,
                     color: Colors.indigo.shade100, size: 18),
               ),
-
               const SizedBox(width: 10),
-
-              // Label
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
-                  fontSize: 13,
-                  fontStyle: FontStyle.italic,
-                  fontWeight:
-                  isActive ? FontWeight.w600 : FontWeight.normal,
+                  fontSize:   13,
+                  fontStyle:  FontStyle.italic,
+                  fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                   color: isDone
                       ? const Color(0xFF991A66)
                       : isActive
