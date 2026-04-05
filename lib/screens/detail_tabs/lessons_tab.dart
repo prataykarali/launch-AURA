@@ -3,6 +3,7 @@ import '../class_data.dart';
 import '../detail_widgets/dark_card.dart';
 import '../detail_widgets/section_label.dart';
 import '../detail_widgets/empty_state.dart';
+import '../detail_widgets/ai_lesson_summariser.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 /// LessonsTab — lesson planner with empty state, progress ring, add sheet.
@@ -202,6 +203,11 @@ class _LessonTile extends StatelessWidget {
                 size: 16, color: Colors.white.withOpacity(0.2)),
           ),
         ]),
+      ),
+      AiLessonSummariser(
+        lessonTitle: lesson.title,
+        objectives:  lesson.objectives,
+        accent:      accent,
       ),
       if (lesson.task.isNotEmpty)
         Container(
