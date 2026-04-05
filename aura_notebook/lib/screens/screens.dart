@@ -7,3 +7,4 @@ export 'option_screen.dart';
 export 'loading_screen.dart';
 export 'class_detail_page.dart';
 export 'class_data.dart';
+export 'info_page.dart';

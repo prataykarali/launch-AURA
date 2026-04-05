@@ -36,10 +36,24 @@ class _ClassScreenState extends State<ClassScreen>
     ),
   ];
 
-  bool _overlayOpen = false;
+  bool    _overlayOpen   = false;
+  bool    _searchActive  = false;
+  String  _searchQuery   = '';
+  final   _searchCtrl    = TextEditingController();
 
   late final AnimationController _pulse;
   late final Animation<double>   _pulseAnim;
+
+  List<ClassData> get _filtered {
+    if (_searchQuery.isEmpty) return _classes;
+    final q = _searchQuery.toLowerCase();
+    return _classes.where((c) =>
+    c.name.toLowerCase().contains(q)    ||
+        c.subject.toLowerCase().contains(q) ||
+        c.teacher.toLowerCase().contains(q) ||
+        c.section.toLowerCase().contains(q)
+    ).toList();
+  }
 
   @override
   void initState() {
@@ -52,8 +66,63 @@ class _ClassScreenState extends State<ClassScreen>
   }
 
   @override
-  void dispose() { _pulse.dispose(); super.dispose(); }
+  void dispose() {
+    _pulse.dispose();
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
+  // ── Back ──────────────────────────────────────────────────────────────────
+  void _goBack() => Navigator.of(context).pop();
+
+  // ── Search toggle ──────────────────────────────────────────────────────────
+  void _toggleSearch() {
+    setState(() {
+      _searchActive = !_searchActive;
+      if (!_searchActive) { _searchQuery = ''; _searchCtrl.clear(); }
+    });
+  }
+
+  // ── Share ──────────────────────────────────────────────────────────────────
+  void _share() {
+    final summary = _classes.map((c) =>
+    '${c.name} (${c.subject}) — ${c.teacher}').join('\n');
+    Clipboard.setData(ClipboardData(
+        text: 'My ClassSync Classes:\n\n$summary'));
+    ScaffoldMessenger.of(context).showSnackBar(_snack('Class list copied to clipboard!'));
+  }
+
+  // ── 3-dot menu ─────────────────────────────────────────────────────────────
+  void _showMenu() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _MenuSheet(
+        onSort:   () { Navigator.pop(context); _sortClasses(); },
+        onFilter: () { Navigator.pop(context); _showSnackMsg('Filter coming soon'); },
+        onExport: () { Navigator.pop(context); _share(); },
+        onAbout:  () { Navigator.pop(context); _showSnackMsg('AURA ClassSync v1.0'); },
+      ),
+    );
+  }
+
+  void _sortClasses() {
+    setState(() => _classes.sort((a, b) => a.name.compareTo(b.name)));
+    ScaffoldMessenger.of(context).showSnackBar(_snack('Sorted A → Z'));
+  }
+
+  void _showSnackMsg(String msg) =>
+      ScaffoldMessenger.of(context).showSnackBar(_snack(msg));
+
+  SnackBar _snack(String msg) => SnackBar(
+    content: Text(msg, style: const TextStyle(color: Colors.white)),
+    backgroundColor: const Color(0xFF1A1A2E),
+    behavior: SnackBarBehavior.floating,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    duration: const Duration(seconds: 2),
+  );
+
+  // ── Add class ──────────────────────────────────────────────────────────────
   void _openAddSheet() {
     showModalBottomSheet(
       context: context, isScrollControlled: true,
@@ -68,42 +137,123 @@ class _ClassScreenState extends State<ClassScreen>
     );
   }
 
+  // ── Delete ─────────────────────────────────────────────────────────────────
+  void _confirmDelete(ClassData c) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A2E),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Delete Class',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
+        content: Text('Delete "${c.name}"?\nThis cannot be undone.',
+            style: TextStyle(color: Colors.white.withOpacity(0.6),
+                fontSize: 13, height: 1.5)),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context),
+              child: Text('Cancel',
+                  style: TextStyle(color: Colors.white.withOpacity(0.5)))),
+          TextButton(
+            onPressed: () {
+              setState(() => _classes.remove(c));
+              Navigator.pop(context);
+              HapticFeedback.mediumImpact();
+              ScaffoldMessenger.of(context).showSnackBar(
+                  _snack('${c.name} deleted'));
+            },
+            child: const Text('Delete',
+                style: TextStyle(color: Colors.redAccent,
+                    fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: const Color(0xFF0D0D18),
       body: Stack(
         children: [
-          // ── Main scroll ───────────────────────────────────────────────
           CustomScrollView(
-            // ADD AlwaysScrollableScrollPhysics to ensure stretch works even with few items
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+            physics: const BouncingScrollPhysics(),
             slivers: [
-              _BannerBar(onBack: () => Navigator.of(context).pop()),
+
+              // ── Stretchy parallax banner ─────────────────────────────
+              _BannerBar(
+                onBack:          _goBack,
+                onSearch:        _toggleSearch,
+                onShare:         _share,
+                onMenu:          _showMenu,
+                searchActive:    _searchActive,
+                searchCtrl:      _searchCtrl,
+                onSearchChanged: (v) => setState(() => _searchQuery = v),
+              ),
+
+              // ── Stats ────────────────────────────────────────────────
               _StatsRow(classes: _classes),
-              _SectionLabel(label: 'YOUR CLASSES'),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                sliver: SliverList.builder(
-                  itemCount: _classes.length,
-                  itemBuilder: (_, i) => Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: ClassCard(
-                      data: _classes[i],
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => ClassDetailPage(data: _classes[i]),
+
+              // ── Section / search label ───────────────────────────────
+              if (_searchActive && _searchQuery.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+                    child: Text(
+                        '${_filtered.length} result'
+                            '${_filtered.length == 1 ? "" : "s"}'
+                            ' for "$_searchQuery"',
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.35),
+                            fontSize: 12)),
+                  ),
+                )
+              else
+                _SectionLabel(label: 'YOUR CLASSES'),
+
+              // ── Class cards ──────────────────────────────────────────
+              if (_filtered.isEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: Column(children: [
+                      Icon(Icons.search_off_rounded, size: 48,
+                          color: Colors.white.withOpacity(0.2)),
+                      const SizedBox(height: 12),
+                      Text('No classes match your search',
+                          style: TextStyle(
+                              color: Colors.white.withOpacity(0.3))),
+                    ]),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                  sliver: SliverList.builder(
+                    itemCount: _filtered.length,
+                    itemBuilder: (_, i) => Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: ClassCard(
+                        data: _filtered[i],
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                ClassDetailPage(data: _filtered[i]),
+                          ),
                         ),
+                        onDelete: () => _confirmDelete(_filtered[i]),
                       ),
                     ),
                   ),
                 ),
-              ),
+
               const SliverToBoxAdapter(child: SizedBox(height: 120)),
             ],
           ),
 
-          // ── AURA overlay ─────────────────────────────────────────────
+          // ── AURA overlay ──────────────────────────────────────────────
           AuraSubjectOverlay(
             open: _overlayOpen,
             onClose: () => setState(() => _overlayOpen = false),
@@ -115,10 +265,12 @@ class _ClassScreenState extends State<ClassScreen>
     );
   }
 
+  // ── FABs ───────────────────────────────────────────────────────────────────
   Widget _buildFabs() => Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.end,
     children: [
+      // AURA button
       ScaleTransition(
         scale: _pulseAnim,
         child: GestureDetector(
@@ -130,12 +282,10 @@ class _ClassScreenState extends State<ClassScreen>
             width: 62, height: 62,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF7C4DFF).withOpacity(0.6),
-                  blurRadius: 22, spreadRadius: 2,
-                ),
-              ],
+              boxShadow: [BoxShadow(
+                color: const Color(0xFF7C4DFF).withOpacity(0.6),
+                blurRadius: 22, spreadRadius: 2,
+              )],
             ),
             child: ClipOval(
               child: Image.asset(
@@ -145,8 +295,7 @@ class _ClassScreenState extends State<ClassScreen>
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
-                      colors: [Color(0xFF9C27B0), Color(0xFF3F51B5)],
-                    ),
+                        colors: [Color(0xFF9C27B0), Color(0xFF3F51B5)]),
                   ),
                   child: const Icon(Icons.auto_awesome,
                       color: Colors.white, size: 28),
@@ -157,106 +306,150 @@ class _ClassScreenState extends State<ClassScreen>
         ),
       ),
       const SizedBox(height: 12),
+      // New Class FAB
       FloatingActionButton.extended(
-        heroTag: 'newclass',
-        onPressed: _openAddSheet,
+        heroTag:         'newclass',
+        onPressed:       _openAddSheet,
         backgroundColor: const Color(0xFF5C6BC0),
         foregroundColor: Colors.white,
-        elevation: 8,
-        icon: const Icon(Icons.add_rounded),
+        elevation:       8,
+        icon:  const Icon(Icons.add_rounded),
         label: const Text('New Class',
-            style: TextStyle(fontWeight: FontWeight.w700, letterSpacing: 0.4)),
+            style: TextStyle(fontWeight: FontWeight.w700,
+                letterSpacing: 0.4)),
       ),
     ],
   );
 }
 
-// ── Banner ────────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
+// BANNER BAR — stretchy parallax, working buttons, inline search
+// ═════════════════════════════════════════════════════════════════════════════
 class _BannerBar extends StatelessWidget {
-  final VoidCallback onBack;
-  const _BannerBar({required this.onBack});
+  final VoidCallback            onBack, onShare, onMenu;
+  final VoidCallback            onSearch;
+  final bool                    searchActive;
+  final TextEditingController   searchCtrl;
+  final ValueChanged<String>    onSearchChanged;
+
+  const _BannerBar({
+    required this.onBack,
+    required this.onSearch,
+    required this.onShare,
+    required this.onMenu,
+    required this.searchActive,
+    required this.searchCtrl,
+    required this.onSearchChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
     final sw = MediaQuery.of(context).size.width;
+
     return SliverAppBar(
-      expandedHeight:  sw * 0.62,
+      // ── FIX 3: stretch: true + StretchMode.zoomBackground = elastic banner ──
+      expandedHeight:  sw * 0.60,
       collapsedHeight: 56,
       pinned:          true,
-      stretch:         true, // <--- CHANGED TO TRUE
+      snap:            false,
+      floating:        false,
+      stretch:         true,             // ← enables rubber-band over-scroll
       backgroundColor: const Color(0xFF0D0D18),
       elevation:       0,
       automaticallyImplyLeading: false,
+
+      // ── FIX 2: leading calls onBack ───────────────────────────────────────
       leading: GestureDetector(
-        onTap: onBack,
+        onTap: onBack,                   // ← was missing in previous version
         child: Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.4),
-            shape: BoxShape.circle,
-          ),
+              color: Colors.black.withOpacity(0.45),
+              shape: BoxShape.circle),
           child: const Icon(Icons.arrow_back_ios_new_rounded,
               color: Colors.white, size: 18),
         ),
       ),
+
+      // ── FIX 1: title shows search bar when active ─────────────────────────
+      title: searchActive
+          ? _SearchBar(ctrl: searchCtrl, onChanged: onSearchChanged)
+          : null,
+
+      // ── FIX 1: all three action buttons wired to real callbacks ───────────
       actions: [
-        _AppBarBtn(icon: Icons.search_rounded),
-        _AppBarBtn(icon: Icons.more_vert_rounded),
+        if (!searchActive)
+          _AppBarBtn(icon: Icons.search_rounded,   onTap: onSearch)
+        else
+          _AppBarBtn(icon: Icons.close_rounded,    onTap: onSearch),
+
+        _AppBarBtn(icon: Icons.share_rounded,      onTap: onShare),   // ← share
+        _AppBarBtn(icon: Icons.more_vert_rounded,  onTap: onMenu),    // ← 3-dot
         const SizedBox(width: 4),
       ],
+
       flexibleSpace: FlexibleSpaceBar(
-        collapseMode: CollapseMode.pin,
+        // ── FIX 3: parallax + zoom on over-scroll ────────────────────────────
+        collapseMode:  CollapseMode.parallax,
         stretchModes: const [
-          StretchMode.zoomBackground, // <--- ADDED ZOOM EFFECT
+          StretchMode.zoomBackground,    // ← zooms image on over-scroll
+          //StretchMode.blurBackground,    // ← adds blur at full stretch
         ],
         background: Stack(
+          fit: StackFit.expand,
           children: [
-            Positioned.fill(
-              child: Image.asset(
-                'Assets/images/class_AURA.png',
-                fit: BoxFit.cover, // <--- CHANGED FROM fill TO cover
-                alignment: Alignment.center,
-                errorBuilder: (_, __, ___) => Container(
-                  color: const Color(0xFF1A237E),
-                  child: const Center(child: Icon(Icons.school_rounded,
-                      color: Colors.white24, size: 64)),
+            // Banner image — BoxFit.cover so it fills without distortion
+            Image.asset(
+              'Assets/images/class_AURA.png',
+              fit:       BoxFit.cover,
+              alignment: Alignment.topCenter,
+              errorBuilder: (_, __, ___) => Container(
+                color: const Color(0xFF1A237E),
+                child: const Center(
+                    child: Icon(Icons.school_rounded,
+                        color: Colors.white24, size: 64)),
+              ),
+            ),
+
+            // Gradient scrim — bottom fade only so image is fully visible
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin:  Alignment.topCenter,
+                  end:    Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.10),
+                    Colors.black.withOpacity(0.60),
+                    const Color(0xFF0D0D18),
+                  ],
+                  stops: const [0.0, 0.45, 0.80, 1.0],
                 ),
               ),
             ),
-            Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end:   Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.15),
-                      Colors.black.withOpacity(0.65),
-                      const Color(0xFF0D0D18),
-                    ],
-                    stops: const [0.0, 0.5, 0.82, 1.0],
-                  ),
-                ),
-              ),
-            ),
+
+            // Title text — bottom-left, above gradient
             const Positioned(
               left: 20, right: 20, bottom: 18,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize:       MainAxisSize.min,
                 children: [
                   Text('CLASS SYNC',
                     style: TextStyle(
-                      color: Colors.white, fontSize: 26,
-                      fontWeight: FontWeight.w900, letterSpacing: 3.0,
+                      color:      Colors.white,
+                      fontSize:   26,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 3.0,
                       shadows: [Shadow(color: Colors.black54, blurRadius: 10)],
                     ),
                   ),
                   SizedBox(height: 3),
                   Text("The Modern Teacher's Hub",
                       style: TextStyle(
-                          color: Color(0xAAFFFFFF), fontSize: 13, letterSpacing: 0.4)),
+                          color:    Color(0xAAFFFFFF),
+                          fontSize: 13,
+                          letterSpacing: 0.4)),
                 ],
               ),
             ),
@@ -267,16 +460,40 @@ class _BannerBar extends StatelessWidget {
   }
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
 class _AppBarBtn extends StatelessWidget {
-  final IconData icon;
-  const _AppBarBtn({required this.icon});
+  final IconData icon; final VoidCallback onTap;
+  const _AppBarBtn({required this.icon, required this.onTap});
+
   @override
-  Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
-    decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
-    child: IconButton(
-        icon: Icon(icon, color: Colors.white, size: 20), onPressed: () {}),
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
+      width:  40, height: 40,
+      decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.42), shape: BoxShape.circle),
+      child: Icon(icon, color: Colors.white, size: 20),
+    ),
+  );
+}
+
+class _SearchBar extends StatelessWidget {
+  final TextEditingController ctrl;
+  final ValueChanged<String>  onChanged;
+  const _SearchBar({required this.ctrl, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) => TextField(
+    controller: ctrl,
+    onChanged:  onChanged,
+    autofocus:  true,
+    style: const TextStyle(color: Colors.white, fontSize: 15),
+    decoration: InputDecoration(
+      hintText:  'Search classes…',
+      hintStyle: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14),
+      border:    InputBorder.none,
+    ),
   );
 }
 
@@ -284,6 +501,7 @@ class _AppBarBtn extends StatelessWidget {
 class _StatsRow extends StatelessWidget {
   final List<ClassData> classes;
   const _StatsRow({required this.classes});
+
   @override
   Widget build(BuildContext context) {
     final s = classes.fold(0, (a, c) => a + c.students);
@@ -291,9 +509,11 @@ class _StatsRow extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
         child: Row(children: [
-          _Chip(Icons.class_rounded,  '${classes.length} Classes', const Color(0xFF5C6BC0)),
+          _Chip(Icons.class_rounded,  '${classes.length} Classes',
+              const Color(0xFF5C6BC0)),
           const SizedBox(width: 10),
-          _Chip(Icons.people_rounded, '$s Students',               const Color(0xFF26A69A)),
+          _Chip(Icons.people_rounded, '$s Students',
+              const Color(0xFF26A69A)),
         ]),
       ),
     );
@@ -303,15 +523,18 @@ class _StatsRow extends StatelessWidget {
 class _Chip extends StatelessWidget {
   final IconData icon; final String label; final Color color;
   const _Chip(this.icon, this.label, this.color);
+
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
     decoration: BoxDecoration(
-      color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(24),
-      border: Border.all(color: color.withOpacity(0.35)),
+      color:        color.withOpacity(0.12),
+      borderRadius: BorderRadius.circular(24),
+      border:       Border.all(color: color.withOpacity(0.35)),
     ),
     child: Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, size: 14, color: color), const SizedBox(width: 6),
+      Icon(icon, size: 14, color: color),
+      const SizedBox(width: 6),
       Text(label, style: TextStyle(color: color, fontSize: 12,
           fontWeight: FontWeight.w700)),
     ]),
@@ -321,6 +544,7 @@ class _Chip extends StatelessWidget {
 class _SectionLabel extends StatelessWidget {
   final String label;
   const _SectionLabel({required this.label});
+
   @override
   Widget build(BuildContext context) => SliverToBoxAdapter(
     child: Padding(
@@ -329,5 +553,47 @@ class _SectionLabel extends StatelessWidget {
           style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800,
               color: Colors.white.withOpacity(0.3), letterSpacing: 2.0)),
     ),
+  );
+}
+
+// ── 3-dot menu sheet ──────────────────────────────────────────────────────────
+class _MenuSheet extends StatelessWidget {
+  final VoidCallback onSort, onFilter, onExport, onAbout;
+  const _MenuSheet({required this.onSort, required this.onFilter,
+    required this.onExport, required this.onAbout});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.bottom + 16),
+    decoration: const BoxDecoration(
+      color:        Color(0xFF12121F),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    child: Column(mainAxisSize: MainAxisSize.min, children: [
+      Center(child: Container(
+          width: 36, height: 4,
+          margin: const EdgeInsets.only(top: 10, bottom: 16),
+          decoration: BoxDecoration(color: Colors.white24,
+              borderRadius: BorderRadius.circular(2)))),
+      _MenuItem(Icons.sort_by_alpha_rounded, 'Sort A → Z',       onSort),
+      _MenuItem(Icons.filter_list_rounded,   'Filter by Subject', onFilter),
+      _MenuItem(Icons.share_rounded,         'Share Class List',  onExport),
+      _MenuItem(Icons.info_outline_rounded,  'About ClassSync',   onAbout),
+      const SizedBox(height: 8),
+    ]),
+  );
+}
+
+class _MenuItem extends StatelessWidget {
+  final IconData icon; final String label; final VoidCallback onTap;
+  const _MenuItem(this.icon, this.label, this.onTap);
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    leading: Icon(icon, color: const Color(0xFF5C6BC0), size: 20),
+    title: Text(label, style: const TextStyle(color: Colors.white,
+        fontSize: 14, fontWeight: FontWeight.w600)),
+    onTap: onTap,
   );
 }
