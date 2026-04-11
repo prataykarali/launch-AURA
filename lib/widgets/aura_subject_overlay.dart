@@ -79,35 +79,43 @@ class _AuraSubjectOverlayState extends State<AuraSubjectOverlay>
     if (q.isEmpty || _busy) return;
     _busy = true;
     _ctrl.clear();
+
+    // Reset state without triggering a massive rebuild of the whole panel
     setState(() { _hasText = false; _answer = null; });
     HapticFeedback.lightImpact();
 
     _streamText.value = '';
-    _streaming.value  = false;
     _thinking.value   = true;
-    await Future.delayed(const Duration(milliseconds: 10));
+    _streaming.value  = true;
 
     final buf = StringBuffer();
     try {
-      await for (final token in auraChat(
-          prompt: 'You are a helpful teacher. Answer clearly and concisely: $q')) {
+      await for (final token in auraChat(prompt: 'Teacher mode: $q')) {
         if (token == _kThinkingSentinel) continue;
-        if (_thinking.value) {
-          _thinking.value  = false;
-          _streaming.value = true;
-        }
-        buf.write(token);
-        _streamText.value = '$buf▍';
-        _jumpToBottom();
-      }
-    } catch (e) { debugPrint('overlay err: $e'); }
 
-    _streamText.value = '';
-    _streaming.value  = false;
-    _thinking.value   = false;
+        if (_thinking.value) _thinking.value = false;
+
+        // ANIMATION TRICK: Instead of dumping the whole token at once,
+        // we loop through its characters with a tiny delay.
+        for (var i = 0; i < token.length; i++) {
+          buf.write(token[i]);
+          _streamText.value = '${buf.toString()}▍';
+
+          // Small delay per character for that "Aura is typing" feel
+          // 10-15ms is the sweet spot for perceived smoothness.
+          await Future.delayed(const Duration(milliseconds: 12));
+          _jumpToBottom();
+        }
+      }
+    } catch (e) {
+      debugPrint('overlay err: $e');
+    }
+
+    // Finalize the text (remove the cursor ▍)
+    _streamText.value = buf.toString();
     setState(() => _answer = buf.toString());
     _busy = false;
-    _jumpToBottom();
+    _thinking.value = false;
   }
 
   void _jumpToBottom() => WidgetsBinding.instance.addPostFrameCallback((_) {

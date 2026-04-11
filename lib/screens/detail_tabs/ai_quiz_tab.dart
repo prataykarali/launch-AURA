@@ -12,15 +12,21 @@ const _kSentinel = '\x00__THINKING__\x00';
 // • Interactive quiz UI with instant feedback and XP reward
 // ─────────────────────────────────────────────────────────────────────────────
 class AiQuizTab extends StatefulWidget {
-  final ClassData       data;
-  final List<String>    completedTopics;
-  final void Function(int xp) onXpEarned;
+  final ClassData data;
+  final List<dynamic> completedTopics; // Or your Topic model
+  final int topicsDone;     // Added this
+  final int topicsTotal;    // Added this
+  final int studentCount;   // Added this
+  final Function(int) onXpEarned;
 
   const AiQuizTab({
     super.key,
     required this.data,
     required this.completedTopics,
     required this.onXpEarned,
+    this.topicsDone = 0,    // Default values to prevent errors
+    this.topicsTotal = 0,
+    this.studentCount = 0,
   });
 
   @override
@@ -28,7 +34,10 @@ class AiQuizTab extends StatefulWidget {
 }
 
 class _AiQuizTabState extends State<AiQuizTab> {
-
+  final _streamText = ValueNotifier<String>('');
+  bool _loading = false;
+  bool _done = false;
+  bool _hasError = false;
   // ── State ──────────────────────────────────────────────────────────────────
   List<_McqQuestion> _questions  = [];
   bool               _generating = false;
@@ -44,49 +53,57 @@ class _AiQuizTabState extends State<AiQuizTab> {
 
   // ── Generate quiz ──────────────────────────────────────────────────────────
   Future<void> _generate() async {
-    if (_generating) return;
-    final topics = widget.completedTopics.isEmpty
-        ? [widget.data.subject]
-        : widget.completedTopics.take(5).toList();
+    if (_loading) return;
+    setState(() {
+      _loading  = true;
+      _done     = false;
+      _hasError = false;
+    });
+    _streamText.value = '';
 
-    setState(() { _generating = true; _rawStream = ''; _questions = []; });
-    _streamNotifier.value = '';
-    HapticFeedback.mediumImpact();
+    final d   = widget.data;
+    final pct = widget.topicsTotal == 0
+        ? 0
+        : (widget.topicsDone / widget.topicsTotal * 100).toInt();
 
-    final prompt = '''You are a teacher creating a quiz. Generate exactly 5 multiple choice questions about: ${topics.join(", ")}.
-
-For EACH question use EXACTLY this format (no extra text):
-Q: [question text]
-A) [option]
-B) [option]
-C) [option]
-D) [option]
-ANS: [A or B or C or D]
-
-Generate all 5 questions now:''';
+    final prompt =
+        'You are a helpful teacher for ${d.name} (${d.subject}). '
+        'Write a brief daily class update as exactly 3 short bullet points. '
+        'Each bullet starts with a relevant emoji and is under 12 words. '
+        'Use this class info: syllabus $pct% done '
+        '(${widget.topicsDone} topics completed), '
+        '${widget.studentCount} students, '
+        'teacher is ${d.teacher}. '
+        'Write the 3 bullets now:';
 
     final buf = StringBuffer();
     try {
       await for (final token in auraChat(prompt: prompt)) {
         if (token == _kSentinel) continue;
-        buf.write(token);
-        _streamNotifier.value = buf.toString();
-      }
-    } catch (e) { debugPrint('quiz gen error: $e'); }
 
-    final parsed = _parseQuestions(buf.toString());
-    setState(() {
-      _generating = false;
-      _questions  = parsed;
-      if (parsed.isNotEmpty) {
-        _quizActive = true;
-        _current    = 0;
-        _score      = 0;
-        _quizDone   = false;
-        _answered   = false;
-        _selectedAnswer = null;
+        // Iterate through each character in the chunk for smooth typing
+        for (var i = 0; i < token.length; i++) {
+          buf.write(token[i]);
+          _streamText.value = '${buf.toString()}▍';
+
+          // Speed adjustment: 10ms per char feels natural for short briefings
+          await Future.delayed(const Duration(milliseconds: 10));
+        }
       }
-    });
+    } catch (e) {
+      debugPrint('SmartBriefingCard error: $e');
+      setState(() => _hasError = true);
+    }
+
+    final finalText = buf.toString().trim();
+    // Fallback if the stream fails or returns empty
+    if (finalText.isEmpty && !_hasError) {
+      _streamText.value = '• ${d.subject} class is on track.\n• ${widget.topicsDone} topics completed.\n• Keep up the great work!';
+    } else {
+      _streamText.value = finalText;
+    }
+
+    setState(() { _loading = false; _done = true; });
   }
 
   // ── Parse MCQ from raw LLM output ──────────────────────────────────────────
