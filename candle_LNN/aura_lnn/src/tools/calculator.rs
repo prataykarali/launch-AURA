@@ -1,0 +1,1 @@
+use rig::completion::ToolDefinition;

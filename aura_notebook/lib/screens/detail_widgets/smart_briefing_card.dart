@@ -33,6 +33,23 @@ class SmartBriefingCard extends StatefulWidget {
 
 class _SmartBriefingCardState extends State<SmartBriefingCard>
     with SingleTickerProviderStateMixin {
+  Widget _buildErrorState() {
+    return Row(
+      children: [
+        Icon(Icons.error_outline_rounded,
+            size: 16, color: Colors.orange.withOpacity(0.6)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            'Could not generate briefing. Tap ↻ to retry.',
+            style: TextStyle(
+                color: Colors.white.withOpacity(0.35),
+                fontSize: 12),
+          ),
+        ),
+      ],
+    );
+  }
 
   // ── Orb animation ──────────────────────────────────────────────────────────
   late final AnimationController _orbCtrl;
@@ -229,68 +246,64 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
     child: ValueListenableBuilder<String>(
       valueListenable: _streamText,
       builder: (_, txt, __) {
-        // Still waiting for first token
+        // 1. Loading State (No text yet)
         if (txt.isEmpty && _loading) {
-          return Row(children: [
-            SizedBox(
-              width: 14, height: 14,
-              child: CircularProgressIndicator(
-                  strokeWidth: 1.5,
-                  color: const Color(0xFF7C4DFF).withOpacity(0.55)),
-            ),
-            const SizedBox(width: 10),
-            Text('Preparing your briefing…',
-                style: TextStyle(
-                    color: Colors.white.withOpacity(0.3),
-                    fontSize: 12, fontStyle: FontStyle.italic)),
-          ]);
+          return _buildLoadingState();
         }
 
+        // 2. Error State
         if (_hasError && txt.isEmpty) {
-          return Row(children: [
-            Icon(Icons.error_outline_rounded,
-                size: 16, color: Colors.orange.withOpacity(0.6)),
-            const SizedBox(width: 8),
-            Expanded(child: Text(
-                'Could not generate briefing. Tap ↻ to retry.',
-                style: TextStyle(
-                    color: Colors.white.withOpacity(0.35),
-                    fontSize: 12))),
-          ]);
+          return _buildErrorState();
         }
 
-        // Render bullet lines individually for cleaner layout
+        // 3. Streaming Content State
         final lines = txt
-            .replaceAll('▍', '')
+            .replaceAll('▍', '') // Clean the cursor for splitting logic
             .split('\n')
             .map((l) => l.trim())
             .where((l) => l.isNotEmpty)
             .toList();
 
-        if (lines.isEmpty) {
-          return Text(txt,
-              style: TextStyle(
-                  color: Colors.white.withOpacity(0.65),
-                  fontSize: 13, height: 1.55));
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: lines.map((line) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(width: 2),
-                Expanded(child: Text(line,
-                    style: TextStyle(
-                        color: Colors.white.withOpacity(0.72),
-                        fontSize: 13, height: 1.5))),
-              ],
-            ),
-          )).toList(),
+        return AnimatedOpacity(
+          duration: const Duration(milliseconds: 400),
+          opacity: txt.isEmpty ? 0.0 : 1.0, // Smooth fade-in for the first characters
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: lines.map((line) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Add the cursor only to the very last line while loading
+                  Expanded(
+                    child: Text(
+                      line + (line == lines.last && _loading ? '▍' : ''),
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(0.72),
+                          fontSize: 13,
+                          height: 1.5,
+                          letterSpacing: 0.2),
+                    ),
+                  ),
+                ],
+              ),
+            )).toList(),
+          ),
         );
       },
     ),
   );
+
+// Helper for cleaner code
+  Widget _buildLoadingState() => Row(children: [
+    const SizedBox(
+      width: 14, height: 14,
+      child: CircularProgressIndicator(strokeWidth: 1.5, color: Color(0xFF7C4DFF)),
+    ),
+    const SizedBox(width: 12),
+    Text('AURA is composing...',
+        style: TextStyle(
+            color: Colors.white.withOpacity(0.3),
+            fontSize: 12, fontStyle: FontStyle.italic)),
+  ]);
 }

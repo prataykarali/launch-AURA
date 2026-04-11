@@ -7,7 +7,8 @@ import 'detail_tabs/resources_tab.dart';
 import 'detail_tabs/students_tab.dart';
 import 'detail_tabs/stream_tab.dart';
 import 'detail_tabs/attendance_tab.dart';
-
+import 'detail_tabs/doubt_queue_tab.dart'; // Make sure the path is correct
+import 'detail_tabs/ai_quiz_tab.dart';     // Make sure the path is correct
 class ClassDetailPage extends StatefulWidget {
   final ClassData data;
   const ClassDetailPage({super.key, required this.data});
@@ -25,7 +26,7 @@ class _ClassDetailPageState extends State<ClassDetailPage>
   @override
   void initState() {
     super.initState();
-    _tabs = TabController(length: 6, vsync: this);
+    _tabs = TabController(length: 8, vsync: this);
   }
 
   @override
@@ -56,8 +57,14 @@ class _ClassDetailPageState extends State<ClassDetailPage>
           children: [
             OverviewTab(
               data:        d,
-              externalXp:  _externalXp.toDouble(), // Ensure this matches OverviewTab's expected type
+              externalXp: _externalXp.toInt(),   // Ensure this matches OverviewTab's expected type
               onXpEarned:  _addXp,
+            ),
+            DoubtQueueTab(data: d), // <--- ADDED
+            AiQuizTab(              // <--- ADDED
+              data: d,
+              completedTopics: const [], // You can pass a list of done topics here later
+              onXpEarned: _addXp,
             ),
             LessonsTab(data: d),
             ResourcesTab(data: d),
@@ -198,6 +205,8 @@ class _DetailHeader extends StatelessWidget {
             dividerColor: Colors.transparent,
             tabs: const [
               Tab(text: 'Overview'),
+              Tab(text: 'Doubts'),   // <--- ADDED
+              Tab(text: 'AI Quiz'),
               Tab(text: 'Lessons'),
               Tab(text: 'Resources'),
               Tab(text: 'Students'),
