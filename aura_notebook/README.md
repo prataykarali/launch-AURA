@@ -26,3 +26,15 @@ flutter run -d linux
 - lib/: Flutter source code.
 - linux_libs/: Pre-compiled libaura_lnn.so.
 - assets/: UI assets.
+
+## ⚡ Quick Start (Copy & Paste)
+If you have the prerequisites installed, run this sequence to start the app immediately:
+
+```bash
+# 1. Prepare Environment
+source /opt/intel/oneapi/setvars.sh
+export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$(pwd)/linux_libs
+
+# 2. Sync Flutter & Run
+flutter pub get
+flutter run -d linux
