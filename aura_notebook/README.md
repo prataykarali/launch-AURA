@@ -1,16 +1,28 @@
-# aura_notebook
+# Aura Notebook 📒
+Professional Flutter-based notebook environment with integrated LNN (Liquid Neural Network) logic.
 
-A new Flutter project.
+## 🛠 Prerequisites
+This project relies on high-performance mathematical routines. Ensure your Linux environment is prepared:
+1. **Intel MKL:** Install the Intel Math Kernel Library runtime.
+2. **Flutter SDK:** Ensure you have the latest stable Flutter version.
+3. **Build Tools:** clang, cmake, and ninja-build.
 
-## Getting Started
+## 🚀 Environment Setup
+To run the application, you must link the pre-compiled native logic provided in the linux_libs folder.
 
-This project is a starting point for a Flutter application.
+### 1. Source Intel Variables
+Run this to load the necessary MKL paths:
+source /opt/intel/oneapi/setvars.sh
 
-A few resources to get you started if this is your first Flutter project:
+### 2. Export Library Paths
+Tell the system where to find the custom .so binary:
+export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$(pwd)/linux_libs
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 💻 How to Run
+Once the environment variables are set, launch the app using:
+flutter run -d linux
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 📂 Project Architecture
+- lib/: Flutter source code.
+- linux_libs/: Pre-compiled libaura_lnn.so.
+- assets/: UI assets.
