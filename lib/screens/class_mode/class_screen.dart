@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../widgets/class_card.dart';
-import '../widgets/aura_subject_overlay.dart';
-import '../widgets/add_class_sheet.dart';
-import 'class_detail_page.dart';
-import 'class_data.dart';
+import 'class_main_widgets/class_card.dart';
+import 'class_main_widgets/aura_subject_overlay.dart';
+import 'class_main_widgets/add_class_sheet.dart';
+import 'class_pages/class_detail_page.dart';
+import 'class_pages/class_data.dart';
+import 'package:aura_notebook/utils/responsive.dart';
 
 class ClassScreen extends StatefulWidget {
   const ClassScreen({super.key});
@@ -348,7 +349,10 @@ class _BannerBar extends StatelessWidget {
 
     return SliverAppBar(
       // ── FIX 3: stretch: true + StretchMode.zoomBackground = elastic banner ──
-      expandedHeight:  sw * 0.60,
+      // In _BannerBar build method, change expandedHeight:
+      expandedHeight: R.isDesktop
+          ? 280  // shorter on desktop
+          : sw * 0.60,  // keep mobile ratio on phone
       collapsedHeight: 56,
       pinned:          true,
       snap:            false,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../screens/class_data.dart';
+import '../class_pages/class_data.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AddClassSheet — bottom sheet for creating a new class

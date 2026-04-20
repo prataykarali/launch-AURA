@@ -48,7 +48,7 @@ class _LoadingScreenState extends State<LoadingScreen>
   double? _downloadProgress;
   bool    _loadingLock    = false;
   int     _quoteIndex     = 0;
-  double  _progressTarget = 0.02;
+  double  _progressTarget = 0.08;
 
   static const _stepProgress = {
     _Step.wake:     0.02,
