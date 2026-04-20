@@ -1,19 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'home_screen.dart';
-import 'class_screen.dart';
+import 'home_mode/home_screen.dart';
+import 'class_mode/class_screen.dart';
 import 'info_page.dart';
+import 'package:aura_notebook/utils/responsive.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// OptionScreen — cinematic "Select Your World" landing page.
-//
-// IMAGE PLACEHOLDERS (add to Assets/images/):
-//   • option_bg.png          → full-screen atmospheric background (1080×1920)
-//     Suggest: a dark cosmic/nebula scene or abstract gradient landscape
-//   • card_aura.png          → AURA Notebook card image (existing: AURA_load.png)
-//   • card_class.png         → ClassSync card image   (existing: class_AURA.png)
-// ─────────────────────────────────────────────────────────────────────────────
 class OptionScreen extends StatefulWidget {
   const OptionScreen({super.key});
   @override
@@ -23,18 +15,11 @@ class OptionScreen extends StatefulWidget {
 class _OptionScreenState extends State<OptionScreen>
     with TickerProviderStateMixin {
 
-  // ── Entry animation ────────────────────────────────────────────────────────
   late final AnimationController _entryCtrl;
   late final Animation<double>   _fadeAnim;
   late final Animation<Offset>   _slideAnim;
-
-  // ── Orb float animation ────────────────────────────────────────────────────
   late final AnimationController _orbCtrl;
-
-  // ── Particle shimmer ───────────────────────────────────────────────────────
   late final AnimationController _shimmerCtrl;
-
-  // ── Sheet open state ───────────────────────────────────────────────────────
   bool _sheetOpen = false;
 
   @override
@@ -45,14 +30,10 @@ class _OptionScreenState extends State<OptionScreen>
     _fadeAnim  = CurvedAnimation(parent: _entryCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(begin: const Offset(0, 0.08), end: Offset.zero)
         .animate(CurvedAnimation(parent: _entryCtrl, curve: Curves.easeOutCubic));
-
     _orbCtrl = AnimationController(vsync: this,
         duration: const Duration(milliseconds: 4000))..repeat(reverse: true);
-
     _shimmerCtrl = AnimationController(vsync: this,
         duration: const Duration(milliseconds: 2400))..repeat();
-
-    // Staggered entry
     Future.delayed(const Duration(milliseconds: 200),
             () { if (mounted) _entryCtrl.forward(); });
   }
@@ -77,10 +58,8 @@ class _OptionScreenState extends State<OptionScreen>
           Navigator.pop(context);
           Navigator.of(context).pushReplacement(_fade(const home()));
         },
-        // Change this in option_screen.dart
         onClass: () {
-          Navigator.pop(context); // Closes the bottom sheet
-          // Use .push() instead of .pushReplacement()
+          Navigator.pop(context);
           Navigator.of(context).push(_fade(const ClassScreen()));
         },
         onInfo: () {
@@ -108,18 +87,13 @@ class _OptionScreenState extends State<OptionScreen>
         body: Stack(
           fit: StackFit.expand,
           children: [
-
-            // ── Layer 1: Background ──────────────────────────────────────
-            // IMAGE PLACEHOLDER: Assets/images/option_bg.png
             Positioned.fill(
               child: Image.asset(
                 'Assets/images/option_bg.png',
-                fit: BoxFit.cover,
+                fit: R.isDesktop ? BoxFit.contain : BoxFit.cover,
                 errorBuilder: (_, __, ___) => _FallbackBg(ctrl: _shimmerCtrl),
               ),
             ),
-
-            // ── Layer 2: Dark gradient vignette ──────────────────────────
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -136,7 +110,6 @@ class _OptionScreenState extends State<OptionScreen>
                 ),
               ),
             ),
-            // Bottom scrim
             Positioned(
               left: 0, right: 0, bottom: 0,
               height: size.height * 0.4,
@@ -149,8 +122,6 @@ class _OptionScreenState extends State<OptionScreen>
                 ),
               ),
             ),
-
-            // ── Layer 3: Floating orb ─────────────────────────────────────
             AnimatedBuilder(
               animation: _orbCtrl,
               builder: (_, __) {
@@ -173,8 +144,6 @@ class _OptionScreenState extends State<OptionScreen>
                 );
               },
             ),
-
-            // ── Layer 4: UI content ───────────────────────────────────────
             SafeArea(
               child: FadeTransition(
                 opacity: _fadeAnim,
@@ -182,23 +151,12 @@ class _OptionScreenState extends State<OptionScreen>
                   position: _slideAnim,
                   child: Column(
                     children: [
-
-                      // Top spacer
                       SizedBox(height: size.height * 0.08),
-
-                      // App logo / wordmark
                       _Wordmark(shimmer: _shimmerCtrl),
-
                       const Spacer(),
-
-                      // Centre tagline
                       _CentreTagline(orb: _orbCtrl),
-
                       const Spacer(),
-
-                      // Select button
                       _SelectButton(onTap: _openWorldSheet),
-
                       const SizedBox(height: 48),
                     ],
                   ),
@@ -255,7 +213,6 @@ class _CentreTagline extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      // Decorative line
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -348,12 +305,12 @@ class _SelectButtonState extends State<_SelectButton>
             ),
           ],
         ),
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.public_rounded, color: Colors.white, size: 20),
-            const SizedBox(width: 10),
-            const Text('Select Your World',
+            Icon(Icons.public_rounded, color: Colors.white, size: 20),
+            SizedBox(width: 10),
+            Text('Select Your World',
               style: TextStyle(
                 color: Colors.white, fontSize: 16,
                 fontWeight: FontWeight.w800, letterSpacing: 0.5,
@@ -366,7 +323,7 @@ class _SelectButtonState extends State<_SelectButton>
   );
 }
 
-// ── Fallback background (no image) ────────────────────────────────────────────
+// ── Fallback background ───────────────────────────────────────────────────────
 class _FallbackBg extends StatelessWidget {
   final AnimationController ctrl;
   const _FallbackBg({required this.ctrl});
@@ -393,7 +350,7 @@ class _FallbackBg extends StatelessWidget {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// WORLD SELECTION SHEET — slides up with 3 options
+// WORLD SELECTION SHEET
 // ═════════════════════════════════════════════════════════════════════════════
 class _WorldSheet extends StatefulWidget {
   final VoidCallback onAura, onClass, onInfo;
@@ -425,142 +382,136 @@ class _WorldSheetState extends State<_WorldSheet>
   );
 
   @override
-  Widget build(BuildContext context) => Container(
-    decoration: const BoxDecoration(
-      color: Color(0xFF0F0F1A),
-      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      border: Border(
-        top:   BorderSide(color: Color(0x33FFFFFF)),
-        left:  BorderSide(color: Color(0x11FFFFFF)),
-        right: BorderSide(color: Color(0x11FFFFFF)),
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+    child: Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF0F0F1A),
+        border: Border(
+          top:   BorderSide(color: Color(0x33FFFFFF)),
+          left:  BorderSide(color: Color(0x11FFFFFF)),
+          right: BorderSide(color: Color(0x11FFFFFF)),
+        ),
       ),
-    ),
-    padding: EdgeInsets.only(
-      bottom: MediaQuery.of(context).padding.bottom + 24,
-    ),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        // Handle
-        Center(child: Container(
-          width: 38, height: 4, margin: const EdgeInsets.only(top: 12, bottom: 8),
-          decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(2)),
-        )),
-        // Title
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
-          child: Column(
-            children: [
-              Text('Choose Your World',
-                  style: const TextStyle(color: Colors.white, fontSize: 20,
-                      fontWeight: FontWeight.w800, letterSpacing: 0.5)),
-              const SizedBox(height: 4),
-              Text('Where do you want to go?',
-                  style: TextStyle(color: Colors.white.withOpacity(0.38),
-                      fontSize: 13)),
-            ],
-          ),
-        ),
-
-        // ── Card 1: AURA Notebook ────────────────────────────────────────
-        FadeTransition(
-          opacity: _itemAnim(0),
-          child: SlideTransition(
-            position: Tween<Offset>(
-                begin: const Offset(0, 0.3), end: Offset.zero)
-                .animate(_itemAnim(0)),
-            child: _WorldCard(
-              assetPath:   'Assets/images/AURA_load.png',
-              title:       'AURA NOTEBOOK',
-              subtitle:    'Your personal AI companion',
-              accent:      const Color(0xFFFF3CAC),
-              icon:        Icons.auto_awesome_rounded,
-              onTap:       widget.onAura,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.bottom + 24,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Center(child: Container(
+            width: 38, height: 4,
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(2)),
+          )),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+            child: Column(
+              children: [
+                const Text('Choose Your World',
+                    style: TextStyle(color: Colors.white, fontSize: 20,
+                        fontWeight: FontWeight.w800, letterSpacing: 0.5)),
+                const SizedBox(height: 4),
+                Text('Where do you want to go?',
+                    style: TextStyle(color: Colors.white.withOpacity(0.38),
+                        fontSize: 13)),
+              ],
             ),
           ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // ── Card 2: ClassSync ────────────────────────────────────────────
-        FadeTransition(
-          opacity: _itemAnim(1),
-          child: SlideTransition(
-            position: Tween<Offset>(
-                begin: const Offset(0, 0.3), end: Offset.zero)
-                .animate(_itemAnim(1)),
-            child: _WorldCard(
-              assetPath:   'Assets/images/class_AURA.png',
-              title:       'CLASS SYNC',
-              subtitle:    "The Modern Teacher's Hub",
-              accent:      const Color(0xFF00B0FF),
-              icon:        Icons.school_rounded,
-              onTap:       widget.onClass,
+          FadeTransition(
+            opacity: _itemAnim(0),
+            child: SlideTransition(
+              position: Tween<Offset>(
+                  begin: const Offset(0, 0.3), end: Offset.zero)
+                  .animate(_itemAnim(0)),
+              child: _WorldCard(
+                assetPath: 'Assets/images/AURA_load.png',
+                title:     'AURA NOTEBOOK',
+                subtitle:  'Your personal AI companion',
+                accent:    const Color(0xFFFF3CAC),
+                icon:      Icons.auto_awesome_rounded,
+                onTap:     widget.onAura,
+              ),
             ),
           ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // ── Option 3: Info / About ───────────────────────────────────────
-        FadeTransition(
-          opacity: _itemAnim(2),
-          child: SlideTransition(
-            position: Tween<Offset>(
-                begin: const Offset(0, 0.3), end: Offset.zero)
-                .animate(_itemAnim(2)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: GestureDetector(
-                onTap: widget.onInfo,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF161625),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: Colors.white.withOpacity(0.08)),
-                  ),
-                  child: Row(children: [
-                    Container(
-                      width: 44, height: 44,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.07),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.info_outline_rounded,
-                          color: Colors.white54, size: 22),
+          const SizedBox(height: 12),
+          FadeTransition(
+            opacity: _itemAnim(1),
+            child: SlideTransition(
+              position: Tween<Offset>(
+                  begin: const Offset(0, 0.3), end: Offset.zero)
+                  .animate(_itemAnim(1)),
+              child: _WorldCard(
+                assetPath: 'Assets/images/class_AURA.png',
+                title:     'CLASS SYNC',
+                subtitle:  "The Modern Teacher's Hub",
+                accent:    const Color(0xFF00B0FF),
+                icon:      Icons.school_rounded,
+                onTap:     widget.onClass,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          FadeTransition(
+            opacity: _itemAnim(2),
+            child: SlideTransition(
+              position: Tween<Offset>(
+                  begin: const Offset(0, 0.3), end: Offset.zero)
+                  .animate(_itemAnim(2)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: GestureDetector(
+                  onTap: widget.onInfo,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF161625),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                          color: Colors.white.withOpacity(0.08)),
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('About AURA',
-                            style: TextStyle(color: Colors.white, fontSize: 14,
-                                fontWeight: FontWeight.w700)),
-                        Text('Version, credits & info',
-                            style: TextStyle(color: Colors.white.withOpacity(0.35),
-                                fontSize: 12)),
-                      ],
-                    )),
-                    Icon(Icons.arrow_forward_ios_rounded,
-                        size: 14, color: Colors.white.withOpacity(0.25)),
-                  ]),
+                    child: Row(children: [
+                      Container(
+                        width: 44, height: 44,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.07),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.info_outline_rounded,
+                            color: Colors.white54, size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text('About AURA',
+                              style: TextStyle(color: Colors.white,
+                                  fontSize: 14, fontWeight: FontWeight.w700)),
+                          Text('Version, credits & info',
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(0.35),
+                                  fontSize: 12)),
+                        ],
+                      )),
+                      Icon(Icons.arrow_forward_ios_rounded,
+                          size: 14, color: Colors.white.withOpacity(0.25)),
+                    ]),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-
-        const SizedBox(height: 8),
-      ],
+          const SizedBox(height: 8),
+        ],
+      ),
     ),
   );
-}
+}  // ← _WorldSheetState closes here
 
-// ── World card ─────────────────────────────────────────────────────────────────
+// ── World card ────────────────────────────────────────────────────────────────
 class _WorldCard extends StatefulWidget {
   final String    assetPath, title, subtitle;
   final Color     accent;
@@ -577,6 +528,7 @@ class _WorldCardState extends State<_WorldCard>
     with SingleTickerProviderStateMixin {
   late final AnimationController _press;
   late final Animation<double>   _scale;
+
   @override
   void initState() {
     super.initState();
@@ -585,6 +537,7 @@ class _WorldCardState extends State<_WorldCard>
     _scale = Tween<double>(begin: 1.0, end: 0.97)
         .animate(CurvedAnimation(parent: _press, curve: Curves.easeOut));
   }
+
   @override
   void dispose() { _press.dispose(); super.dispose(); }
 
@@ -608,7 +561,8 @@ class _WorldCardState extends State<_WorldCard>
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.centerLeft, end: Alignment.centerRight,
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
                     colors: [
                       Colors.black.withOpacity(0.72),
                       Colors.black.withOpacity(0.2),
@@ -616,7 +570,6 @@ class _WorldCardState extends State<_WorldCard>
                   ),
                 ),
               ),
-              // Accent border
               Container(
                 decoration: BoxDecoration(
                   border: Border.all(
@@ -624,28 +577,35 @@ class _WorldCardState extends State<_WorldCard>
                   borderRadius: BorderRadius.circular(18),
                 ),
               ),
-              // Text
-              Positioned(left: 18, bottom: 16, right: 60,
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min, children: [
-                      Text(widget.title,
-                          style: const TextStyle(color: Colors.white, fontSize: 17,
-                              fontWeight: FontWeight.w900, letterSpacing: 1.2,
-                              shadows: [Shadow(color: Colors.black54, blurRadius: 6)])),
-                      Text(widget.subtitle,
-                          style: TextStyle(color: Colors.white.withOpacity(0.6),
-                              fontSize: 11)),
-                    ]),
+              Positioned(
+                left: 18, bottom: 16, right: 60,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(widget.title,
+                        style: const TextStyle(color: Colors.white,
+                            fontSize: 17, fontWeight: FontWeight.w900,
+                            letterSpacing: 1.2,
+                            shadows: [Shadow(
+                                color: Colors.black54, blurRadius: 6)])),
+                    Text(widget.subtitle,
+                        style: TextStyle(
+                            color: Colors.white.withOpacity(0.6),
+                            fontSize: 11)),
+                  ],
+                ),
               ),
-              // Arrow badge
-              Positioned(right: 14, bottom: 14,
+              Positioned(
+                right: 14, bottom: 14,
                 child: Container(
                   width: 36, height: 36,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: widget.accent.withOpacity(0.9),
                     boxShadow: [BoxShadow(
-                        color: widget.accent.withOpacity(0.4), blurRadius: 10)],
+                        color: widget.accent.withOpacity(0.4),
+                        blurRadius: 10)],
                   ),
                   child: const Icon(Icons.arrow_forward_rounded,
                       color: Colors.white, size: 16),

@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../screens/class_data.dart';
+import '../class_pages/class_data.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ClassCard — tap to open, long-press for options, delete support
