@@ -39,6 +39,7 @@ dependencies:
   ffi: ^2.2.0
   build_runner: ^2.13.1
   wakelock_plus: ^1.2.8
+  path_provider: ^2.1.5
   
 
 dev_dependencies:
@@ -67,6 +68,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - Assets/images/
+    - assets/LFM2.5-1.2B-Instruct-Q4_K_M.gguf
+    - assets/tokenizer.json
 #    - assets/models/LFM2.5-1.2B-Instruct-Q4_K_M.gguf
 #    - assets/tokenizer.json
   #   - images/a_dot_ham.jpeg

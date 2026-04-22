@@ -73,14 +73,12 @@ class _AuraSubjectOverlayState extends State<AuraSubjectOverlay>
     _streamText.dispose(); _thinking.dispose(); _streaming.dispose();
     super.dispose();
   }
-
   Future<void> _send() async {
     final q = _ctrl.text.trim();
     if (q.isEmpty || _busy) return;
     _busy = true;
     _ctrl.clear();
 
-    // Reset state without triggering a massive rebuild of the whole panel
     setState(() { _hasText = false; _answer = null; });
     HapticFeedback.lightImpact();
 
@@ -92,32 +90,26 @@ class _AuraSubjectOverlayState extends State<AuraSubjectOverlay>
     try {
       await for (final token in auraChat(prompt: 'Teacher mode: $q')) {
         if (token == _kThinkingSentinel) continue;
-
         if (_thinking.value) _thinking.value = false;
 
-        // ANIMATION TRICK: Instead of dumping the whole token at once,
-        // we loop through its characters with a tiny delay.
         for (var i = 0; i < token.length; i++) {
           buf.write(token[i]);
           _streamText.value = '${buf.toString()}▍';
-
-          // Small delay per character for that "Aura is typing" feel
-          // 10-15ms is the sweet spot for perceived smoothness.
           await Future.delayed(const Duration(milliseconds: 12));
           _jumpToBottom();
         }
       }
+
+      _streamText.value = buf.toString();
+      setState(() => _answer = buf.toString());
     } catch (e) {
       debugPrint('overlay err: $e');
+    } finally {
+      _busy = false;
+      _thinking.value = false;
+      _streaming.value = false; // <-- critical
     }
-
-    // Finalize the text (remove the cursor ▍)
-    _streamText.value = buf.toString();
-    setState(() => _answer = buf.toString());
-    _busy = false;
-    _thinking.value = false;
   }
-
   void _jumpToBottom() => WidgetsBinding.instance.addPostFrameCallback((_) {
     if (_scroll.hasClients) {
       _scroll.animateTo(_scroll.position.maxScrollExtent,
