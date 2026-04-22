@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:collection';
-import 'package:characters/characters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:aura_notebook/src/rust/api.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-// Must match THINKING_SENTINEL in engine.rs exactly
 const _kThinkingSentinel = '\x00__THINKING__\x00';
 
 const _kSuggestions = [
@@ -16,93 +13,103 @@ const _kSuggestions = [
   'What can you do? 🎈',
 ];
 
-// ── ROOT ──────────────────────────────────────────────────────────────────────
 class AuraChatWidget extends StatefulWidget {
   const AuraChatWidget({super.key});
+
   @override
   State<AuraChatWidget> createState() => _AuraChatWidgetState();
 }
 
 class _AuraChatWidgetState extends State<AuraChatWidget> {
-
-  final _messages   = <ChatMessage>[];
+  final _messages = <ChatMessage>[];
   final _streamText = ValueNotifier<String>('');
-  final _streaming  = ValueNotifier<bool>(false);
-  final _thinking   = ValueNotifier<bool>(false);
-  final _scroll     = ScrollController();
+  final _streaming = ValueNotifier<bool>(false);
+  final _thinking = ValueNotifier<bool>(false);
+  final _busyNotifier = ValueNotifier<bool>(false);
+  final _scroll = ScrollController();
 
   StreamSubscription<String>? _chatSub;
-  bool _busy          = false;
+  bool _busy = false;
   bool _jumpScheduled = false;
 
-  // ── SEND ──────────────────────────────────────────────────────────────────
-
-  // ── SEND ──────────────────────────────────────────────────────────────────
   Future<void> _send(String text) async {
-    await WakelockPlus.enable();
     if (text.isEmpty || _busy) return;
     _busy = true;
+    _busyNotifier.value = true;
 
     HapticFeedback.lightImpact();
+    await WakelockPlus.enable();
 
-    // 1. Instantly add user message and turn on thinking dots
     setState(() => _messages.add(ChatMessage(text: text, isUser: true)));
     _streamText.value = '';
-    _streaming.value  = false;
-    _thinking.value   = true;
+    _streaming.value = false;
+    _thinking.value = true;
     _scheduleJump();
 
-    // 2. Tiny 10ms yield to guarantee Flutter draws the user bubble instantly
     await Future.delayed(const Duration(milliseconds: 10));
-
     final buf = StringBuffer();
 
     try {
-      // 3. Connect to the Rust stream at MAX SPEED
-      await for (final token in auraChat(prompt: text)) {
-        if (token == _kThinkingSentinel) {
-          continue;
-        }
+      _chatSub = auraChat(prompt: text).listen(
+            (token) {
+          if (token == _kThinkingSentinel) return;
 
-        if (_thinking.value) {
-          _thinking.value  = false;
-          _streaming.value = true;
-        }
+          if (_thinking.value) {
+            _thinking.value = false;
+            _streaming.value = true;
+          }
 
-        // 4. Instantly append the character and update UI.
-        // Flutter's ValueNotifier automatically batches screen draws at 60 FPS,
-        // so this gives you the absolute lowest latency possible!
-        buf.write(token);
-        _streamText.value = '$buf▍';
+          buf.write(token);
+          _streamText.value = '$buf▍';
+          _scheduleJump();
+        },
+        onError: (Object err) {
+          debugPrint('stream error: $err');
+          _commitBubble(buf.isNotEmpty ? buf.toString() : '⚠️ Something went wrong.');
+        },
+        onDone: () => _commitBubble(buf.toString()),
+        cancelOnError: true,
+      );
 
-        // This is safe because _scheduleJump already has an internal throttle
-        _scheduleJump();
-      }
-
+      await _chatSub!.asFuture<void>().timeout(
+        const Duration(seconds: 60),
+        onTimeout: () {
+          _chatSub?.cancel();
+          _commitBubble(buf.isNotEmpty ? buf.toString() : '⚠️ Response timed out.');
+        },
+      );
     } catch (e) {
-      debugPrint('stream error: $e');
+      debugPrint('send error: $e');
+      _commitBubble(buf.isNotEmpty ? buf.toString() : '⚠️ Engine error.');
+    }
+  }
+
+  void _commitBubble(String text) {
+    if (!mounted) {
+      _busy = false;
+      _busyNotifier.value = false;
+      WakelockPlus.disable();
+      return;
     }
 
-    // Commit final text as permanent bubble
-    final finalText = buf.toString();
     _streamText.value = '';
-    _streaming.value  = false;
-    _thinking.value   = false;
-
-    setState(() {
-      _messages.add(ChatMessage(text: finalText, isUser: false));
-    });
-
+    _streaming.value = false;
+    _thinking.value = false;
     _busy = false;
-    await WakelockPlus.disable();
+    _busyNotifier.value = false;
+
+    if (text.isNotEmpty) {
+      setState(() => _messages.add(ChatMessage(text: text, isUser: false)));
+    }
+
+    WakelockPlus.disable();
     _scheduleJump();
   }
 
-  // ── SCROLL ────────────────────────────────────────────────────────────────
   void _scheduleJump() {
     if (_jumpScheduled || !_scroll.hasClients) return;
     final pos = _scroll.position;
-    if (pos.maxScrollExtent - pos.pixels > 300) return;
+    if (pos.maxScrollExtent - pos.pixels > 600) return;
     _jumpScheduled = true;
     SchedulerBinding.instance.addPostFrameCallback((_) {
       _jumpScheduled = false;
@@ -118,6 +125,7 @@ class _AuraChatWidgetState extends State<AuraChatWidget> {
     _streamText.dispose();
     _streaming.dispose();
     _thinking.dispose();
+    _busyNotifier.dispose();
     _scroll.dispose();
     super.dispose();
   }
@@ -127,32 +135,30 @@ class _AuraChatWidgetState extends State<AuraChatWidget> {
     children: [
       Expanded(
         child: _MsgList(
-          messages:     _messages,
-          streamText:   _streamText,
-          streaming:    _streaming,
-          scroll:       _scroll,
+          messages: _messages,
+          streamText: _streamText,
+          streaming: _streaming,
+          scroll: _scroll,
           onSuggestion: _send,
         ),
       ),
       _Thinking(thinking: _thinking),
-      _InputBar(onSend: _send, busy: _streaming),
+      _InputBar(onSend: _send, busy: _busyNotifier),
     ],
   );
 }
 
-// ── DATA MODEL ────────────────────────────────────────────────────────────────
 class ChatMessage {
   final String text;
-  final bool   isUser;
+  final bool isUser;
   const ChatMessage({required this.text, required this.isUser});
 }
 
-// ── MESSAGE LIST ──────────────────────────────────────────────────────────────
 class _MsgList extends StatelessWidget {
-  final List<ChatMessage>             messages;
-  final ValueNotifier<String>         streamText;
-  final ValueNotifier<bool>           streaming;
-  final ScrollController              scroll;
+  final List<ChatMessage> messages;
+  final ValueNotifier<String> streamText;
+  final ValueNotifier<bool> streaming;
+  final ScrollController scroll;
   final Future<void> Function(String) onSuggestion;
 
   const _MsgList({
@@ -176,32 +182,28 @@ class _MsgList extends StatelessWidget {
           cacheExtent: 3000,
           physics: const ClampingScrollPhysics(),
           slivers: [
-            // Committed messages — never rebuild during streaming
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               sliver: SliverList.builder(
                 itemCount: messages.length,
                 itemBuilder: (_, i) => _Bubble(
-                  key:    ValueKey('m$i'),
-                  text:   messages[i].text,
+                  key: ValueKey('m$i'),
+                  text: messages[i].text,
                   isUser: messages[i].isUser,
                 ),
               ),
             ),
-            // Live streaming bubble — RepaintBoundary isolates repaints
             SliverToBoxAdapter(
               child: RepaintBoundary(
                 child: isStreaming
                     ? Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: RepaintBoundary(
-                    child: ValueListenableBuilder<String>(
-                      valueListenable: streamText,
-                      builder: (_, txt, __) => _Bubble(
-                        key:    const ValueKey('live'),
-                        text:   txt,
-                        isUser: false,
-                      ),
+                  child: ValueListenableBuilder<String>(
+                    valueListenable: streamText,
+                    builder: (_, txt, __) => _Bubble(
+                      key: const ValueKey('live'),
+                      text: txt,
+                      isUser: false,
                     ),
                   ),
                 )
@@ -216,7 +218,6 @@ class _MsgList extends StatelessWidget {
   }
 }
 
-// ── EMPTY STATE ───────────────────────────────────────────────────────────────
 class _EmptyState extends StatelessWidget {
   final Future<void> Function(String) onSuggestion;
   const _EmptyState({required this.onSuggestion});
@@ -236,21 +237,25 @@ class _EmptyState extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         Wrap(
-          spacing: 8, runSpacing: 8,
+          spacing: 8,
+          runSpacing: 8,
           alignment: WrapAlignment.center,
-          children: _kSuggestions.map((s) => ActionChip(
-            label: Text(s, style: const TextStyle(fontSize: 13)),
-            backgroundColor: Colors.white,
-            side: BorderSide(color: Colors.indigo.shade100),
-            onPressed: () => onSuggestion(s),
-          )).toList(),
+          children: _kSuggestions
+              .map(
+                (s) => ActionChip(
+              label: Text(s, style: const TextStyle(fontSize: 13)),
+              backgroundColor: Colors.white,
+              side: BorderSide(color: Colors.indigo.shade100),
+              onPressed: () => onSuggestion(s),
+            ),
+          )
+              .toList(),
         ),
       ],
     ),
   );
 }
 
-// ── THINKING DOTS ─────────────────────────────────────────────────────────────
 class _Thinking extends StatelessWidget {
   final ValueNotifier<bool> thinking;
   const _Thinking({required this.thinking});
@@ -274,8 +279,8 @@ class _Thinking extends StatelessWidget {
               Text(
                 'AURA is thinking…',
                 style: TextStyle(
-                  color:     Colors.indigo.shade300,
-                  fontSize:  12,
+                  color: Colors.indigo.shade300,
+                  fontSize: 12,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -306,7 +311,10 @@ class _DotsState extends State<_Dots> with SingleTickerProviderStateMixin {
   }
 
   @override
-  void dispose() { _ac.dispose(); super.dispose(); }
+  void dispose() {
+    _ac.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
@@ -318,7 +326,8 @@ class _DotsState extends State<_Dots> with SingleTickerProviderStateMixin {
         final o = (p < 0.5 ? p * 2 : (1 - p) * 2).clamp(0.3, 1.0);
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 1.5),
-          width: 4, height: 4,
+          width: 4,
+          height: 4,
           decoration: BoxDecoration(
             color: Colors.indigo.shade300.withOpacity(o),
             shape: BoxShape.circle,
@@ -329,10 +338,9 @@ class _DotsState extends State<_Dots> with SingleTickerProviderStateMixin {
   );
 }
 
-// ── INPUT BAR ─────────────────────────────────────────────────────────────────
 class _InputBar extends StatefulWidget {
   final Future<void> Function(String) onSend;
-  final ValueNotifier<bool>           busy;
+  final ValueNotifier<bool> busy;
   const _InputBar({required this.onSend, required this.busy});
 
   @override
@@ -340,15 +348,15 @@ class _InputBar extends StatefulWidget {
 }
 
 class _InputBarState extends State<_InputBar> {
-  final _ctrl  = TextEditingController();
+  final _ctrl = TextEditingController();
   final _focus = FocusNode();
-  bool  _hasText = false;
+  bool _hasText = false;
 
   @override
   void initState() {
     super.initState();
     _ctrl.addListener(() {
-      final h = _ctrl.text.isNotEmpty;
+      final h = _ctrl.text.trim().isNotEmpty;
       if (h != _hasText) setState(() => _hasText = h);
     });
   }
@@ -362,7 +370,11 @@ class _InputBarState extends State<_InputBar> {
   }
 
   @override
-  void dispose() { _ctrl.dispose(); _focus.dispose(); super.dispose(); }
+  void dispose() {
+    _ctrl.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => ValueListenableBuilder<bool>(
@@ -373,51 +385,50 @@ class _InputBarState extends State<_InputBar> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(28),
-          boxShadow: [BoxShadow(
-            color:      Colors.indigo.withOpacity(0.08),
-            blurRadius: 16,
-            spreadRadius: 1,
-            offset: const Offset(0, 4),
-          )],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.indigo.withOpacity(0.08),
+              blurRadius: 16,
+              spreadRadius: 1,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Expanded(
               child: TextField(
-                controller:        _ctrl,
-                focusNode:         _focus,
-                onSubmitted:       (_) => isBusy ? null : _submit(),
-                textInputAction:   TextInputAction.send,
+                controller: _ctrl,
+                focusNode: _focus,
+                enabled: !isBusy,
+                onSubmitted: (_) => isBusy ? null : _submit(),
+                textInputAction: TextInputAction.send,
                 enableSuggestions: false,
-                autocorrect:       false,
+                autocorrect: false,
                 style: const TextStyle(fontSize: 15, color: Colors.black87),
                 decoration: const InputDecoration(
-                  hintText:       'Talk to AURA...',
-                  hintStyle:      TextStyle(color: Colors.black38, fontSize: 15),
-                  border:         InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 20, vertical: 15),
+                  hintText: 'Talk to AURA...',
+                  hintStyle: TextStyle(color: Colors.black38, fontSize: 15),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 ),
               ),
             ),
             Padding(
               padding: const EdgeInsets.only(right: 6),
               child: GestureDetector(
-                onTap: isBusy ? null : _submit,
+                onTap: (!isBusy && _hasText) ? _submit : null,
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
-                  width: 40, height: 40,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
-                    color: (_hasText && !isBusy)
-                        ? Colors.indigoAccent
-                        : Colors.indigo.shade100,
+                    color: (_hasText && !isBusy) ? Colors.indigoAccent : Colors.indigo.shade100,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Icon(
                     Icons.send_rounded,
-                    color: (_hasText && !isBusy)
-                        ? Colors.white
-                        : Colors.indigo.shade300,
+                    color: (_hasText && !isBusy) ? Colors.white : Colors.indigo.shade300,
                     size: 18,
                   ),
                 ),
@@ -430,10 +441,9 @@ class _InputBarState extends State<_InputBar> {
   );
 }
 
-// ── BUBBLE ────────────────────────────────────────────────────────────────────
 class _Bubble extends StatelessWidget {
   final String text;
-  final bool   isUser;
+  final bool isUser;
   const _Bubble({super.key, required this.text, required this.isUser});
 
   @override
@@ -443,29 +453,29 @@ class _Bubble extends StatelessWidget {
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
         decoration: BoxDecoration(
           color: isUser ? Colors.indigoAccent : Colors.white,
           borderRadius: BorderRadius.only(
-            topLeft:     const Radius.circular(20),
-            topRight:    const Radius.circular(20),
-            bottomLeft:  Radius.circular(isUser ? 20 : 4),
+            topLeft: const Radius.circular(20),
+            topRight: const Radius.circular(20),
+            bottomLeft: Radius.circular(isUser ? 20 : 4),
             bottomRight: Radius.circular(isUser ? 4 : 20),
           ),
-          boxShadow: [BoxShadow(
-            color:      Colors.black.withOpacity(0.06),
-            blurRadius: 8,
-            offset:     const Offset(0, 2),
-          )],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Text(
           text,
           style: TextStyle(
-            color:    isUser ? Colors.white : Colors.black87,
+            color: isUser ? Colors.white : Colors.black87,
             fontSize: 15,
-            height:   1.45,
+            height: 1.45,
           ),
         ),
       ),

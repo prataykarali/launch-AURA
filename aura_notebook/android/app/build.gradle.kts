@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.example.aura_notebook" // Ensure this matches your package name
     compileSdk = flutter.compileSdkVersion
-
+    ndkVersion = "30.0.14904198"
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
