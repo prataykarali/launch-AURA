@@ -5,12 +5,6 @@ import '../class_data.dart';
 
 const _kSentinel = '\x00__THINKING__\x00';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SmartBriefingCard
-// • Auto-generates a 3-bullet daily class briefing using auraChat()
-// • Same streaming pattern as the working AuraSubjectOverlay
-// • Collapsible, refresh button, auto-runs on first render
-// ─────────────────────────────────────────────────────────────────────────────
 class SmartBriefingCard extends StatefulWidget {
   final ClassData data;
   final int       topicsDone;
@@ -33,28 +27,8 @@ class SmartBriefingCard extends StatefulWidget {
 
 class _SmartBriefingCardState extends State<SmartBriefingCard>
     with SingleTickerProviderStateMixin {
-  Widget _buildErrorState() {
-    return Row(
-      children: [
-        Icon(Icons.error_outline_rounded,
-            size: 16, color: Colors.orange.withOpacity(0.6)),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            'Could not generate briefing. Tap ↻ to retry.',
-            style: TextStyle(
-                color: Colors.white.withOpacity(0.35),
-                fontSize: 12),
-          ),
-        ),
-      ],
-    );
-  }
 
-  // ── Orb animation ──────────────────────────────────────────────────────────
   late final AnimationController _orbCtrl;
-
-  // ── Content state ──────────────────────────────────────────────────────────
   final _streamText = ValueNotifier<String>('');
   bool  _loading    = false;
   bool  _done       = false;
@@ -68,8 +42,9 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
       vsync:    this,
       duration: const Duration(milliseconds: 2400),
     )..repeat();
-    // Auto-generate on first open
-    WidgetsBinding.instance.addPostFrameCallback((_) => _generate());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _generate();         // ← guard added
+    });
   }
 
   @override
@@ -79,11 +54,11 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
     super.dispose();
   }
 
-  // ── Generate briefing ──────────────────────────────────────────────────────
-  // Uses the EXACT same pattern as AuraSubjectOverlay which is confirmed working
   Future<void> _generate() async {
+    if (!mounted) return;              // ← guard
     if (_loading) return;
-    setState(() {
+
+    if (mounted) setState(() {
       _loading  = true;
       _done     = false;
       _hasError = false;
@@ -95,9 +70,6 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
         ? 0
         : (widget.topicsDone / widget.topicsTotal * 100).toInt();
 
-    // ── FIX: Simple direct prompt, no nested system instructions ──────────────
-    // The working overlay uses: 'You are a helpful teacher. Answer clearly: [q]'
-    // We follow the exact same pattern.
     final prompt =
         'You are a helpful teacher for ${d.name} (${d.subject}). '
         'Write a brief daily class update as exactly 3 short bullet points. '
@@ -111,20 +83,24 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
     final buf = StringBuffer();
     try {
       await for (final token in auraChat(prompt: prompt)) {
+        if (!mounted) return;          // ← guard on every token
         if (token == _kSentinel) continue;
         buf.write(token);
-        // Update the notifier on every token — identical to working overlay
         _streamText.value = '$buf▍';
       }
     } catch (e) {
       debugPrint('SmartBriefingCard error: $e');
+      if (!mounted) return;            // ← guard
       setState(() => _hasError = true);
     }
 
-    // Commit final text
+    if (!mounted) return;              // ← guard before final setState
+
     final finalText = buf.toString().trim();
     _streamText.value = finalText.isEmpty
-        ? '• ${d.subject} class is on track.\n• ${widget.topicsDone} topics completed so far.\n• Keep up the great work!'
+        ? '• ${d.subject} class is on track.\n'
+        '• ${widget.topicsDone} topics completed so far.\n'
+        '• Keep up the great work!'
         : finalText;
 
     setState(() { _loading = false; _done = true; });
@@ -147,9 +123,7 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Header ──────────────────────────────────────────────────────
           _buildHeader(),
-          // ── Body ────────────────────────────────────────────────────────
           if (_expanded) _buildBody(),
         ],
       ),
@@ -157,7 +131,7 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
   }
 
   Widget _buildHeader() => GestureDetector(
-    onTap: () => setState(() => _expanded = !_expanded),
+    onTap: () { if (mounted) setState(() => _expanded = !_expanded); },
     child: Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
@@ -167,13 +141,11 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
             : BorderRadius.circular(18),
         border: Border(
           bottom: _expanded
-              ? BorderSide(
-              color: const Color(0xFF7C4DFF).withOpacity(0.18))
+              ? BorderSide(color: const Color(0xFF7C4DFF).withOpacity(0.18))
               : BorderSide.none,
         ),
       ),
       child: Row(children: [
-        // Spinning orb
         AnimatedBuilder(
           animation: _orbCtrl,
           builder: (_, __) => Container(
@@ -181,8 +153,7 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: SweepGradient(
-                transform: GradientRotation(
-                    _orbCtrl.value * math.pi * 2),
+                transform: GradientRotation(_orbCtrl.value * math.pi * 2),
                 colors: const [
                   Color(0xFF7C4DFF), Color(0xFF40C4FF),
                   Color(0xFF00E5FF), Color(0xFF7C4DFF),
@@ -215,7 +186,6 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
             ],
           ),
         ),
-        // Refresh
         GestureDetector(
           onTap: _generate,
           child: Container(
@@ -246,19 +216,11 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
     child: ValueListenableBuilder<String>(
       valueListenable: _streamText,
       builder: (_, txt, __) {
-        // 1. Loading State (No text yet)
-        if (txt.isEmpty && _loading) {
-          return _buildLoadingState();
-        }
+        if (txt.isEmpty && _loading) return _buildLoadingState();
+        if (_hasError && txt.isEmpty)  return _buildErrorState();
 
-        // 2. Error State
-        if (_hasError && txt.isEmpty) {
-          return _buildErrorState();
-        }
-
-        // 3. Streaming Content State
         final lines = txt
-            .replaceAll('▍', '') // Clean the cursor for splitting logic
+            .replaceAll('▍', '')
             .split('\n')
             .map((l) => l.trim())
             .where((l) => l.isNotEmpty)
@@ -266,26 +228,18 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
 
         return AnimatedOpacity(
           duration: const Duration(milliseconds: 400),
-          opacity: txt.isEmpty ? 0.0 : 1.0, // Smooth fade-in for the first characters
+          opacity: txt.isEmpty ? 0.0 : 1.0,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: lines.map((line) => Padding(
               padding: const EdgeInsets.only(bottom: 10),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Add the cursor only to the very last line while loading
-                  Expanded(
-                    child: Text(
-                      line + (line == lines.last && _loading ? '▍' : ''),
-                      style: TextStyle(
-                          color: Colors.white.withOpacity(0.72),
-                          fontSize: 13,
-                          height: 1.5,
-                          letterSpacing: 0.2),
-                    ),
-                  ),
-                ],
+              child: Text(
+                line + (line == lines.last && _loading ? '▍' : ''),
+                style: TextStyle(
+                    color: Colors.white.withOpacity(0.72),
+                    fontSize: 13,
+                    height: 1.5,
+                    letterSpacing: 0.2),
               ),
             )).toList(),
           ),
@@ -294,11 +248,11 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
     ),
   );
 
-// Helper for cleaner code
   Widget _buildLoadingState() => Row(children: [
     const SizedBox(
       width: 14, height: 14,
-      child: CircularProgressIndicator(strokeWidth: 1.5, color: Color(0xFF7C4DFF)),
+      child: CircularProgressIndicator(
+          strokeWidth: 1.5, color: Color(0xFF7C4DFF)),
     ),
     const SizedBox(width: 12),
     Text('AURA is composing...',
@@ -306,4 +260,19 @@ class _SmartBriefingCardState extends State<SmartBriefingCard>
             color: Colors.white.withOpacity(0.3),
             fontSize: 12, fontStyle: FontStyle.italic)),
   ]);
+
+  Widget _buildErrorState() => Row(
+    children: [
+      Icon(Icons.error_outline_rounded,
+          size: 16, color: Colors.orange.withOpacity(0.6)),
+      const SizedBox(width: 8),
+      Expanded(
+        child: Text(
+          'Could not generate briefing. Tap ↻ to retry.',
+          style: TextStyle(
+              color: Colors.white.withOpacity(0.35), fontSize: 12),
+        ),
+      ),
+    ],
+  );
 }

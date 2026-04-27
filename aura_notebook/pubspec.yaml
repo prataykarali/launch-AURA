@@ -35,23 +35,24 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  flutter_rust_bridge: ^2.11.1
+  flutter_rust_bridge: 2.12.0
   ffi: ^2.2.0
   build_runner: ^2.13.1
   wakelock_plus: ^1.2.8
+  path_provider: ^2.1.5
   
 
 dev_dependencies:
   permission_handler: ^11.3.1
   flutter_test:
     sdk: flutter
-  flutter_rust_bridge: ^2.11.1
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -67,6 +68,8 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - Assets/images/
+    - assets/LFM2.5-1.2B-Instruct-Q4_K_M.gguf
+    - assets/tokenizer.json
 #    - assets/models/LFM2.5-1.2B-Instruct-Q4_K_M.gguf
 #    - assets/tokenizer.json
   #   - images/a_dot_ham.jpeg
@@ -96,3 +99,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "Assets/images/AURA.png" # Make sure this points to your square image
+  min_sdk_android: 21
+  # This tells Android how to crop it properly without stretching:
+  adaptive_icon_background: "#E8C8B5" # Put the hex color of your image's background here
+  adaptive_icon_foreground: "Assets/images/AURA.png"

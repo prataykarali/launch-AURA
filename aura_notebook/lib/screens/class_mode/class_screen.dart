@@ -242,11 +242,12 @@ class _ClassScreenState extends State<ClassScreen>
             ],
           ),
 
-          // ✅ Removed `if (_overlayOpen)` so the widget is always present to catch the animation!
-          AuraSubjectOverlay(
-            open: _overlayOpen,
-            onClose: () => setState(() => _overlayOpen = false),
-          ),
+          // ✅ FIX: Mount overlay only when open so it cannot block taps while closed.
+          if (_overlayOpen)
+            AuraSubjectOverlay(
+              open: true,
+              onClose: () => setState(() => _overlayOpen = false),
+            ),
         ],
       ),
       floatingActionButton: _overlayOpen ? null : _buildFabs(),
@@ -308,7 +309,7 @@ class _ClassScreenState extends State<ClassScreen>
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// BANNER BAR
+// BANNER BAR — stretchy parallax, working buttons, inline search
 // ═════════════════════════════════════════════════════════════════════════════
 class _BannerBar extends StatelessWidget {
   final VoidCallback            onBack, onShare, onMenu;

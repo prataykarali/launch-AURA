@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/widget_link.dart';
-import 'option_screen.dart';
+import 'widgets/widget_link.dart';
+import '../option_screen.dart';
 
 class home extends StatelessWidget {
   const home({super.key});
