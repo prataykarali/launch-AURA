@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../widgets/class_card.dart';
-import '../widgets/aura_subject_overlay.dart';
-import '../widgets/add_class_sheet.dart';
-import 'class_detail_page.dart';
-import 'class_data.dart';
+import 'class_main_widgets/class_card.dart';
+import 'class_main_widgets/aura_subject_overlay.dart';
+import 'class_main_widgets/add_class_sheet.dart';
+import 'class_pages/class_detail_page.dart';
+import 'class_pages/class_data.dart';
+import 'package:aura_notebook/utils/responsive.dart';
 
 class ClassScreen extends StatefulWidget {
   const ClassScreen({super.key});
@@ -72,10 +73,8 @@ class _ClassScreenState extends State<ClassScreen>
     super.dispose();
   }
 
-  // ── Back ──────────────────────────────────────────────────────────────────
   void _goBack() => Navigator.of(context).pop();
 
-  // ── Search toggle ──────────────────────────────────────────────────────────
   void _toggleSearch() {
     setState(() {
       _searchActive = !_searchActive;
@@ -83,7 +82,6 @@ class _ClassScreenState extends State<ClassScreen>
     });
   }
 
-  // ── Share ──────────────────────────────────────────────────────────────────
   void _share() {
     final summary = _classes.map((c) =>
     '${c.name} (${c.subject}) — ${c.teacher}').join('\n');
@@ -92,7 +90,6 @@ class _ClassScreenState extends State<ClassScreen>
     ScaffoldMessenger.of(context).showSnackBar(_snack('Class list copied to clipboard!'));
   }
 
-  // ── 3-dot menu ─────────────────────────────────────────────────────────────
   void _showMenu() {
     showModalBottomSheet(
       context: context,
@@ -122,7 +119,6 @@ class _ClassScreenState extends State<ClassScreen>
     duration: const Duration(seconds: 2),
   );
 
-  // ── Add class ──────────────────────────────────────────────────────────────
   void _openAddSheet() {
     showModalBottomSheet(
       context: context, isScrollControlled: true,
@@ -137,7 +133,6 @@ class _ClassScreenState extends State<ClassScreen>
     );
   }
 
-  // ── Delete ─────────────────────────────────────────────────────────────────
   void _confirmDelete(ClassData c) {
     showDialog(
       context: context,
@@ -147,12 +142,12 @@ class _ClassScreenState extends State<ClassScreen>
         title: const Text('Delete Class',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800)),
         content: Text('Delete "${c.name}"?\nThis cannot be undone.',
-            style: TextStyle(color: Colors.white.withOpacity(0.6),
+            style: TextStyle(color: Colors.white70,
                 fontSize: 13, height: 1.5)),
         actions: [
           TextButton(onPressed: () => Navigator.pop(context),
-              child: Text('Cancel',
-                  style: TextStyle(color: Colors.white.withOpacity(0.5)))),
+              child: const Text('Cancel',
+                  style: TextStyle(color: Colors.white54))),
           TextButton(
             onPressed: () {
               setState(() => _classes.remove(c));
@@ -170,7 +165,6 @@ class _ClassScreenState extends State<ClassScreen>
     );
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -181,8 +175,6 @@ class _ClassScreenState extends State<ClassScreen>
           CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-
-              // ── Stretchy parallax banner ─────────────────────────────
               _BannerBar(
                 onBack:          _goBack,
                 onSearch:        _toggleSearch,
@@ -193,10 +185,8 @@ class _ClassScreenState extends State<ClassScreen>
                 onSearchChanged: (v) => setState(() => _searchQuery = v),
               ),
 
-              // ── Stats ────────────────────────────────────────────────
               _StatsRow(classes: _classes),
 
-              // ── Section / search label ───────────────────────────────
               if (_searchActive && _searchQuery.isNotEmpty)
                 SliverToBoxAdapter(
                   child: Padding(
@@ -213,7 +203,6 @@ class _ClassScreenState extends State<ClassScreen>
               else
                 _SectionLabel(label: 'YOUR CLASSES'),
 
-              // ── Class cards ──────────────────────────────────────────
               if (_filtered.isEmpty)
                 SliverToBoxAdapter(
                   child: Padding(
@@ -253,24 +242,21 @@ class _ClassScreenState extends State<ClassScreen>
             ],
           ),
 
-          // ── AURA overlay ──────────────────────────────────────────────
+          // ✅ Removed `if (_overlayOpen)` so the widget is always present to catch the animation!
           AuraSubjectOverlay(
             open: _overlayOpen,
             onClose: () => setState(() => _overlayOpen = false),
           ),
         ],
       ),
-
       floatingActionButton: _overlayOpen ? null : _buildFabs(),
     );
   }
 
-  // ── FABs ───────────────────────────────────────────────────────────────────
   Widget _buildFabs() => Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.end,
     children: [
-      // AURA button
       ScaleTransition(
         scale: _pulseAnim,
         child: GestureDetector(
@@ -306,7 +292,6 @@ class _ClassScreenState extends State<ClassScreen>
         ),
       ),
       const SizedBox(height: 12),
-      // New Class FAB
       FloatingActionButton.extended(
         heroTag:         'newclass',
         onPressed:       _openAddSheet,
@@ -323,7 +308,7 @@ class _ClassScreenState extends State<ClassScreen>
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// BANNER BAR — stretchy parallax, working buttons, inline search
+// BANNER BAR
 // ═════════════════════════════════════════════════════════════════════════════
 class _BannerBar extends StatelessWidget {
   final VoidCallback            onBack, onShare, onMenu;
@@ -347,20 +332,17 @@ class _BannerBar extends StatelessWidget {
     final sw = MediaQuery.of(context).size.width;
 
     return SliverAppBar(
-      // ── FIX 3: stretch: true + StretchMode.zoomBackground = elastic banner ──
-      expandedHeight:  sw * 0.60,
+      expandedHeight: R.isDesktop ? 280 : sw * 0.60,
       collapsedHeight: 56,
-      pinned:          true,
-      snap:            false,
-      floating:        false,
-      stretch:         true,             // ← enables rubber-band over-scroll
+      pinned: true,
+      snap: false,
+      floating: false,
+      stretch: true,
       backgroundColor: const Color(0xFF0D0D18),
-      elevation:       0,
+      elevation: 0,
       automaticallyImplyLeading: false,
-
-      // ── FIX 2: leading calls onBack ───────────────────────────────────────
       leading: GestureDetector(
-        onTap: onBack,                   // ← was missing in previous version
+        onTap: onBack,
         child: Container(
           margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -370,38 +352,27 @@ class _BannerBar extends StatelessWidget {
               color: Colors.white, size: 18),
         ),
       ),
-
-      // ── FIX 1: title shows search bar when active ─────────────────────────
       title: searchActive
           ? _SearchBar(ctrl: searchCtrl, onChanged: onSearchChanged)
           : null,
-
-      // ── FIX 1: all three action buttons wired to real callbacks ───────────
       actions: [
         if (!searchActive)
           _AppBarBtn(icon: Icons.search_rounded,   onTap: onSearch)
         else
           _AppBarBtn(icon: Icons.close_rounded,    onTap: onSearch),
-
-        _AppBarBtn(icon: Icons.share_rounded,      onTap: onShare),   // ← share
-        _AppBarBtn(icon: Icons.more_vert_rounded,  onTap: onMenu),    // ← 3-dot
+        _AppBarBtn(icon: Icons.share_rounded,      onTap: onShare),
+        _AppBarBtn(icon: Icons.more_vert_rounded,  onTap: onMenu),
         const SizedBox(width: 4),
       ],
-
       flexibleSpace: FlexibleSpaceBar(
-        // ── FIX 3: parallax + zoom on over-scroll ────────────────────────────
-        collapseMode:  CollapseMode.parallax,
-        stretchModes: const [
-          StretchMode.zoomBackground,    // ← zooms image on over-scroll
-          //StretchMode.blurBackground,    // ← adds blur at full stretch
-        ],
+        collapseMode: CollapseMode.parallax,
+        stretchModes: const [StretchMode.zoomBackground],
         background: Stack(
           fit: StackFit.expand,
           children: [
-            // Banner image — BoxFit.cover so it fills without distortion
             Image.asset(
               'Assets/images/class_AURA.png',
-              fit:       BoxFit.cover,
+              fit: BoxFit.cover,
               alignment: Alignment.topCenter,
               errorBuilder: (_, __, ___) => Container(
                 color: const Color(0xFF1A237E),
@@ -410,8 +381,6 @@ class _BannerBar extends StatelessWidget {
                         color: Colors.white24, size: 64)),
               ),
             ),
-
-            // Gradient scrim — bottom fade only so image is fully visible
             DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -427,18 +396,16 @@ class _BannerBar extends StatelessWidget {
                 ),
               ),
             ),
-
-            // Title text — bottom-left, above gradient
             const Positioned(
               left: 20, right: 20, bottom: 18,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize:       MainAxisSize.min,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('CLASS SYNC',
                     style: TextStyle(
-                      color:      Colors.white,
-                      fontSize:   26,
+                      color: Colors.white,
+                      fontSize: 26,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 3.0,
                       shadows: [Shadow(color: Colors.black54, blurRadius: 10)],
@@ -447,7 +414,7 @@ class _BannerBar extends StatelessWidget {
                   SizedBox(height: 3),
                   Text("The Modern Teacher's Hub",
                       style: TextStyle(
-                          color:    Color(0xAAFFFFFF),
+                          color: Color(0xAAFFFFFF),
                           fontSize: 13,
                           letterSpacing: 0.4)),
                 ],
@@ -460,7 +427,6 @@ class _BannerBar extends StatelessWidget {
   }
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 class _AppBarBtn extends StatelessWidget {
   final IconData icon; final VoidCallback onTap;
   const _AppBarBtn({required this.icon, required this.onTap});
@@ -486,18 +452,17 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextField(
     controller: ctrl,
-    onChanged:  onChanged,
-    autofocus:  true,
+    onChanged: onChanged,
+    autofocus: true,
     style: const TextStyle(color: Colors.white, fontSize: 15),
     decoration: InputDecoration(
-      hintText:  'Search classes…',
-      hintStyle: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14),
-      border:    InputBorder.none,
+      hintText: 'Search classes…',
+      hintStyle: TextStyle(color: Colors.white30, fontSize: 14),
+      border: InputBorder.none,
     ),
   );
 }
 
-// ── Stats row ─────────────────────────────────────────────────────────────────
 class _StatsRow extends StatelessWidget {
   final List<ClassData> classes;
   const _StatsRow({required this.classes});
@@ -551,12 +516,11 @@ class _SectionLabel extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
       child: Text(label,
           style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800,
-              color: Colors.white.withOpacity(0.3), letterSpacing: 2.0)),
+              color: Colors.white30, letterSpacing: 2.0)),
     ),
   );
 }
 
-// ── 3-dot menu sheet ──────────────────────────────────────────────────────────
 class _MenuSheet extends StatelessWidget {
   final VoidCallback onSort, onFilter, onExport, onAbout;
   const _MenuSheet({required this.onSort, required this.onFilter,
@@ -567,7 +531,7 @@ class _MenuSheet extends StatelessWidget {
     padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).padding.bottom + 16),
     decoration: const BoxDecoration(
-      color:        Color(0xFF12121F),
+      color: Color(0xFF12121F),
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
     child: Column(mainAxisSize: MainAxisSize.min, children: [

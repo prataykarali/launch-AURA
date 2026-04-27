@@ -202,10 +202,11 @@ impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<S
             }
         }
 
+        #[cfg(not(feature = "gen_cache"))]
         if let Some(tool_json) = crate::tool_dispatcher::needs_tool(user) {
-            let result = crate::tool_dispatcher::handle_tool_call_sync(&tool_json);
-            if !result.is_empty() { on_token(result); }
-            return;
+        let result = crate::tool_dispatcher::handle_tool_call_sync(&tool_json);
+        if !result.is_empty() { on_token(result); }
+        return;
         }
 
         let t0 = std::time::Instant::now();
