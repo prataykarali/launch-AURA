@@ -5,6 +5,7 @@ use candle_transformers::generation::{LogitsProcessor, Sampling};
 use crate::lfm2::ModelWeights;
 use tokenizers::Tokenizer;
 use crate::llm_engine::get_device;
+use crate::tool_dispatcher;
 
 const MAX_NEW_TOKENS:  usize = 80;
 const TEMPERATURE:     f64   = 0.85;
