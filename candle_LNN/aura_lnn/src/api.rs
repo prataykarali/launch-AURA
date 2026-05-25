@@ -4,7 +4,7 @@ use once_cell::sync::OnceCell;
 use std::sync::mpsc;
 use anyhow::Result;
 
-const THINKING_SENTINEL: &str = "\x00__THINKING__\x00";
+use crate::config::constants::THINKING_SENTINEL;
 
 enum EngineMsg {
     Chat { prompt: String, sink: StreamSink<String> },

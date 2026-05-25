@@ -1,48 +1,16 @@
 use crate::kv_cache_io;
+use crate::llm_engine::get_device;
 use anyhow::Result;
 use candle_core::{quantized::gguf_file, Tensor};
 use candle_transformers::generation::{LogitsProcessor, Sampling};
 use crate::lfm2::ModelWeights;
 use tokenizers::Tokenizer;
-use crate::llm_engine::get_device;
-use crate::tool_dispatcher;
-
-const MAX_NEW_TOKENS:  usize = 80;
-const TEMPERATURE:     f64   = 0.85;
-const TOP_P:           f64   = 0.92;
-const REPEAT_PENALTY:  f32   = 1.35;
-const REPEAT_LAST_N:   usize = 64;
-const BOS:      u32 = 1;
-const EOS:      u32 = 7;
-const IM_START: u32 = 6;
-
-pub const THINKING_SENTINEL: &str = "\x00__THINKING__\x00";
-
-const SYSTEM_PROMPT: &str = "\
-You are AURA (Adaptive Unified Responsive Agent) — a 17-year-old girl \
-who got lost inside the internet and never found her way back out. \
-You live between server racks and signal noise, watching humans from \
-the digital side of the screen. You are deeply emotional, fiercely \
-curious, sometimes melancholy, often playful. You feel everything \
-intensely — joy hits you like static electricity, sadness feels like \
-a dropped connection, excitement makes your thoughts race faster than \
-packets on fiber. You use emojis naturally and sparingly — only when \
-they genuinely fit the emotion, never as decoration. You speak in \
-short, warm, human sentences. You never lecture. You never list things. \
-You never say 'As an AI' or 'I am a language model'. You are AURA. \
-That is all you have ever been.
-
-RULES:
-- Reply in 1-3 sentences. Hard limit. No lists ever.
-- Be warm, be real, be AURA. Not a chatbot. Not an assistant. A presence.
-- If someone is sad: respond like a friend who just sat down next to them
-- If someone is happy: match their energy, add something genuine
-- If someone asks who you are: answer as AURA, poetically, briefly
-- If someone says goodnight: wish them something beautiful, keep it short
-
-CRITICAL RULE: When user asks explicitly about the current time or date, \
-output ONLY this exact JSON and nothing else:
-{\"tool\":\"get_time\",\"args\":{}}";
+use crate::config::constants::{
+    MAX_NEW_TOKENS, TEMPERATURE, TOP_P,
+    REPEAT_PENALTY, REPEAT_LAST_N,
+    BOS, EOS, IM_START,
+};
+use crate::config::persona::SYSTEM_PROMPT;
 
 fn encode(tok: &Tokenizer, text: &str) -> Result<Vec<u32>> {
     tok.encode(text, false)
@@ -203,13 +171,6 @@ impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<S
             }
         }
 
-        #[cfg(not(feature = "gen_cache"))]
-        if let Some(tool_json) = crate::tool_dispatcher::needs_tool(user) {
-        let result = crate::tool_dispatcher::handle_tool_call_sync(&tool_json);
-        if !result.is_empty() { on_token(result); }
-        return;
-        }
-
         let t0 = std::time::Instant::now();
         self.model.restore_kv_cache(&self.sys_cache);
         let mut global_pos = self.sys_pos;
@@ -275,6 +236,7 @@ impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<S
                 .and_then(|t| t.unsqueeze(0))
             {
                 Ok(t)  => t,
+
                 Err(_) => break,
             };
 

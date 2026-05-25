@@ -12,6 +12,7 @@ crate-type = ["cdylib", "staticlib"]
 
 [features]
 gen_cache = []
+research = []
 
 # ── COMMON ────────────────────────────────────────────────────────────────────
 [dependencies]

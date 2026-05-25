@@ -17,7 +17,9 @@ pub mod api;
 pub mod engine;        // ← only once
 pub mod llm_engine;
 pub mod kv_cache_io;
+pub mod config;
 
 mod frb_generated;
-mod tool_dispatcher;
 mod tools;
+#[cfg(feature = "research")]
+pub mod research;

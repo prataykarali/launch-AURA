@@ -1,0 +1,9 @@
+pub const MAX_NEW_TOKENS:    usize = 80;
+pub const TEMPERATURE:       f64   = 0.85;
+pub const TOP_P:             f64   = 0.92;
+pub const REPEAT_PENALTY:    f32   = 1.35;
+pub const REPEAT_LAST_N:     usize = 64;
+pub const BOS:               u32   = 1;
+pub const EOS:               u32   = 7;
+pub const IM_START:          u32   = 6;
+pub const THINKING_SENTINEL: &str  = "\x00__THINKING__\x00";

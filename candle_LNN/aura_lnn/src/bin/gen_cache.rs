@@ -7,6 +7,7 @@
 #[path = "../lfm2.rs"]         mod lfm2;
 #[path = "../quantized_nn.rs"] mod quantized_nn;
 #[path = "../ct_utils.rs"]     mod ct_utils;
+#[path = "../config/mod.rs"]   mod config; 
 #[path = "../engine.rs"]       mod engine;
 
 fn main() {
