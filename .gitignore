@@ -18,3 +18,4 @@ candle_LNN/aura_lnn/models/
 *.kvcache
 *.pos
 target/
+.fastembed_cache/
