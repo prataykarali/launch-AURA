@@ -19,3 +19,5 @@ candle_LNN/aura_lnn/models/
 *.pos
 target/
 .fastembed_cache/
+*.gguf
+.fastembed_cache/
