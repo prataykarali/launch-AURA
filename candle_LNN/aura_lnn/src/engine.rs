@@ -1,10 +1,13 @@
 use crate::kv_cache_io;
 use crate::llm_engine::get_device;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use candle_core::{quantized::gguf_file, Tensor};
 use candle_transformers::generation::{LogitsProcessor, Sampling};
 use crate::lfm2::ModelWeights;
 use tokenizers::Tokenizer;
+use crate::memory::store::MemoryStore;
+use crate::memory::embed::Embedder;
+
 use crate::config::constants::{
     MAX_NEW_TOKENS, TEMPERATURE, TOP_P,
     REPEAT_PENALTY, REPEAT_LAST_N,
@@ -26,15 +29,20 @@ fn random_seed() -> u64 {
 }
 
 pub struct AuraEngine {
-    pub model:     ModelWeights,
-    pub tok:       Tokenizer,
-    pub sys_cache: Vec<(Option<(Tensor, Tensor)>, Option<Tensor>)>,
-    pub sys_pos:   usize,
-    pub device:    candle_core::Device,
-    pub cache_path: String, 
+    pub model:      ModelWeights,
+    pub tok:        Tokenizer,
+    pub sys_cache:  Vec<(Option<(Tensor, Tensor)>, Option<Tensor>)>,
+    pub sys_pos:    usize,
+    pub device:     candle_core::Device,
+    pub cache_path: String,
+    pub store:      MemoryStore,
+    pub embedder:   Embedder,
+    pub session_id: String,
+    pub facts_dirty: bool,   
 }
 
-impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<Self> {
+impl AuraEngine {
+    pub fn load(model_path: &str, tokenizer_path: &str) -> Result<Self> {
         let device = get_device()?;
         let tok = Tokenizer::from_file(tokenizer_path)
             .map_err(|e| anyhow::anyhow!("tokenizer: {e}"))?;
@@ -46,41 +54,88 @@ impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<S
             .map_err(|e| anyhow::anyhow!("gguf read: {e}"))?;
         let model = ModelWeights::from_gguf(content, &mut cursor, &device)
             .map_err(|e| anyhow::anyhow!("model weights: {e}"))?;
-            
-        // Create a path for the cache file right next to the model file
+
         let cache_path = format!("{}.kvcache", model_path);
-        
+        let db_path    = format!("{}.memory.db", model_path);
+        let store      = crate::memory::store::MemoryStore::open(&db_path)
+            .map_err(|e| anyhow!("memory store: {e}"))?;
+        let embedder   = crate::memory::embed::Embedder::new()?;
+        let session_id = uuid::Uuid::new_v4().to_string();
+
         eprintln!("AURA_ENGINE_READY");
-        Ok(Self { model, tok, sys_cache: vec![], sys_pos: 0, device, cache_path })
+        Ok(Self {
+            model, tok,
+            sys_cache: vec![],
+            sys_pos: 0,
+            device,
+            cache_path,
+            store,
+            embedder,
+            session_id,
+            facts_dirty: false,
+        })
     }
+
+    pub fn prefill(&mut self, _partial: &str) {
+    // Phase 2 stub — full prefill cache impl in next session
+    eprintln!("AURA_PREFILL: {} chars (stub)", _partial.len());
+}
+
+    pub fn build_memory_context(&self) -> String {
+    let name = self.store.facts_cache.get("user_name").unwrap_or("friend");
+    let mood = self.store.facts_cache.get("user_feeling").unwrap_or("");
+    let location = self.store.facts_cache.get("user_location").unwrap_or("");
+
+    let mut parts = vec![
+        format!("The user's name is {}. Use it naturally, not every sentence.", name)
+    ];
+    if !mood.is_empty() {
+        parts.push(format!("Last known mood: {}.", mood));
+    }
+    if !location.is_empty() {
+        parts.push(format!("User is from: {}.", location));
+    }
+
+    format!(
+        "=== AURA'S QUICK FACTS ===\n{}\n===",
+        parts.join("\n")
+    )
+}
 
     pub fn warmup(&mut self) -> Result<()> {
-        // 1. TRY TO LOAD INSTANTLY FROM DISK
         if self.load_kv_cache(&self.cache_path.clone()).is_ok() {
             eprintln!("AURA_WARMUP: Loaded instantly from fast cache!");
-            return Ok(());
+        } else {
+            eprintln!("AURA_WARMUP: No cache found. Doing warmup once...");
+            let t0 = std::time::Instant::now();
+            let sys_ids = Self::build_sys_ids(&self.tok)?;
+            let t = Tensor::new(sys_ids.as_slice(), &self.device)?.unsqueeze(0)?;
+            let _ = self.model.forward(&t, 0)?;
+            self.sys_cache = self.model.snapshot_kv_cache();
+            self.sys_pos   = sys_ids.len();
+            eprintln!("AURA_WARMUP_OK {}ms", t0.elapsed().as_millis());
+            if let Err(e) = self.save_kv_cache(&self.cache_path.clone()) {
+                eprintln!("AURA_CACHE_SAVE_FAILED: {}", e);
+            }
         }
 
-        // 2. IF NO CACHE EXISTS, DO THE 40-SECOND MATH
-        eprintln!("AURA_WARMUP: No cache found. Doing 40s math once...");
-        let t0 = std::time::Instant::now();
-        let sys_ids = Self::build_sys_ids(&self.tok)?;
-        
-        let t = Tensor::new(sys_ids.as_slice(), &self.device)?.unsqueeze(0)?;
-        let _ = self.model.forward(&t, 0)?;
-        self.sys_cache = self.model.snapshot_kv_cache();
-        self.sys_pos   = sys_ids.len();
-        
-        eprintln!("AURA_WARMUP_OK {}ms", t0.elapsed().as_millis());
-
-        // 3. SAVE IT TO DISK SO WE NEVER WAIT 40 SECONDS AGAIN!
-        if let Err(e) = self.save_kv_cache(&self.cache_path.clone()) {
-            eprintln!("AURA_CACHE_SAVE_FAILED: {}", e);
+        let seed    = "who is the user, what do they like, recent conversations";
+        let history = self.store
+            .load_relevant_episodes(seed, 10, &mut self.embedder)
+            .unwrap_or_default();
+        if !history.is_empty() {
+            let _ = self.inject_context(&history);
+            eprintln!("AURA_MEMORY: injected relevant episodes");
         }
-        
+
+        let quick_facts = self.build_memory_context();
+let _ = self.inject_context(&quick_facts);
+eprintln!("AURA_MEMORY: injected quick facts from HashMap (O(1))");
+
+
         Ok(())
     }
-    /// Save KV cache to disk. Next launch loads in ~100ms instead of 30s.
+
     pub fn save_kv_cache(&self, path: &str) -> Result<()> {
         if self.sys_cache.is_empty() {
             anyhow::bail!("no cache to save — call warmup() first");
@@ -92,15 +147,14 @@ impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<S
         Ok(())
     }
 
-    /// Load KV cache from disk. Replaces warmup() on subsequent launches.
     pub fn load_kv_cache(&mut self, path: &str) -> Result<()> {
-        let pos_path = format!("{}.pos", path);
+        let pos_path  = format!("{}.pos", path);
         let pos_bytes = std::fs::read(&pos_path)
             .map_err(|_| anyhow::anyhow!("missing .pos file"))?;
         if pos_bytes.len() != 8 {
             anyhow::bail!("corrupt .pos file");
         }
-        let pos = usize::from_le_bytes(pos_bytes.try_into().unwrap());
+        let pos   = usize::from_le_bytes(pos_bytes.try_into().unwrap());
         let cache = kv_cache_io::load_cache(path, &self.device)?;
         if cache.len() != self.model.layer_count() {
             anyhow::bail!(
@@ -134,6 +188,19 @@ impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<S
         Ok(())
     }
 
+    // Fully semantic fact extraction — no hardcoded regex
+    fn extract_and_save_facts(&mut self, user_msg: &str) {
+    if user_msg.trim().len() < 5 { return; }
+    if let Some((key, value)) = self.embedder.detect_fact(user_msg) {
+        if let Err(e) = self.store.upsert_fact(&key, &value) {
+            eprintln!("AURA_FACT_SAVE_ERR: {}", e);
+        } else {
+            eprintln!("AURA_FACT_SAVED: {}={}", key, value);
+            self.facts_dirty = true;   // ← mark dirty
+        }
+    }
+}
+
     fn build_sys_ids(tok: &Tokenizer) -> Result<Vec<u32>> {
         let nl  = encode(tok, "\n")?;
         let sys = encode(tok, "system")?;
@@ -162,22 +229,57 @@ impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<S
     where
         F: FnMut(String),
     {
-        // Sentinel already fired from api.rs — emit again as no-op fallback.
-        // Flutter's sentinel check is idempotent so duplicate is harmless.
-
         if self.sys_cache.is_empty() {
             if let Err(e) = self.warmup() {
                 on_token(format!("warmup error: {e}")); return;
             }
         }
 
+        // 1. Extract and save any facts from user message (semantic, no regex)
+        self.extract_and_save_facts(user);
+
+        // 2. Save base cache BEFORE per-turn inject
+        let base_cache = self.sys_cache.clone();
+        let base_pos   = self.sys_pos;
+
+        // 3. Inject relevant memory + fresh facts for THIS message
+        // Inject relevant episodes (always — this is the semantic memory)
+if let Ok(relevant) = self.store.load_relevant_episodes(user, 5, &mut self.embedder) {
+    if !relevant.is_empty() {
+        let _ = self.inject_context(&relevant);
+        eprintln!("AURA_TURN_INJECT: {} chars", relevant.len());
+    }
+}
+
+// Only re-inject facts if something new was learned this turn
+if self.facts_dirty {
+    if let Ok(facts) = self.store.load_facts_as_context() {
+        if !facts.is_empty() {
+            let _ = self.inject_context(&facts);
+            eprintln!("AURA_FACTS_REINJECTED");
+        }
+    }
+    self.facts_dirty = false;
+}
+        if let Ok(facts) = self.store.load_facts_as_context() {
+            if !facts.is_empty() {
+                let _ = self.inject_context(&facts);
+            }
+        }
+
+        // 4. Run inference from post-inject position
         let t0 = std::time::Instant::now();
         self.model.restore_kv_cache(&self.sys_cache);
         let mut global_pos = self.sys_pos;
 
         let turn_ids = match self.build_turn_ids(user) {
             Ok(ids) => ids,
-            Err(e)  => { on_token(format!("encode error: {e}")); return; }
+            Err(e)  => {
+                on_token(format!("encode error: {e}"));
+                self.sys_cache = base_cache;
+                self.sys_pos   = base_pos;
+                return;
+            }
         };
 
         eprintln!("AURA_PREFILL: {} tokens", turn_ids.len());
@@ -186,14 +288,24 @@ impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<S
             .and_then(|t| t.unsqueeze(0))
         {
             Ok(t)  => t,
-            Err(e) => { on_token(format!("tensor error: {e}")); return; }
+            Err(e) => {
+                on_token(format!("tensor error: {e}"));
+                self.sys_cache = base_cache;
+                self.sys_pos   = base_pos;
+                return;
+            }
         };
 
         let logits = match self.model.forward(&input, global_pos)
             .and_then(|l| l.squeeze(0))
         {
             Ok(l)  => l,
-            Err(e) => { on_token(format!("forward error: {e}")); return; }
+            Err(e) => {
+                on_token(format!("forward error: {e}"));
+                self.sys_cache = base_cache;
+                self.sys_pos   = base_pos;
+                return;
+            }
         };
         global_pos += turn_ids.len();
         eprintln!("AURA_TTFT: {}ms", t0.elapsed().as_millis());
@@ -205,7 +317,12 @@ impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<S
 
         let mut next = match lp.sample(&logits) {
             Ok(n)  => n,
-            Err(e) => { on_token(format!("sample error: {e}")); return; }
+            Err(e) => {
+                on_token(format!("sample error: {e}"));
+                self.sys_cache = base_cache;
+                self.sys_pos   = base_pos;
+                return;
+            }
         };
 
         let mut generated_ids: Vec<u32> = Vec::with_capacity(MAX_NEW_TOKENS);
@@ -236,7 +353,6 @@ impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<S
                 .and_then(|t| t.unsqueeze(0))
             {
                 Ok(t)  => t,
-
                 Err(_) => break,
             };
 
@@ -261,6 +377,19 @@ impl AuraEngine {pub fn load(model_path: &str, tokenizer_path: &str) -> Result<S
 
         eprintln!("AURA_DONE: {} tokens {}ms total",
             generated_ids.len(), t0.elapsed().as_millis());
+
+        // 5. Restore base cache — next turn starts clean
+        self.sys_cache = base_cache;
+        self.sys_pos   = base_pos;
+
+        // 6. Save episode to memory
+        let full_response: String = generated_ids.iter()
+            .filter_map(|id| self.tok.decode(&[*id], true).ok())
+            .collect();
+        let user_owned = user.to_string();
+        let session    = self.session_id.clone();
+        let _ = self.store.insert_episode(&session, "user", &user_owned, &mut self.embedder);
+        let _ = self.store.insert_episode(&session, "aura", &full_response, &mut self.embedder);
     }
 }
 

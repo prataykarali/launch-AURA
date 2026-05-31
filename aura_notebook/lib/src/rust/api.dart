@@ -8,6 +8,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `EngineMsg`
 
+Future<String> auraGetAllNotebookTurns() =>
+    RustLib.instance.api.crateApiAuraGetAllNotebookTurns();
+
 Future<bool> auraInit({
   required String modelPath,
   required String tokenizerPath,
@@ -21,3 +24,9 @@ Future<bool> auraInject({required String context}) =>
 
 Stream<String> auraChat({required String prompt}) =>
     RustLib.instance.api.crateApiAuraChat(prompt: prompt);
+
+Future<bool> auraPrefill({required String partial}) =>
+    RustLib.instance.api.crateApiAuraPrefill(partial: partial);
+
+Stream<String> auraChatChunked({required List<String> chunks}) =>
+    RustLib.instance.api.crateApiAuraChatChunked(chunks: chunks);

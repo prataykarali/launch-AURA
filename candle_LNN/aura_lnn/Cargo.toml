@@ -1,7 +1,7 @@
 [package]
 name    = "aura_lnn"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [[bin]]
 name = "gen_cache"
@@ -12,12 +12,15 @@ crate-type = ["cdylib", "staticlib"]
 
 [features]
 gen_cache = []
-research = []
+research  = []
 
 # ── COMMON ────────────────────────────────────────────────────────────────────
 [dependencies]
+rusqlite            = { version = "0.31", features = ["bundled"] }
+sqlite-vec          = "0.1"
+fastembed           = "5"
+uuid                = { version = "1", features = ["v4"] }
 flutter_rust_bridge = "=2.12.0"
-sled                = "0.34"
 memmap2             = "0.9"
 thiserror           = "1"
 anyhow              = "1"
@@ -31,16 +34,13 @@ chrono              = "0.4"
 once_cell           = "1.21.4"
 tracing             = "0.1"
 
-candle-core         = { git = "https://github.com/huggingface/candle.git" }
-candle-nn           = { git = "https://github.com/huggingface/candle.git" }
-candle-transformers = { git = "https://github.com/huggingface/candle.git" }
-
+# ── DESKTOP — Linux / Windows / Intel x86_64 ─────────────────────────────────
 # ── DESKTOP — Linux / Windows / Intel x86_64 ─────────────────────────────────
 [target.'cfg(target_arch = "x86_64")'.dependencies]
 candle-core         = { git = "https://github.com/huggingface/candle.git" }
 candle-nn           = { git = "https://github.com/huggingface/candle.git" }
 candle-transformers = { git = "https://github.com/huggingface/candle.git" }
-mimalloc            = { version = "0.1", default-features = false }
+# mimalloc is removed to prevent static TLS block exhaustion via FFI
 
 # ── MOBILE — Android ARM64 ───────────────────────────────────────────────────
 [target.'cfg(target_arch = "aarch64")'.dependencies]
@@ -65,8 +65,3 @@ opt-level = 3
 
 [profile.release.package.candle-transformers]
 opt-level = 3
-
-# ── REMOVE [env] RAYON_NUM_THREADS ───────────────────────────────────────────
-# Setting RAYON_NUM_THREADS=4 globally was HURTING performance on your SM A166P
-# which has 8 cores. Let Rayon auto-detect instead. Control it in Rust code if
-# needed: rayon::ThreadPoolBuilder::new().num_threads(6).build_global().unwrap()

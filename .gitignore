@@ -14,3 +14,7 @@ candle_LNN/aura_lnn/models/
 # IDE
 .vscode/
 .idea/
+*.gguf
+*.kvcache
+*.pos
+target/

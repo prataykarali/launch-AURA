@@ -1,4 +1,4 @@
-pub const MAX_NEW_TOKENS:    usize = 80;
+pub const MAX_NEW_TOKENS: usize = 150;
 pub const TEMPERATURE:       f64   = 0.85;
 pub const TOP_P:             f64   = 0.92;
 pub const REPEAT_PENALTY:    f32   = 1.35;

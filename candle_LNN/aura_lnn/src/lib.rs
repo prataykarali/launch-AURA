@@ -1,9 +1,7 @@
 // src/lib.rs
 
 // ── ALLOCATORS ────────────────────────────────────────────────────────────────
-#[cfg(target_arch = "x86_64")]
-#[global_allocator]
-static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 
 #[cfg(target_arch = "aarch64")]
 #[global_allocator]
@@ -18,6 +16,7 @@ pub mod engine;        // ← only once
 pub mod llm_engine;
 pub mod kv_cache_io;
 pub mod config;
+pub mod memory;
 
 mod frb_generated;
 mod tools;

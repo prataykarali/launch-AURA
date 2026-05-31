@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'widgets/widget_link.dart';
 import '../option_screen.dart';
+import '../notebook_page.dart'; // adjust path to wherever notebook_page.dart lives
 
 class home extends StatelessWidget {
   const home({super.key});
@@ -42,7 +43,37 @@ class home extends StatelessWidget {
                   boxHeight: screenHeight * 0.28,
                   boxWidth: screenWidth,
                 ),
-                // Back button — top-left, respects status bar
+                // Notebook button — top-right
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 8,
+                  right: 12,
+                  child: GestureDetector(
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => NotebookPage()),  // ← also remove const here
+                    ),
+                    child: Container(
+                      width: 38,
+                      height: 38,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.88),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.15),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.auto_stories_rounded,
+                        size: 18,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                ),
+                // Back button — top-left
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 8,
                   left: 12,
