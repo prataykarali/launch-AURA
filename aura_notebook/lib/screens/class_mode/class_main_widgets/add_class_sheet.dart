@@ -51,10 +51,8 @@ class _AddClassSheetState extends State<AddClassSheet> {
       decoration: const BoxDecoration(
         color: Color(0xFF12121F),
         borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
-        border: Border(
-          top:   BorderSide(color: Color(0x335C6BC0)),
-          left:  BorderSide(color: Color(0x225C6BC0)),
-          right: BorderSide(color: Color(0x225C6BC0)),
+        border: Border.fromBorderSide(
+          BorderSide(color: Color(0x335C6BC0), width: 1.0),
         ),
       ),
       child: SingleChildScrollView(

@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 // ClassData — shared model across all screens
 // ─────────────────────────────────────────────────────────────────────────────
 class ClassData {
+  final int?     id;
   final String   name, section, subject, teacher;
   final int      students;
   final Color    color, accent;
   final IconData icon;
 
   const ClassData({
+    this.id,
     required this.name,
     required this.section,
     required this.subject,
@@ -19,6 +21,32 @@ class ClassData {
     required this.accent,
     required this.icon,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'section': section,
+      'subject': subject,
+      'teacher': teacher,
+      'students': students,
+    };
+  }
+
+  factory ClassData.fromMap(Map<String, dynamic> map) {
+    final theme = themeFor(map['subject']);
+    return ClassData(
+      id: map['id'],
+      name: map['name'],
+      section: map['section'],
+      subject: map['subject'],
+      teacher: map['teacher'],
+      students: map['students'],
+      color: theme.color,
+      accent: theme.accent,
+      icon: theme.icon,
+    );
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

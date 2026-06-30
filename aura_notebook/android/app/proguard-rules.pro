@@ -8,3 +8,6 @@
 
 # Standard Flutter keeps
 -keep class io.flutter.embedding.engine.plugins.** { *; }
+
+# Keep flutter_overlay_window service and plugin classes
+-keep class flutter.overlay.window.flutter_overlay_window.** { *; }

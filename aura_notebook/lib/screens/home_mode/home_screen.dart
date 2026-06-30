@@ -1,7 +1,17 @@
+// home.dart
+// Home screen — banner + chat widget.
+// AuraChatWidget is now imported from the split chat/ folder.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import 'package:flutter/material.dart';
+import 'package:aura_notebook/utils/responsive.dart';
 import 'widgets/widget_link.dart';
 import '../option_screen.dart';
-import '../notebook_page.dart'; // adjust path to wherever notebook_page.dart lives
+import '../notebook_page.dart';
+
+// The only import you need — chat_widget.dart re-exports nothing internal,
+// but AuraChatWidget is defined there and that's all home.dart uses.
+import 'chat/chat_widget.dart';
 
 class home extends StatelessWidget {
   const home({super.key});
@@ -14,7 +24,7 @@ class home extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
-        width: screenWidth,
+        width:  screenWidth,
         height: screenHeight,
         decoration: BoxDecoration(
           border: Border.all(
@@ -26,94 +36,98 @@ class home extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color.from(alpha: 1.0, red: 1.0, green: 0.98, blue: 0.94),
+              Color.from(alpha: 1.0, red: 1.0,  green: 0.98, blue: 0.94),
               Color.from(alpha: 1.0, red: 0.98, green: 0.92, blue: 0.84),
             ],
           ),
         ),
-        child: Column(
-          children: [
-            // ── Stack to overlay back button on top of image_wid ─────────
-            Stack(
-              children: [
-                image_wid(
-                  boxColor: Colors.cyan,
-                  textIn: 'AURA NOTEBOOK',
-                  imagePath: 'Assets/images/balloon2.png',
-                  boxHeight: screenHeight * 0.28,
-                  boxWidth: screenWidth,
-                ),
-                // Notebook button — top-right
-                Positioned(
-                  top: MediaQuery.of(context).padding.top + 8,
-                  right: 12,
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => NotebookPage()),  // ← also remove const here
-                    ),
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.88),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+        child: R.maxWidth(
+          Column(
+            children: [
+              // ── Banner + overlay buttons ──────────────────────────────────
+              Stack(
+                children: [
+                  image_wid(
+                    boxColor:  Colors.cyan,
+                    textIn:    'AURA NOTEBOOK',
+                    imagePath: 'Assets/images/balloon2.png',
+                    boxHeight: screenHeight * 0.28,
+                    boxWidth:  screenWidth,
+                  ),
+                  // Notebook button — top-right
+                  Positioned(
+                    top:   MediaQuery.of(context).padding.top + 8,
+                    right: 12,
+                    child: GestureDetector(
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => NotebookPage()),
                       ),
-                      child: const Icon(
-                        Icons.auto_stories_rounded,
-                        size: 18,
-                        color: Colors.black87,
+                      child: Container(
+                        width:  38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.88),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color:      Colors.black.withOpacity(0.15),
+                              blurRadius: 8,
+                              offset:     const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.auto_stories_rounded,
+                          size:  18,
+                          color: Colors.black87,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // Back button — top-left
-                Positioned(
-                  top: MediaQuery.of(context).padding.top + 8,
-                  left: 12,
-                  child: GestureDetector(
-                    onTap: () => Navigator.of(context).pushReplacement(
-                      PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => const OptionScreen(),
-                        transitionDuration: const Duration(milliseconds: 300),
-                        transitionsBuilder: (_, anim, __, child) =>
-                            FadeTransition(opacity: anim, child: child),
+                  // Back button — top-left
+                  Positioned(
+                    top:  MediaQuery.of(context).padding.top + 8,
+                    left: 12,
+                    child: GestureDetector(
+                      onTap: () => Navigator.of(context).pushReplacement(
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => const OptionScreen(),
+                          transitionDuration: const Duration(milliseconds: 300),
+                          transitionsBuilder: (_, anim, __, child) =>
+                              FadeTransition(opacity: anim, child: child),
+                        ),
                       ),
-                    ),
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.88),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back_ios_new_rounded,
-                        size: 16,
-                        color: Colors.black87,
+                      child: Container(
+                        width:  38,
+                        height: 38,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.88),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color:      Colors.black.withOpacity(0.15),
+                              blurRadius: 8,
+                              offset:     const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          size:  16,
+                          color: Colors.black87,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const Expanded(
-              child: AuraChatWidget(),
-            ),
-          ],
+                ],
+              ),
+              // ── Chat ──────────────────────────────────────────────────────
+              const Expanded(
+                child: AuraChatWidget(),
+              ),
+            ],
+          ),
+          max: 800,
         ),
       ),
     );

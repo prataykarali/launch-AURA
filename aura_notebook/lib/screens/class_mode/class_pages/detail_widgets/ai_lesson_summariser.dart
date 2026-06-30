@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:aura_notebook/src/rust/api.dart';
@@ -31,11 +32,52 @@ class _AiLessonSummariserState extends State<AiLessonSummariser> {
   bool   _done      = false;
   String _finalText = '';
 
+  Timer? _typewriterTimer;
+  final List<String> _typewriterQueue = [];
+  final StringBuffer _displayedBuffer = StringBuffer();
+  bool _generationFinished = false;
+
+  void _startTypewriter() {
+    _typewriterTimer?.cancel();
+    _typewriterTimer = Timer.periodic(const Duration(milliseconds: 15), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      if (_typewriterQueue.isNotEmpty) {
+        int charsToPop = 1;
+        if (_typewriterQueue.length > 80) {
+          charsToPop = 4;
+        } else if (_typewriterQueue.length > 40) {
+          charsToPop = 3;
+        } else if (_typewriterQueue.length > 15) {
+          charsToPop = 2;
+        }
+
+        for (int i = 0; i < charsToPop && _typewriterQueue.isNotEmpty; i++) {
+          _displayedBuffer.write(_typewriterQueue.removeAt(0));
+        }
+
+        _streamText.value = '$_displayedBuffer▍';
+      } else if (_generationFinished) {
+        timer.cancel();
+        _finalText = _displayedBuffer.toString().trim();
+        _streamText.value = _finalText;
+        setState(() { _loading = false; _done = true; });
+      }
+    });
+  }
+
   Future<void> _generate() async {
     if (_loading) return;
     HapticFeedback.lightImpact();
     setState(() { _loading = true; _done = false; _finalText = ''; });
     _streamText.value = '';
+    _displayedBuffer.clear();
+    _typewriterQueue.clear();
+    _generationFinished = false;
+    _startTypewriter();
 
     final prompt =
         'You are a helpful teacher. Write a 3-sentence student-friendly summary '
@@ -44,20 +86,21 @@ class _AiLessonSummariserState extends State<AiLessonSummariser> {
         'Objectives: ${widget.objectives.isEmpty ? "General overview" : widget.objectives}\n\n'
         'Summary:';
 
-    final buf = StringBuffer();
     try {
       await for (final token in auraChat(prompt: prompt)) {
+        if (!mounted) return;
         if (token == _kSentinel) continue;
-        buf.write(token);
-        _streamText.value = '$buf▍';
+
+        for (final rune in token.runes) {
+          _typewriterQueue.add(String.fromCharCode(rune));
+        }
       }
     } catch (e) {
       debugPrint('summariser error: $e');
+      _generationFinished = true;
     }
 
-    _finalText = buf.toString().trim();
-    _streamText.value = _finalText;
-    setState(() { _loading = false; _done = true; });
+    _generationFinished = true;
   }
 
   void _clear() => setState(() {
@@ -65,7 +108,11 @@ class _AiLessonSummariserState extends State<AiLessonSummariser> {
   });
 
   @override
-  void dispose() { _streamText.dispose(); super.dispose(); }
+  void dispose() {
+    _typewriterTimer?.cancel();
+    _streamText.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

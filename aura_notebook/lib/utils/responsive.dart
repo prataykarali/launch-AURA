@@ -57,7 +57,7 @@ class R {
   }
 
   // ── Max content width (centers content on wide screens) ──────────────────
-  static Widget maxWidth(Widget child, [double max = 700]) =>
+  static Widget maxWidth(Widget child, {double max = 700}) =>
       Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: max),

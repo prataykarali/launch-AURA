@@ -21,3 +21,23 @@ target/
 .fastembed_cache/
 *.gguf
 .fastembed_cache/
+.aider*
+
+# Model weights — keep local only
+*.onnx
+*.safetensors
+
+# Memory databases — runtime state, not source
+*.db
+*.db-wal
+*.db-shm
+
+# Android system shared lib — not ours
+libc++_shared.so
+
+# Build reports
+aura_notebook/build/reports/
+aura_notebook/linux/bundle/
+
+# Root-level .so copies — use linux_libs/ instead
+aura_notebook/libaura_lnn.so

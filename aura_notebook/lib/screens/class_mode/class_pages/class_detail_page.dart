@@ -1,3 +1,4 @@
+import 'package:aura_notebook/utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'class_data.dart';
 import 'student_model.dart';
@@ -9,6 +10,7 @@ import 'detail_tabs/stream_tab.dart';
 import 'detail_tabs/attendance_tab.dart';
 import 'detail_tabs/doubt_queue_tab.dart'; // Make sure the path is correct
 import 'detail_tabs/ai_quiz_tab.dart';     // Make sure the path is correct
+import 'package:aura_notebook/src/rust/api.dart';
 class ClassDetailPage extends StatefulWidget {
   final ClassData data;
   const ClassDetailPage({super.key, required this.data});
@@ -99,21 +101,26 @@ class _DetailHeader extends StatelessWidget {
     final theme = themeFor(d.subject);
 
     return SliverAppBar(
-      expandedHeight:  220,
+      expandedHeight:  R.isDesktop ? 340 : 220,
       pinned:          true,
       stretch:         true,
       backgroundColor: const Color(0xFF0D0D18),
       elevation:       0,
       automaticallyImplyLeading: false,
-      leading: GestureDetector(
-        onTap: () => Navigator.of(context).pop(),
-        child: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.45),
-              shape: BoxShape.circle),
-          child: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: Colors.white, size: 18),
+      leading: Center(
+        child: GestureDetector(
+        onTap: () {
+          auraResetState();
+          Navigator.of(context).pop();
+        },
+          child: Container(
+            width: 40, height: 40,
+            decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.45),
+                shape: BoxShape.circle),
+            child: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: Colors.white, size: 18),
+          ),
         ),
       ),
       actions: const [],
@@ -122,8 +129,8 @@ class _DetailHeader extends StatelessWidget {
         background: Stack(fit: StackFit.expand, children: [
           Image.asset(
             theme.bannerAsset,
-            fit:       BoxFit.cover,
-            alignment: Alignment.topCenter,
+            fit:       R.isDesktop ? BoxFit.fitWidth : BoxFit.cover,
+            alignment: const Alignment(0, -0.5), // Pull the image down slightly to avoid cropping the top
             errorBuilder: (_, __, ___) => Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(

@@ -35,16 +35,48 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  shared_preferences: ^2.5.5
   flutter_rust_bridge: 2.12.0
+  flutter_animate: ^4.5.0
+  glassmorphism: ^3.0.0        # glass pill shell
+  sleek_circular_slider: ^2.0.0
   ffi: ^2.2.0
   build_runner: ^2.13.1
   wakelock_plus: ^1.2.8
   path_provider: ^2.1.5
+  window_manager: ^0.5.1
+  desktop_multi_window: ^0.3.0
+  flutter_overlay_window: ^0.5.0
+  screen_retriever: ^0.2.0
+  sqflite: ^2.4.1
+  sqflite_common_ffi: ^2.3.6
+  sqlite3_flutter_libs: ^0.5.24
+#  atmospheric_particles: ^1.0.0
+#  tray_manager: ^0.2.0
+  atmospheric_particles: ^1.0.0
+  speech_to_text: ^7.0.0
+  permission_handler: ^11.3.1
+  audioplayers: ^6.7.1
+  crypto: ^3.0.3
+
   
+  
+# flutter_overlay_window 0.5.0 crashes on Android 14+ (API 34+) when the app
+# targets SDK 34+: OverlayService calls the 2-arg startForeground(), which throws
+# SecurityException "requires android.permission.FOREGROUND_SERVICE" for a
+# service declared with foregroundServiceType="specialUse". The plugin needs the
+# 3-arg overload (passing FOREGROUND_SERVICE_TYPE_SPECIAL_USE) on API 34+. This
+# local patched copy applies that fix; upstream 0.5.0 hasn't shipped it. The
+# duplicate `flutter_overlay_window` entry above (the versioned dep) is kept so
+# `pub get` still resolves normally — this override silently supersedes it.
+dependency_overrides:
+  flutter_overlay_window:
+    path: plugins/flutter_overlay_window
 
 dev_dependencies:
-  permission_handler: ^11.3.1
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -68,10 +100,26 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - Assets/images/
-    - assets/LFM2.5-1.2B-Instruct-Q4_K_M.gguf
+    # NOTE: The GGUF chat model is deliberately NOT bundled here.
+    # Baking it into Flutter assets produced a ~982 MB APK that Android 16
+    # SIGKILL'd at process start (handleProcessStartOrKillTimeoutLocked) before
+    # main()/Dart ever ran — so the bar, TTS and loader all silently failed.
+    # Desktop resolves it from the bundle/source asset dir at runtime
+    # (loading_screen.dart); Android downloads it on first run from HuggingFace.
     - assets/tokenizer.json
-#    - assets/models/LFM2.5-1.2B-Instruct-Q4_K_M.gguf
-#    - assets/tokenizer.json
+    - assets/whisper_server.py
+    # NOTE: Piper TTS voices (134 MB) are Linux-desktop-only (Android uses the
+    # system TextToSpeech engine). Excluded from the APK to keep install size
+    # down. Desktop resolves them from the source assets dir at runtime.
+    # - assets/piper/
+    # - assets/piper/espeak-ng-data/
+    # - assets/piper/espeak-ng-data/lang/
+    # - assets/piper/espeak-ng-data/voices/
+    # - assets/piper/espeak-ng-data/voices/!v/
+    # NOTE: Embedder (110 MB model_quantized.onnx) is also excluded — downloaded
+    # on first run on Android. Desktop resolves from the source assets dir.
+    # - assets/embedder/
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

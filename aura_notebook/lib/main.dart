@@ -1,25 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:aura_notebook/src/rust/frb_generated.dart';
-import 'screens/loading_screen.dart';
+import 'package:aura_notebook/main/launch.dart';
+import 'package:aura_notebook/main/overlay_app.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await RustLib.init();
-  runApp(const MyApp());
+export 'main/aura_app.dart' show AuraApp;
+export 'main/aura_root.dart' show AuraRoot;
+export 'main/overlay_app.dart' show AuraOverlayApp;
+export 'main/open_main_app.dart' show openMainApp;
+
+void main(List<String> rawArgs) async {
+  await runAura(rawArgs);
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title:                    'AURA',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-      ),
-      home: const LoadingScreen(), // ← entry point
-    );
-  }
+@pragma("vm:entry-point")
+void overlayMain() {
+  runOverlay();
 }

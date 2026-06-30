@@ -1,4 +1,4 @@
 rust_input: "crate::api"
 rust_root: "../candle_LNN/aura_lnn"
 dart_root: "."
-dart_output: "lib/src/rust/frb_generated.dart"
+dart_output: "lib/src/rust"

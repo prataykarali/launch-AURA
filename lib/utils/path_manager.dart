@@ -1,12 +1,13 @@
 import 'dart:io';
 
-const _kModelFile     = 'LFM2.5-1.2B-Instruct-Q4_K_M.gguf';
-const _kTokenizerFile = 'Q4_K_M.json';
+const _kModelFile = 'LFM2.5-230M-Q8_0.gguf';
+const _kTokenizerFile = 'tokenizer.json';
 
 class PathManager {
   // Internal app data dir — always accessible, no permissions, no plugins
   static const _internalBase = '/data/data/com.example.aura_notebook/files';
-  static const _sdcardBase   = '/sdcard/Android/data/com.example.aura_notebook/files/models';
+  static const _sdcardBase =
+      '/sdcard/Android/data/com.example.aura_notebook/files/models';
 
   static Future<String> getModelsDir() async {
     final dir = Directory('$_internalBase/models');
@@ -26,7 +27,9 @@ class PathManager {
   static Future<bool> modelExists() async {
     final mFile = File(await getModelPath());
     final tFile = File(await getTokenizerPath());
-    return mFile.existsSync() && mFile.lengthSync() > 0 &&
-        tFile.existsSync() && tFile.lengthSync() > 0;
+    return mFile.existsSync() &&
+        mFile.lengthSync() > 0 &&
+        tFile.existsSync() &&
+        tFile.lengthSync() > 0;
   }
 }

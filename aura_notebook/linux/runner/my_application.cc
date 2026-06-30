@@ -1,5 +1,7 @@
 #include "my_application.h"
 
+#include <cstring>
+#include <desktop_multi_window/desktop_multi_window_plugin.h>
 #include <flutter_linux/flutter_linux.h>
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
@@ -13,6 +15,202 @@ struct _MyApplication {
 };
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
+
+struct BarWindowMoveContext {
+  GtkWindow* window;
+  GtkWidget* view;
+  gboolean dragging;
+  gint width;
+  gint height;
+  gint pointer_start_x;
+  gint pointer_start_y;
+  gint window_start_x;
+  gint window_start_y;
+};
+
+const gint kBarWidth = 760;
+const gint kBarCompactHeight = 96;
+const gint kBarBubbleHeight = 220;
+
+static gboolean get_pointer_position(GtkWidget* view, gint* root_x, gint* root_y) {
+  GdkDisplay* display = gtk_widget_get_display(view);
+  GdkSeat* seat =
+      display != nullptr ? gdk_display_get_default_seat(display) : nullptr;
+  GdkDevice* pointer = seat != nullptr ? gdk_seat_get_pointer(seat) : nullptr;
+  if (pointer == nullptr) {
+    return FALSE;
+  }
+
+  GdkScreen* screen = nullptr;
+  gdk_device_get_position(pointer, &screen, root_x, root_y);
+  return TRUE;
+}
+
+static void respond_success(FlMethodCall* method_call) {
+  g_autoptr(FlMethodResponse) response =
+      FL_METHOD_RESPONSE(fl_method_success_response_new(nullptr));
+  fl_method_call_respond(method_call, response, nullptr);
+}
+
+static void move_bar_to_bottom(GtkWindow* window, gint width, gint height) {
+  GdkDisplay* display = gtk_widget_get_display(GTK_WIDGET(window));
+  GdkMonitor* monitor =
+      display != nullptr ? gdk_display_get_primary_monitor(display) : nullptr;
+  if (monitor == nullptr) {
+    return;
+  }
+
+  GdkRectangle workarea;
+  gdk_monitor_get_workarea(monitor, &workarea);
+  const gint bottom_gap = 4;
+  gint x = workarea.x + ((workarea.width - width) / 2);
+  gint y = workarea.y + workarea.height - height - bottom_gap;
+  gtk_window_move(window, x > 0 ? x : 0, y > 0 ? y : 0);
+}
+
+static void bar_window_method_call_cb(FlMethodChannel* channel,
+                                      FlMethodCall* method_call,
+                                      gpointer user_data) {
+  (void)channel;
+  auto* context = static_cast<BarWindowMoveContext*>(user_data);
+  const gchar* method = fl_method_call_get_name(method_call);
+
+  if (std::strcmp(method, "begin_drag") == 0) {
+    gint root_x = 0;
+    gint root_y = 0;
+    if (get_pointer_position(context->view, &root_x, &root_y)) {
+      gtk_window_get_position(context->window, &context->window_start_x,
+                              &context->window_start_y);
+      context->pointer_start_x = root_x;
+      context->pointer_start_y = root_y;
+      context->dragging = TRUE;
+    }
+
+    respond_success(method_call);
+    return;
+  }
+
+  if (std::strcmp(method, "update_drag") == 0) {
+    if (context->dragging) {
+      gint root_x = 0;
+      gint root_y = 0;
+      if (get_pointer_position(context->view, &root_x, &root_y)) {
+        gtk_window_move(
+            context->window,
+            context->window_start_x + (root_x - context->pointer_start_x),
+            context->window_start_y + (root_y - context->pointer_start_y));
+      }
+    }
+
+    respond_success(method_call);
+    return;
+  }
+
+  if (std::strcmp(method, "end_drag") == 0) {
+    context->dragging = FALSE;
+    respond_success(method_call);
+    return;
+  }
+
+  if (std::strcmp(method, "resize_bar") == 0) {
+    FlValue* args = fl_method_call_get_args(method_call);
+    gint width = context->width;
+    gint height = context->height;
+    if (args != nullptr && fl_value_get_type(args) == FL_VALUE_TYPE_MAP) {
+      FlValue* width_value = fl_value_lookup_string(args, "width");
+      FlValue* height_value = fl_value_lookup_string(args, "height");
+      if (width_value != nullptr &&
+          fl_value_get_type(width_value) == FL_VALUE_TYPE_INT) {
+        width = static_cast<gint>(fl_value_get_int(width_value));
+      }
+      if (height_value != nullptr &&
+          fl_value_get_type(height_value) == FL_VALUE_TYPE_INT) {
+        height = static_cast<gint>(fl_value_get_int(height_value));
+      }
+    }
+
+    if (width > 0 && height > 0 &&
+        (width != context->width || height != context->height)) {
+      context->width = width;
+      context->height = height;
+      gtk_widget_set_size_request(context->view, width, height);
+      gtk_window_set_default_size(context->window, width, height);
+      GdkGeometry geometry;
+      geometry.min_width = kBarWidth;
+      geometry.max_width = kBarWidth;
+      geometry.min_height = kBarCompactHeight;
+      geometry.max_height = kBarBubbleHeight;
+      gtk_window_set_geometry_hints(
+          context->window, context->view, &geometry,
+          static_cast<GdkWindowHints>(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
+      gtk_window_resize(context->window, width, height);
+      if (!context->dragging) {
+        move_bar_to_bottom(context->window, width, height);
+      }
+    }
+
+    respond_success(method_call);
+    return;
+  }
+
+  g_autoptr(FlMethodResponse) response =
+      FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
+  fl_method_call_respond(method_call, response, nullptr);
+}
+
+static void register_child_window_plugins(FlPluginRegistry* registry) {
+  fl_register_plugins(registry);
+  g_autoptr(FlPluginRegistrar) registrar =
+      fl_plugin_registry_get_registrar_for_plugin(
+          registry, "AuraChildWindowRegistrar");
+  FlView* view = fl_plugin_registrar_get_view(registrar);
+  GtkWidget* toplevel = gtk_widget_get_toplevel(GTK_WIDGET(view));
+  if (!GTK_IS_WINDOW(toplevel)) {
+    return;
+  }
+
+  GtkWindow* window = GTK_WINDOW(toplevel);
+
+  GdkScreen* screen = gtk_window_get_screen(window);
+  GdkVisual* visual = gdk_screen_get_rgba_visual(screen);
+  if (visual != nullptr && gdk_screen_is_composited(screen)) {
+    gtk_widget_set_visual(GTK_WIDGET(window), visual);
+  }
+
+  GdkRGBA background_color;
+  gdk_rgba_parse(&background_color, "#00000000");
+  fl_view_set_background_color(view, &background_color);
+
+  g_autoptr(FlStandardMethodCodec) codec = fl_standard_method_codec_new();
+  FlMethodChannel* bar_window_channel = fl_method_channel_new(
+      fl_plugin_registrar_get_messenger(registrar), "aura/bar_window",
+      FL_METHOD_CODEC(codec));
+  auto* move_context = g_new0(BarWindowMoveContext, 1);
+  move_context->window = window;
+  move_context->view = GTK_WIDGET(view);
+  move_context->width = kBarWidth;
+  move_context->height = kBarCompactHeight;
+  fl_method_channel_set_method_call_handler(
+      bar_window_channel, bar_window_method_call_cb, move_context, g_free);
+
+  gtk_widget_set_size_request(GTK_WIDGET(view), kBarWidth, kBarCompactHeight);
+  gtk_window_set_title(window, "AURA Bar");
+  gtk_window_set_decorated(window, FALSE);
+  gtk_window_set_resizable(window, FALSE);
+  gtk_window_set_keep_above(window, TRUE);
+  gtk_window_set_skip_taskbar_hint(window, TRUE);
+  gtk_window_set_default_size(window, kBarWidth, kBarCompactHeight);
+  GdkGeometry geometry;
+  geometry.min_width = kBarWidth;
+  geometry.max_width = kBarWidth;
+  geometry.min_height = kBarCompactHeight;
+  geometry.max_height = kBarBubbleHeight;
+  gtk_window_set_geometry_hints(
+      window, GTK_WIDGET(view), &geometry,
+      static_cast<GdkWindowHints>(GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
+  gtk_window_resize(window, kBarWidth, kBarCompactHeight);
+  move_bar_to_bottom(window, kBarWidth, kBarCompactHeight);
+}
 
 // Called when first Flutter frame received.
 static void first_frame_cb(MyApplication* self, FlView* view) {
@@ -62,7 +260,7 @@ static void my_application_activate(GApplication* application) {
   GdkRGBA background_color;
   // Background defaults to black, override it here if necessary, e.g. #00000000
   // for transparent.
-  gdk_rgba_parse(&background_color, "#000000");
+  gdk_rgba_parse(&background_color, "#00000000");
   fl_view_set_background_color(view, &background_color);
   gtk_widget_show(GTK_WIDGET(view));
   gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(view));
@@ -73,6 +271,8 @@ static void my_application_activate(GApplication* application) {
                            self);
   gtk_widget_realize(GTK_WIDGET(view));
 
+  desktop_multi_window_plugin_set_window_created_callback(
+      register_child_window_plugins);
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
 
   gtk_widget_grab_focus(GTK_WIDGET(view));

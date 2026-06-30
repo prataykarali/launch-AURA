@@ -3,13 +3,27 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
-import 'api.dart';
+import 'api/chat.dart';
+import 'api/chat/persona_retrieval.dart';
+import 'api/config.dart';
+import 'api/engine.dart';
+import 'api/file_read.dart';
+import 'api/memory.dart';
+import 'api/memory/notes.dart';
+import 'api/memory/proactive.dart';
+import 'api/stt.dart';
+import 'api/tts.dart';
+import 'api/vision.dart';
+import 'api/worker_utils.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'frb_generated.dart';
 import 'frb_generated.io.dart'
     if (dart.library.js_interop) 'frb_generated.web.dart';
+import 'lib.dart';
+import 'memory/store/core.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
+import 'vision/events.dart';
 
 /// Main entrypoint of the Rust API
 class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
@@ -64,7 +78,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => -1174693222;
+  int get rustContentHash => 278749510;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -76,20 +90,165 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
-  Stream<String> crateApiAuraChat({required String prompt});
-
-  Stream<String> crateApiAuraChatChunked({required List<String> chunks});
-
-  Future<String> crateApiAuraGetAllNotebookTurns();
-
-  Future<bool> crateApiAuraInit({
-    required String modelPath,
-    required String tokenizerPath,
+  Future<PlatformInt64> crateApiMemoryNotesAuraAddMemoryNote({
+    required String title,
+    required String content,
+    required bool pinned,
   });
 
-  Future<bool> crateApiAuraInject({required String context});
+  Future<bool> crateApiChatAuraCancel();
 
-  Future<bool> crateApiAuraPrefill({required String partial});
+  Stream<String> crateApiChatAuraChat({required String prompt});
+
+  Stream<String> crateApiChatAuraChatChunked({required List<String> chunks});
+
+  Future<String> crateApiMemoryAuraCheckMemoryHealth();
+
+  Future<String> crateApiMemoryProactiveAuraCheckProactive();
+
+  Future<bool> crateApiEngineAuraClearMemory();
+
+  Future<bool> crateApiMemoryNotesAuraDeleteMemoryNote({
+    required PlatformInt64 id,
+  });
+
+  Future<bool> crateApiMemoryNotesAuraDeleteMemoryNotePermanently({
+    required PlatformInt64 id,
+  });
+
+  Future<String> crateApiMemoryAuraGetAllFactsJson();
+
+  Future<String> crateApiMemoryAuraGetAllNotebookTurns();
+
+  Future<String> crateApiMemoryAuraGetAllSummariesJson();
+
+  Future<String> crateApiEngineAuraGetAvailableBackends();
+
+  Future<String> crateApiMemoryProactiveAuraGetBufferStatus();
+
+  Future<String> crateApiMemoryAuraGetMemoryNotesJson();
+
+  Future<String> crateApiMemoryAuraGetNotebookInsightsJson();
+
+  Future<String> crateApiMemoryAuraGetNotebookProactiveLogJson();
+
+  Future<String> crateApiMemoryAuraGetOverlayConfig();
+
+  Future<String> crateApiMemoryProactiveAuraGetProactiveContext();
+
+  Future<String> crateApiVisionAuraGetWebcamGesture();
+
+  Future<bool> crateApiEngineAuraInit({
+    required String modelPath,
+    required String tokenizerPath,
+    required String embedModelPath,
+    required String embedTokPath,
+  });
+
+  Future<bool> crateApiChatAuraInject({required String context});
+
+  Future<bool> crateApiMemoryProactiveAuraLogProactive({
+    required PlatformInt64 triggerId,
+    required String label,
+    required String triggerType,
+    required bool engaged,
+  });
+
+  Future<bool> crateApiChatAuraPrefill({required String partial});
+
+  Future<bool> crateApiVisionAuraProcessVision({
+    required List<VisionDetection> detections,
+  });
+
+  Future<bool> crateApiFileReadAuraReadFileIntoMemory({
+    required String path,
+    String? label,
+  });
+
+  Future<bool> crateApiMemoryProactiveAuraRecordEngagement({
+    required PlatformInt64 triggerId,
+    required bool engaged,
+  });
+
+  Future<bool> crateApiMemoryNotesAuraRecoverMemoryNote({
+    required PlatformInt64 id,
+  });
+
+  Future<bool> crateApiChatAuraResetState();
+
+  Future<String> crateApiMemoryAuraSearchRelevant({
+    required String query,
+    required PlatformInt64 limit,
+  });
+
+  Future<bool> crateApiEngineAuraSetBackend({required String backendName});
+
+  Future<bool> crateApiEngineAuraSetContextSize({required int nCtx});
+
+  Future<bool> crateApiEngineAuraSetThreads({required int threads});
+
+  Future<bool> crateApiSttAuraSttAvailable();
+
+  Future<bool> crateApiSttAuraSttInit();
+
+  Future<String> crateApiSttAuraSttPushAudio({
+    required List<double> samples,
+    required int sampleRate,
+  });
+
+  Future<void> crateApiSttAuraSttResetSession();
+
+  Future<bool> crateApiTtsAuraTtsAvailable();
+
+  Future<bool> crateApiTtsAuraTtsInit();
+
+  Future<void> crateApiTtsAuraTtsSetVolume({required double volume});
+
+  Future<TtsAudio?> crateApiTtsAuraTtsSpeak({
+    required String text,
+    required double speed,
+    required bool interrupt,
+  });
+
+  Future<bool> crateApiTtsAuraTtsStop();
+
+  Future<bool> crateApiMemoryNotesAuraUpdateMemoryNote({
+    required PlatformInt64 id,
+    required String title,
+    required String content,
+    required bool pinned,
+    required bool deleted,
+  });
+
+  Future<BigInt> crateApiConfigConfigureRayonThreads();
+
+  Future<String?> crateApiChatPersonaRetrievalMatchMemoryRecall({
+    required List<double> query,
+    required double threshold,
+  });
+
+  Future<int> crateApiConfigNCtxForPlatform();
+
+  Future<List<String>> crateApiWorkerUtilsProcessMemory({
+    required MemoryStore store,
+    required String prompt,
+    required String response,
+  });
+
+  Future<List<String>> crateApiChatPersonaRetrievalRetrievePersonaExamples({
+    required List<double> query,
+    required BigInt k,
+  });
+
+  Future<String> crateApiConfigSmoothPerformanceLabel();
+
+  RustArcIncrementStrongCountFnType
+  get rust_arc_increment_strong_count_MemoryStore;
+
+  RustArcDecrementStrongCountFnType
+  get rust_arc_decrement_strong_count_MemoryStore;
+
+  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MemoryStorePtr;
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -101,7 +260,71 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Stream<String> crateApiAuraChat({required String prompt}) {
+  Future<PlatformInt64> crateApiMemoryNotesAuraAddMemoryNote({
+    required String title,
+    required String content,
+    required bool pinned,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(title, serializer);
+          sse_encode_String(content, serializer);
+          sse_encode_bool(pinned, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 1,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_i_64,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryNotesAuraAddMemoryNoteConstMeta,
+        argValues: [title, content, pinned],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryNotesAuraAddMemoryNoteConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_add_memory_note",
+        argNames: ["title", "content", "pinned"],
+      );
+
+  @override
+  Future<bool> crateApiChatAuraCancel() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 2,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiChatAuraCancelConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiChatAuraCancelConstMeta =>
+      const TaskConstMeta(debugName: "aura_cancel", argNames: []);
+
+  @override
+  Stream<String> crateApiChatAuraChat({required String prompt}) {
     final sink = RustStreamSink<String>();
     unawaited(
       handler.executeNormal(
@@ -113,7 +336,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             pdeCallFfi(
               generalizedFrbRustBinding,
               serializer,
-              funcId: 1,
+              funcId: 3,
               port: port_,
             );
           },
@@ -121,7 +344,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             decodeSuccessData: sse_decode_unit,
             decodeErrorData: sse_decode_AnyhowException,
           ),
-          constMeta: kCrateApiAuraChatConstMeta,
+          constMeta: kCrateApiChatAuraChatConstMeta,
           argValues: [sink, prompt],
           apiImpl: this,
         ),
@@ -130,11 +353,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return sink.stream;
   }
 
-  TaskConstMeta get kCrateApiAuraChatConstMeta =>
+  TaskConstMeta get kCrateApiChatAuraChatConstMeta =>
       const TaskConstMeta(debugName: "aura_chat", argNames: ["sink", "prompt"]);
 
   @override
-  Stream<String> crateApiAuraChatChunked({required List<String> chunks}) {
+  Stream<String> crateApiChatAuraChatChunked({required List<String> chunks}) {
     final sink = RustStreamSink<String>();
     unawaited(
       handler.executeNormal(
@@ -146,7 +369,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             pdeCallFfi(
               generalizedFrbRustBinding,
               serializer,
-              funcId: 2,
+              funcId: 4,
               port: port_,
             );
           },
@@ -154,7 +377,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             decodeSuccessData: sse_decode_unit,
             decodeErrorData: sse_decode_AnyhowException,
           ),
-          constMeta: kCrateApiAuraChatChunkedConstMeta,
+          constMeta: kCrateApiChatAuraChatChunkedConstMeta,
           argValues: [sink, chunks],
           apiImpl: this,
         ),
@@ -163,82 +386,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     return sink.stream;
   }
 
-  TaskConstMeta get kCrateApiAuraChatChunkedConstMeta => const TaskConstMeta(
-    debugName: "aura_chat_chunked",
-    argNames: ["sink", "chunks"],
-  );
-
-  @override
-  Future<String> crateApiAuraGetAllNotebookTurns() {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 3,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_String,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiAuraGetAllNotebookTurnsConstMeta,
-        argValues: [],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiAuraGetAllNotebookTurnsConstMeta =>
+  TaskConstMeta get kCrateApiChatAuraChatChunkedConstMeta =>
       const TaskConstMeta(
-        debugName: "aura_get_all_notebook_turns",
-        argNames: [],
+        debugName: "aura_chat_chunked",
+        argNames: ["sink", "chunks"],
       );
 
   @override
-  Future<bool> crateApiAuraInit({
-    required String modelPath,
-    required String tokenizerPath,
-  }) {
+  Future<String> crateApiMemoryAuraCheckMemoryHealth() {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_String(modelPath, serializer);
-          sse_encode_String(tokenizerPath, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 4,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_bool,
-          decodeErrorData: null,
-        ),
-        constMeta: kCrateApiAuraInitConstMeta,
-        argValues: [modelPath, tokenizerPath],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiAuraInitConstMeta => const TaskConstMeta(
-    debugName: "aura_init",
-    argNames: ["modelPath", "tokenizerPath"],
-  );
-
-  @override
-  Future<bool> crateApiAuraInject({required String context}) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_String(context, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -247,26 +406,25 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_bool,
+          decodeSuccessData: sse_decode_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiAuraInjectConstMeta,
-        argValues: [context],
+        constMeta: kCrateApiMemoryAuraCheckMemoryHealthConstMeta,
+        argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiAuraInjectConstMeta =>
-      const TaskConstMeta(debugName: "aura_inject", argNames: ["context"]);
+  TaskConstMeta get kCrateApiMemoryAuraCheckMemoryHealthConstMeta =>
+      const TaskConstMeta(debugName: "aura_check_memory_health", argNames: []);
 
   @override
-  Future<bool> crateApiAuraPrefill({required String partial}) {
+  Future<String> crateApiMemoryProactiveAuraCheckProactive() {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_String(partial, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -275,23 +433,1380 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryProactiveAuraCheckProactiveConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryProactiveAuraCheckProactiveConstMeta =>
+      const TaskConstMeta(debugName: "aura_check_proactive", argNames: []);
+
+  @override
+  Future<bool> crateApiEngineAuraClearMemory() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 7,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
           decodeSuccessData: sse_decode_bool,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiAuraPrefillConstMeta,
+        constMeta: kCrateApiEngineAuraClearMemoryConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiEngineAuraClearMemoryConstMeta =>
+      const TaskConstMeta(debugName: "aura_clear_memory", argNames: []);
+
+  @override
+  Future<bool> crateApiMemoryNotesAuraDeleteMemoryNote({
+    required PlatformInt64 id,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_i_64(id, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 8,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryNotesAuraDeleteMemoryNoteConstMeta,
+        argValues: [id],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryNotesAuraDeleteMemoryNoteConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_delete_memory_note",
+        argNames: ["id"],
+      );
+
+  @override
+  Future<bool> crateApiMemoryNotesAuraDeleteMemoryNotePermanently({
+    required PlatformInt64 id,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_i_64(id, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 9,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryNotesAuraDeleteMemoryNotePermanentlyConstMeta,
+        argValues: [id],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiMemoryNotesAuraDeleteMemoryNotePermanentlyConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_delete_memory_note_permanently",
+        argNames: ["id"],
+      );
+
+  @override
+  Future<String> crateApiMemoryAuraGetAllFactsJson() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 10,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryAuraGetAllFactsJsonConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryAuraGetAllFactsJsonConstMeta =>
+      const TaskConstMeta(debugName: "aura_get_all_facts_json", argNames: []);
+
+  @override
+  Future<String> crateApiMemoryAuraGetAllNotebookTurns() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 11,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryAuraGetAllNotebookTurnsConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryAuraGetAllNotebookTurnsConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_get_all_notebook_turns",
+        argNames: [],
+      );
+
+  @override
+  Future<String> crateApiMemoryAuraGetAllSummariesJson() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 12,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryAuraGetAllSummariesJsonConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryAuraGetAllSummariesJsonConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_get_all_summaries_json",
+        argNames: [],
+      );
+
+  @override
+  Future<String> crateApiEngineAuraGetAvailableBackends() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 13,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiEngineAuraGetAvailableBackendsConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiEngineAuraGetAvailableBackendsConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_get_available_backends",
+        argNames: [],
+      );
+
+  @override
+  Future<String> crateApiMemoryProactiveAuraGetBufferStatus() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 14,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryProactiveAuraGetBufferStatusConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryProactiveAuraGetBufferStatusConstMeta =>
+      const TaskConstMeta(debugName: "aura_get_buffer_status", argNames: []);
+
+  @override
+  Future<String> crateApiMemoryAuraGetMemoryNotesJson() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 15,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryAuraGetMemoryNotesJsonConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryAuraGetMemoryNotesJsonConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_get_memory_notes_json",
+        argNames: [],
+      );
+
+  @override
+  Future<String> crateApiMemoryAuraGetNotebookInsightsJson() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 16,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryAuraGetNotebookInsightsJsonConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryAuraGetNotebookInsightsJsonConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_get_notebook_insights_json",
+        argNames: [],
+      );
+
+  @override
+  Future<String> crateApiMemoryAuraGetNotebookProactiveLogJson() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 17,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryAuraGetNotebookProactiveLogJsonConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryAuraGetNotebookProactiveLogJsonConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_get_notebook_proactive_log_json",
+        argNames: [],
+      );
+
+  @override
+  Future<String> crateApiMemoryAuraGetOverlayConfig() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 18,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryAuraGetOverlayConfigConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryAuraGetOverlayConfigConstMeta =>
+      const TaskConstMeta(debugName: "aura_get_overlay_config", argNames: []);
+
+  @override
+  Future<String> crateApiMemoryProactiveAuraGetProactiveContext() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 19,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryProactiveAuraGetProactiveContextConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryProactiveAuraGetProactiveContextConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_get_proactive_context",
+        argNames: [],
+      );
+
+  @override
+  Future<String> crateApiVisionAuraGetWebcamGesture() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 20,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiVisionAuraGetWebcamGestureConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiVisionAuraGetWebcamGestureConstMeta =>
+      const TaskConstMeta(debugName: "aura_get_webcam_gesture", argNames: []);
+
+  @override
+  Future<bool> crateApiEngineAuraInit({
+    required String modelPath,
+    required String tokenizerPath,
+    required String embedModelPath,
+    required String embedTokPath,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(modelPath, serializer);
+          sse_encode_String(tokenizerPath, serializer);
+          sse_encode_String(embedModelPath, serializer);
+          sse_encode_String(embedTokPath, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 21,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiEngineAuraInitConstMeta,
+        argValues: [modelPath, tokenizerPath, embedModelPath, embedTokPath],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiEngineAuraInitConstMeta => const TaskConstMeta(
+    debugName: "aura_init",
+    argNames: ["modelPath", "tokenizerPath", "embedModelPath", "embedTokPath"],
+  );
+
+  @override
+  Future<bool> crateApiChatAuraInject({required String context}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(context, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 22,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiChatAuraInjectConstMeta,
+        argValues: [context],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiChatAuraInjectConstMeta =>
+      const TaskConstMeta(debugName: "aura_inject", argNames: ["context"]);
+
+  @override
+  Future<bool> crateApiMemoryProactiveAuraLogProactive({
+    required PlatformInt64 triggerId,
+    required String label,
+    required String triggerType,
+    required bool engaged,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_i_64(triggerId, serializer);
+          sse_encode_String(label, serializer);
+          sse_encode_String(triggerType, serializer);
+          sse_encode_bool(engaged, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 23,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryProactiveAuraLogProactiveConstMeta,
+        argValues: [triggerId, label, triggerType, engaged],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryProactiveAuraLogProactiveConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_log_proactive",
+        argNames: ["triggerId", "label", "triggerType", "engaged"],
+      );
+
+  @override
+  Future<bool> crateApiChatAuraPrefill({required String partial}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(partial, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 24,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiChatAuraPrefillConstMeta,
         argValues: [partial],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiAuraPrefillConstMeta =>
+  TaskConstMeta get kCrateApiChatAuraPrefillConstMeta =>
       const TaskConstMeta(debugName: "aura_prefill", argNames: ["partial"]);
+
+  @override
+  Future<bool> crateApiVisionAuraProcessVision({
+    required List<VisionDetection> detections,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_list_vision_detection(detections, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 25,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiVisionAuraProcessVisionConstMeta,
+        argValues: [detections],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiVisionAuraProcessVisionConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_process_vision",
+        argNames: ["detections"],
+      );
+
+  @override
+  Future<bool> crateApiFileReadAuraReadFileIntoMemory({
+    required String path,
+    String? label,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(path, serializer);
+          sse_encode_opt_String(label, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 26,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiFileReadAuraReadFileIntoMemoryConstMeta,
+        argValues: [path, label],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFileReadAuraReadFileIntoMemoryConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_read_file_into_memory",
+        argNames: ["path", "label"],
+      );
+
+  @override
+  Future<bool> crateApiMemoryProactiveAuraRecordEngagement({
+    required PlatformInt64 triggerId,
+    required bool engaged,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_i_64(triggerId, serializer);
+          sse_encode_bool(engaged, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 27,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryProactiveAuraRecordEngagementConstMeta,
+        argValues: [triggerId, engaged],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryProactiveAuraRecordEngagementConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_record_engagement",
+        argNames: ["triggerId", "engaged"],
+      );
+
+  @override
+  Future<bool> crateApiMemoryNotesAuraRecoverMemoryNote({
+    required PlatformInt64 id,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_i_64(id, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 28,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryNotesAuraRecoverMemoryNoteConstMeta,
+        argValues: [id],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryNotesAuraRecoverMemoryNoteConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_recover_memory_note",
+        argNames: ["id"],
+      );
+
+  @override
+  Future<bool> crateApiChatAuraResetState() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 29,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiChatAuraResetStateConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiChatAuraResetStateConstMeta =>
+      const TaskConstMeta(debugName: "aura_reset_state", argNames: []);
+
+  @override
+  Future<String> crateApiMemoryAuraSearchRelevant({
+    required String query,
+    required PlatformInt64 limit,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(query, serializer);
+          sse_encode_i_64(limit, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 30,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryAuraSearchRelevantConstMeta,
+        argValues: [query, limit],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryAuraSearchRelevantConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_search_relevant",
+        argNames: ["query", "limit"],
+      );
+
+  @override
+  Future<bool> crateApiEngineAuraSetBackend({required String backendName}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(backendName, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 31,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiEngineAuraSetBackendConstMeta,
+        argValues: [backendName],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiEngineAuraSetBackendConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_set_backend",
+        argNames: ["backendName"],
+      );
+
+  @override
+  Future<bool> crateApiEngineAuraSetContextSize({required int nCtx}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_u_32(nCtx, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 32,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiEngineAuraSetContextSizeConstMeta,
+        argValues: [nCtx],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiEngineAuraSetContextSizeConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_set_context_size",
+        argNames: ["nCtx"],
+      );
+
+  @override
+  Future<bool> crateApiEngineAuraSetThreads({required int threads}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_i_32(threads, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 33,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiEngineAuraSetThreadsConstMeta,
+        argValues: [threads],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiEngineAuraSetThreadsConstMeta =>
+      const TaskConstMeta(debugName: "aura_set_threads", argNames: ["threads"]);
+
+  @override
+  Future<bool> crateApiSttAuraSttAvailable() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 34,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiSttAuraSttAvailableConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSttAuraSttAvailableConstMeta =>
+      const TaskConstMeta(debugName: "aura_stt_available", argNames: []);
+
+  @override
+  Future<bool> crateApiSttAuraSttInit() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 35,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiSttAuraSttInitConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSttAuraSttInitConstMeta =>
+      const TaskConstMeta(debugName: "aura_stt_init", argNames: []);
+
+  @override
+  Future<String> crateApiSttAuraSttPushAudio({
+    required List<double> samples,
+    required int sampleRate,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_list_prim_f_32_loose(samples, serializer);
+          sse_encode_i_32(sampleRate, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 36,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiSttAuraSttPushAudioConstMeta,
+        argValues: [samples, sampleRate],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSttAuraSttPushAudioConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_stt_push_audio",
+        argNames: ["samples", "sampleRate"],
+      );
+
+  @override
+  Future<void> crateApiSttAuraSttResetSession() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 37,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiSttAuraSttResetSessionConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSttAuraSttResetSessionConstMeta =>
+      const TaskConstMeta(debugName: "aura_stt_reset_session", argNames: []);
+
+  @override
+  Future<bool> crateApiTtsAuraTtsAvailable() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 38,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiTtsAuraTtsAvailableConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiTtsAuraTtsAvailableConstMeta =>
+      const TaskConstMeta(debugName: "aura_tts_available", argNames: []);
+
+  @override
+  Future<bool> crateApiTtsAuraTtsInit() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 39,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiTtsAuraTtsInitConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiTtsAuraTtsInitConstMeta =>
+      const TaskConstMeta(debugName: "aura_tts_init", argNames: []);
+
+  @override
+  Future<void> crateApiTtsAuraTtsSetVolume({required double volume}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_f_32(volume, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 40,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiTtsAuraTtsSetVolumeConstMeta,
+        argValues: [volume],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiTtsAuraTtsSetVolumeConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_tts_set_volume",
+        argNames: ["volume"],
+      );
+
+  @override
+  Future<TtsAudio?> crateApiTtsAuraTtsSpeak({
+    required String text,
+    required double speed,
+    required bool interrupt,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(text, serializer);
+          sse_encode_f_32(speed, serializer);
+          sse_encode_bool(interrupt, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 41,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_opt_box_autoadd_tts_audio,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiTtsAuraTtsSpeakConstMeta,
+        argValues: [text, speed, interrupt],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiTtsAuraTtsSpeakConstMeta => const TaskConstMeta(
+    debugName: "aura_tts_speak",
+    argNames: ["text", "speed", "interrupt"],
+  );
+
+  @override
+  Future<bool> crateApiTtsAuraTtsStop() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 42,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiTtsAuraTtsStopConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiTtsAuraTtsStopConstMeta =>
+      const TaskConstMeta(debugName: "aura_tts_stop", argNames: []);
+
+  @override
+  Future<bool> crateApiMemoryNotesAuraUpdateMemoryNote({
+    required PlatformInt64 id,
+    required String title,
+    required String content,
+    required bool pinned,
+    required bool deleted,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_i_64(id, serializer);
+          sse_encode_String(title, serializer);
+          sse_encode_String(content, serializer);
+          sse_encode_bool(pinned, serializer);
+          sse_encode_bool(deleted, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 43,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiMemoryNotesAuraUpdateMemoryNoteConstMeta,
+        argValues: [id, title, content, pinned, deleted],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMemoryNotesAuraUpdateMemoryNoteConstMeta =>
+      const TaskConstMeta(
+        debugName: "aura_update_memory_note",
+        argNames: ["id", "title", "content", "pinned", "deleted"],
+      );
+
+  @override
+  Future<BigInt> crateApiConfigConfigureRayonThreads() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 44,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_usize,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiConfigConfigureRayonThreadsConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiConfigConfigureRayonThreadsConstMeta =>
+      const TaskConstMeta(debugName: "configure_rayon_threads", argNames: []);
+
+  @override
+  Future<String?> crateApiChatPersonaRetrievalMatchMemoryRecall({
+    required List<double> query,
+    required double threshold,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_list_prim_f_32_loose(query, serializer);
+          sse_encode_f_32(threshold, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 45,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_opt_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiChatPersonaRetrievalMatchMemoryRecallConstMeta,
+        argValues: [query, threshold],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiChatPersonaRetrievalMatchMemoryRecallConstMeta =>
+      const TaskConstMeta(
+        debugName: "match_memory_recall",
+        argNames: ["query", "threshold"],
+      );
+
+  @override
+  Future<int> crateApiConfigNCtxForPlatform() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 46,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_u_32,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiConfigNCtxForPlatformConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiConfigNCtxForPlatformConstMeta =>
+      const TaskConstMeta(debugName: "n_ctx_for_platform", argNames: []);
+
+  @override
+  Future<List<String>> crateApiWorkerUtilsProcessMemory({
+    required MemoryStore store,
+    required String prompt,
+    required String response,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMemoryStore(
+            store,
+            serializer,
+          );
+          sse_encode_String(prompt, serializer);
+          sse_encode_String(response, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 47,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsProcessMemoryConstMeta,
+        argValues: [store, prompt, response],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsProcessMemoryConstMeta =>
+      const TaskConstMeta(
+        debugName: "process_memory",
+        argNames: ["store", "prompt", "response"],
+      );
+
+  @override
+  Future<List<String>> crateApiChatPersonaRetrievalRetrievePersonaExamples({
+    required List<double> query,
+    required BigInt k,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_list_prim_f_32_loose(query, serializer);
+          sse_encode_usize(k, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 48,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta:
+            kCrateApiChatPersonaRetrievalRetrievePersonaExamplesConstMeta,
+        argValues: [query, k],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiChatPersonaRetrievalRetrievePersonaExamplesConstMeta =>
+      const TaskConstMeta(
+        debugName: "retrieve_persona_examples",
+        argNames: ["query", "k"],
+      );
+
+  @override
+  Future<String> crateApiConfigSmoothPerformanceLabel() {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 49,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiConfigSmoothPerformanceLabelConstMeta,
+        argValues: [],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiConfigSmoothPerformanceLabelConstMeta =>
+      const TaskConstMeta(debugName: "smooth_performance_label", argNames: []);
+
+  RustArcIncrementStrongCountFnType
+  get rust_arc_increment_strong_count_MemoryStore => wire
+      .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMemoryStore;
+
+  RustArcDecrementStrongCountFnType
+  get rust_arc_decrement_strong_count_MemoryStore => wire
+      .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMemoryStore;
 
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return AnyhowException(raw as String);
+  }
+
+  @protected
+  MemoryStore
+  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMemoryStore(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return MemoryStoreImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
+  MemoryStore
+  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMemoryStore(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return MemoryStoreImpl.frbInternalDcoDecode(raw as List<dynamic>);
   }
 
   @protected
@@ -313,15 +1828,99 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  TtsAudio dco_decode_box_autoadd_tts_audio(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_tts_audio(raw);
+  }
+
+  @protected
+  double dco_decode_f_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
+  F32Array4 dco_decode_f_32_array_4(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return F32Array4(dco_decode_list_prim_f_32_strict(raw));
+  }
+
+  @protected
+  int dco_decode_i_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
+  }
+
+  @protected
+  PlatformInt64 dco_decode_i_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeI64(raw);
+  }
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_String).toList();
   }
 
   @protected
+  List<double> dco_decode_list_prim_f_32_loose(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as List<double>;
+  }
+
+  @protected
+  Float32List dco_decode_list_prim_f_32_strict(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as Float32List;
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
+  }
+
+  @protected
+  List<VisionDetection> dco_decode_list_vision_detection(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_vision_detection).toList();
+  }
+
+  @protected
+  String? dco_decode_opt_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_String(raw);
+  }
+
+  @protected
+  TtsAudio? dco_decode_opt_box_autoadd_tts_audio(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_tts_audio(raw);
+  }
+
+  @protected
+  F32Array4? dco_decode_opt_f_32_array_4(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_f_32_array_4(raw);
+  }
+
+  @protected
+  TtsAudio dco_decode_tts_audio(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return TtsAudio(
+      samples: dco_decode_list_prim_f_32_strict(arr[0]),
+      sampleRate: dco_decode_i_32(arr[1]),
+    );
+  }
+
+  @protected
+  int dco_decode_u_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as int;
   }
 
   @protected
@@ -337,10 +1936,53 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  BigInt dco_decode_usize(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeU64(raw);
+  }
+
+  @protected
+  VisionDetection dco_decode_vision_detection(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return VisionDetection(
+      label: dco_decode_String(arr[0]),
+      confidence: dco_decode_f_32(arr[1]),
+      bbox: dco_decode_opt_f_32_array_4(arr[2]),
+    );
+  }
+
+  @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_String(deserializer);
     return AnyhowException(inner);
+  }
+
+  @protected
+  MemoryStore
+  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMemoryStore(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return MemoryStoreImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
+  }
+
+  @protected
+  MemoryStore
+  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMemoryStore(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return MemoryStoreImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
   }
 
   @protected
@@ -365,6 +2007,37 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  TtsAudio sse_decode_box_autoadd_tts_audio(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_tts_audio(deserializer));
+  }
+
+  @protected
+  double sse_decode_f_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getFloat32();
+  }
+
+  @protected
+  F32Array4 sse_decode_f_32_array_4(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_list_prim_f_32_strict(deserializer);
+    return F32Array4(inner);
+  }
+
+  @protected
+  int sse_decode_i_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getInt32();
+  }
+
+  @protected
+  PlatformInt64 sse_decode_i_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getPlatformInt64();
+  }
+
+  @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -377,10 +2050,85 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<double> sse_decode_list_prim_f_32_loose(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getFloat32List(len_);
+  }
+
+  @protected
+  Float32List sse_decode_list_prim_f_32_strict(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var len_ = sse_decode_i_32(deserializer);
+    return deserializer.buffer.getFloat32List(len_);
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  List<VisionDetection> sse_decode_list_vision_detection(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <VisionDetection>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_vision_detection(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  String? sse_decode_opt_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_String(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  TtsAudio? sse_decode_opt_box_autoadd_tts_audio(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_tts_audio(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  F32Array4? sse_decode_opt_f_32_array_4(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_f_32_array_4(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  TtsAudio sse_decode_tts_audio(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_samples = sse_decode_list_prim_f_32_strict(deserializer);
+    var var_sampleRate = sse_decode_i_32(deserializer);
+    return TtsAudio(samples: var_samples, sampleRate: var_sampleRate);
+  }
+
+  @protected
+  int sse_decode_u_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getUint32();
   }
 
   @protected
@@ -395,9 +2143,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  int sse_decode_i_32(SseDeserializer deserializer) {
+  BigInt sse_decode_usize(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getInt32();
+    return deserializer.buffer.getBigUint64();
+  }
+
+  @protected
+  VisionDetection sse_decode_vision_detection(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_label = sse_decode_String(deserializer);
+    var var_confidence = sse_decode_f_32(deserializer);
+    var var_bbox = sse_decode_opt_f_32_array_4(deserializer);
+    return VisionDetection(
+      label: var_label,
+      confidence: var_confidence,
+      bbox: var_bbox,
+    );
   }
 
   @protected
@@ -407,6 +2168,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.message, serializer);
+  }
+
+  @protected
+  void
+  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMemoryStore(
+    MemoryStore self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as MemoryStoreImpl).frbInternalSseEncode(move: false),
+      serializer,
+    );
+  }
+
+  @protected
+  void
+  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMemoryStore(
+    MemoryStore self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as MemoryStoreImpl).frbInternalSseEncode(move: null),
+      serializer,
+    );
   }
 
   @protected
@@ -439,12 +2226,67 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_tts_audio(
+    TtsAudio self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_tts_audio(self, serializer);
+  }
+
+  @protected
+  void sse_encode_f_32(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putFloat32(self);
+  }
+
+  @protected
+  void sse_encode_f_32_array_4(F32Array4 self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_prim_f_32_strict(self.inner, serializer);
+  }
+
+  @protected
+  void sse_encode_i_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putInt32(self);
+  }
+
+  @protected
+  void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putPlatformInt64(self);
+  }
+
+  @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_String(item, serializer);
     }
+  }
+
+  @protected
+  void sse_encode_list_prim_f_32_loose(
+    List<double> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putFloat32List(
+      self is Float32List ? self : Float32List.fromList(self),
+    );
+  }
+
+  @protected
+  void sse_encode_list_prim_f_32_strict(
+    Float32List self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    serializer.buffer.putFloat32List(self);
   }
 
   @protected
@@ -455,6 +2297,64 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_list_vision_detection(
+    List<VisionDetection> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_vision_detection(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_String(String? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_String(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_tts_audio(
+    TtsAudio? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_tts_audio(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_f_32_array_4(F32Array4? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_f_32_array_4(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_tts_audio(TtsAudio self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_prim_f_32_strict(self.samples, serializer);
+    sse_encode_i_32(self.sampleRate, serializer);
+  }
+
+  @protected
+  void sse_encode_u_32(int self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putUint32(self);
   }
 
   @protected
@@ -469,8 +2369,39 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_i_32(int self, SseSerializer serializer) {
+  void sse_encode_usize(BigInt self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putInt32(self);
+    serializer.buffer.putBigUint64(self);
   }
+
+  @protected
+  void sse_encode_vision_detection(
+    VisionDetection self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.label, serializer);
+    sse_encode_f_32(self.confidence, serializer);
+    sse_encode_opt_f_32_array_4(self.bbox, serializer);
+  }
+}
+
+@sealed
+class MemoryStoreImpl extends RustOpaque implements MemoryStore {
+  // Not to be used by end users
+  MemoryStoreImpl.frbInternalDcoDecode(List<dynamic> wire)
+    : super.frbInternalDcoDecode(wire, _kStaticData);
+
+  // Not to be used by end users
+  MemoryStoreImpl.frbInternalSseDecode(BigInt ptr, int externalSizeOnNative)
+    : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
+
+  static final _kStaticData = RustArcStaticData(
+    rustArcIncrementStrongCount:
+        RustLib.instance.api.rust_arc_increment_strong_count_MemoryStore,
+    rustArcDecrementStrongCount:
+        RustLib.instance.api.rust_arc_decrement_strong_count_MemoryStore,
+    rustArcDecrementStrongCountPtr:
+        RustLib.instance.api.rust_arc_decrement_strong_count_MemoryStorePtr,
+  );
 }

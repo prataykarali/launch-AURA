@@ -74,6 +74,12 @@ set_target_properties(${BINARY_NAME}
 # them to the application.
 include(flutter/generated_plugins.cmake)
 
+# Bundled rust .so for the LLM engine
+set(AURA_LNN_SO "${CMAKE_CURRENT_SOURCE_DIR}/bundle/lib/libaura_lnn.so")
+if(EXISTS "${AURA_LNN_SO}")
+  list(APPEND PLUGIN_BUNDLED_LIBRARIES "${AURA_LNN_SO}")
+endif()
+
 
 # === Installation ===
 # By default, "installing" just makes a relocatable bundle in the build

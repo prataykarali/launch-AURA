@@ -24,6 +24,11 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Only arm64-v8a is built/tested. Locking the ABI here prevents an
+        // accidental stale-arch .so (e.g. an old armeabi-v7a/x86_64 build that
+        // predates a flutter_rust_bridge regen) from being packaged and shipped
+        // — which is exactly how the bridge-desync crash slipped out before.
+        ndk { abiFilters += "arm64-v8a" }
     }
 
     buildTypes {
@@ -31,8 +36,8 @@ android {
             // Using debug signing for local cable deployment
             signingConfig = signingConfigs.getByName("debug")
 
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

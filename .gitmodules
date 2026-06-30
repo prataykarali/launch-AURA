@@ -1,0 +1,3 @@
+[submodule "candle_LNN/aura_lnn/llama.cpp"]
+	path = candle_LNN/aura_lnn/llama.cpp
+	url = https://github.com/ggml-org/llama.cpp

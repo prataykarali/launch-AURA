@@ -1,0 +1,22 @@
+--- a/llama.cpp/src/llama-mmap.cpp
++++ b/llama.cpp/src/llama-mmap.cpp
+@@ -39,7 +39,17 @@
+ #if defined(__APPLE__)
+ #include <TargetConditionals.h>
+ #endif
+ 
++#if defined(__ANDROID__)
++    // Android NDK exposes madvise/MADV_* but not posix_madvise/POSIX_MADV_*.
++    #include <sys/mman.h>
++    #define posix_madvise madvise
++    #ifndef POSIX_MADV_WILLNEED
++        #define POSIX_MADV_WILLNEED MADV_WILLNEED
++    #endif
++    #ifndef POSIX_MADV_RANDOM
++        #define POSIX_MADV_RANDOM MADV_RANDOM
++    #endif
++#endif
++
+ // TODO: consider moving to llama-impl.h if needed in more places
+ #if defined(_WIN32)
+ static std::string llama_format_win_err(DWORD err) {

@@ -8,9 +8,11 @@ import 'package:aura_notebook/src/rust/frb_generated.dart';
 import 'package:aura_notebook/src/rust/api.dart';
 
 // ── HuggingFace URLs — update to your real repo ───────────────────────────────
-const _kModelUrl          = 'https://huggingface.co/Prataykarali/aura-lfm2/resolve/main/LFM2.5-1.2B-Instruct-Q4_K_M.gguf';
-const _kTokenizerUrl      = 'https://huggingface.co/Prataykarali/aura-lfm2/resolve/main/Q4_K_M.json';
-const _kModelFilename     = 'LFM2.5-1.2B-Instruct-Q4_K_M.gguf';
+const _kModelUrl =
+    'https://huggingface.co/LiquidAI/LFM2.5-230M-GGUF/resolve/main/LFM2.5-230M-Q8_0.gguf';
+const _kTokenizerUrl =
+    'https://huggingface.co/LiquidAI/LFM2.5-230M/resolve/main/tokenizer.json';
+const _kModelFilename = 'LFM2.5-230M-Q8_0.gguf';
 const _kTokenizerFilename = 'tokenizer.json';
 
 Future<void> main() async {
@@ -40,11 +42,16 @@ enum _Step { wake, check, download, engine, ready }
 extension _StepLabel on _Step {
   String get label {
     switch (this) {
-      case _Step.wake:     return 'Waking up AURA';
-      case _Step.check:    return 'Checking model files';
-      case _Step.download: return 'Downloading model...';
-      case _Step.engine:   return 'Loading AURA...';
-      case _Step.ready:    return 'Ready!';
+      case _Step.wake:
+        return 'Waking up AURA';
+      case _Step.check:
+        return 'Checking model files';
+      case _Step.download:
+        return 'Downloading model...';
+      case _Step.engine:
+        return 'Loading AURA...';
+      case _Step.ready:
+        return 'Ready!';
     }
   }
 }
@@ -58,14 +65,13 @@ class _ModelLoader extends StatefulWidget {
 
 class _ModelLoaderState extends State<_ModelLoader>
     with SingleTickerProviderStateMixin {
-
   late final AnimationController _floatCtrl;
-  late final Animation<double>   _floatAnim;
+  late final Animation<double> _floatAnim;
 
-  _Step   _currentStep      = _Step.wake;
+  _Step _currentStep = _Step.wake;
   String? _errorMsg;
-  double? _downloadProgress;   // 0.0–1.0 while downloading, null otherwise
-  bool    _loadingLock      = false;
+  double? _downloadProgress; // 0.0–1.0 while downloading, null otherwise
+  bool _loadingLock = false;
 
   @override
   void initState() {
@@ -74,9 +80,10 @@ class _ModelLoaderState extends State<_ModelLoader>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
-    _floatAnim = Tween<double>(begin: 0, end: -8).animate(
-      CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut),
-    );
+    _floatAnim = Tween<double>(
+      begin: 0,
+      end: -8,
+    ).animate(CurvedAnimation(parent: _floatCtrl, curve: Curves.easeInOut));
     _load();
   }
 
@@ -116,9 +123,9 @@ class _ModelLoaderState extends State<_ModelLoader>
       throw Exception('HTTP ${response?.statusCode} for $url');
     }
 
-    final total    = response.contentLength;
-    final sink     = File(destPath).openWrite();
-    int   received = 0;
+    final total = response.contentLength;
+    final sink = File(destPath).openWrite();
+    int received = 0;
 
     await for (final chunk in response) {
       sink.add(chunk);
@@ -145,14 +152,14 @@ class _ModelLoaderState extends State<_ModelLoader>
       _setStep(_Step.check);
       await Future.delayed(const Duration(milliseconds: 32));
 
-      final dir       = await PathManager.getModelsDir();
+      final dir = await PathManager.getModelsDir();
       final modelPath = '$dir/$_kModelFilename';
-      final tokPath   = '$dir/$_kTokenizerFilename';
+      final tokPath = '$dir/$_kTokenizerFilename';
 
       // ── Model: download if missing or too small (corrupted partial) ───────
-      final modelFile   = File(modelPath);
-      final modelExists = modelFile.existsSync() &&
-          modelFile.lengthSync() > 100 * 1024 * 1024;
+      final modelFile = File(modelPath);
+      final modelExists =
+          modelFile.existsSync() && modelFile.lengthSync() > 200 * 1024 * 1024;
 
       if (!modelExists) {
         _setStep(_Step.download);
@@ -170,7 +177,7 @@ class _ModelLoaderState extends State<_ModelLoader>
       }
 
       // ── Tokenizer: download if missing ────────────────────────────────────
-      final tokFile   = File(tokPath);
+      final tokFile = File(tokPath);
       final tokExists = tokFile.existsSync() && tokFile.lengthSync() > 1024;
 
       if (!tokExists) {
@@ -202,10 +209,9 @@ class _ModelLoaderState extends State<_ModelLoader>
       _setStep(_Step.ready);
       await Future.delayed(const Duration(milliseconds: 300));
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const home()),
-      );
-
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => const home()));
     } catch (e, st) {
       _setError('Unexpected error:\n$e');
       debugPrint('$e\n$st');
@@ -216,15 +222,18 @@ class _ModelLoaderState extends State<_ModelLoader>
   void _setStep(_Step step) {
     if (!mounted) return;
     setState(() {
-      _currentStep      = step;
-      _errorMsg         = null;
+      _currentStep = step;
+      _errorMsg = null;
       _downloadProgress = null;
     });
   }
 
   void _setError(String msg) {
     if (!mounted) return;
-    setState(() { _errorMsg = msg; _downloadProgress = null; });
+    setState(() {
+      _errorMsg = msg;
+      _downloadProgress = null;
+    });
     HapticFeedback.heavyImpact();
   }
 
@@ -244,7 +253,6 @@ class _ModelLoaderState extends State<_ModelLoader>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-
               // Floating balloon
               AnimatedBuilder(
                 animation: _floatAnim,
@@ -275,14 +283,19 @@ class _ModelLoaderState extends State<_ModelLoader>
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Column(
                     children: [
-                      const Icon(Icons.error_outline,
-                          color: Color(0xFF991A66), size: 32),
+                      const Icon(
+                        Icons.error_outline,
+                        color: Color(0xFF991A66),
+                        size: 32,
+                      ),
                       const SizedBox(height: 12),
                       Text(
                         _errorMsg!,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
-                            color: Color(0xFF991A66), fontSize: 13),
+                          color: Color(0xFF991A66),
+                          fontSize: 13,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       TextButton(
@@ -292,7 +305,6 @@ class _ModelLoaderState extends State<_ModelLoader>
                     ],
                   ),
                 )
-
               // ── Download progress ──────────────────────────────────────────
               else if (_downloadProgress != null)
                 Padding(
@@ -301,7 +313,7 @@ class _ModelLoaderState extends State<_ModelLoader>
                     children: [
                       Text(
                         _currentStep == _Step.download
-                            ? 'Downloading model (~700 MB)'
+                            ? 'Downloading model (~235 MB)'
                             : 'Downloading tokenizer...',
                         style: const TextStyle(
                           color: Color(0xFF991A66),
@@ -317,19 +329,21 @@ class _ModelLoaderState extends State<_ModelLoader>
                           minHeight: 8,
                           backgroundColor: Colors.indigo.shade50,
                           valueColor: const AlwaysStoppedAnimation(
-                              Color(0xFF991A66)),
+                            Color(0xFF991A66),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         '${((_downloadProgress ?? 0) * 100).toStringAsFixed(1)}%',
                         style: TextStyle(
-                            color: Colors.indigo.shade300, fontSize: 12),
+                          color: Colors.indigo.shade300,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
                 )
-
               // ── Step list ─────────────────────────────────────────────────
               else
                 _StepList(currentStep: _currentStep),
@@ -352,7 +366,7 @@ class _StepList extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: _Step.values.map((step) {
-        final isDone   = step.index < currentStep.index;
+        final isDone = step.index < currentStep.index;
         final isActive = step == currentStep;
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 48),
@@ -360,24 +374,35 @@ class _StepList extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                width: 20, height: 20,
+                width: 20,
+                height: 20,
                 child: isDone
-                    ? const Icon(Icons.check_circle_rounded,
-                    color: Color(0xFF991A66), size: 18)
+                    ? const Icon(
+                        Icons.check_circle_rounded,
+                        color: Color(0xFF991A66),
+                        size: 18,
+                      )
                     : isActive
                     ? const SizedBox(
-                    width: 16, height: 16,
-                    child: CircularProgressIndicator(
-                        color: Color(0xFF991A66), strokeWidth: 2))
-                    : Icon(Icons.radio_button_unchecked,
-                    color: Colors.indigo.shade100, size: 18),
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF991A66),
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Icon(
+                        Icons.radio_button_unchecked,
+                        color: Colors.indigo.shade100,
+                        size: 18,
+                      ),
               ),
               const SizedBox(width: 10),
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
-                  fontSize:   13,
-                  fontStyle:  FontStyle.italic,
+                  fontSize: 13,
+                  fontStyle: FontStyle.italic,
                   fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
                   color: isDone
                       ? const Color(0xFF991A66)
