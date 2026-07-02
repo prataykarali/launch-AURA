@@ -58,6 +58,7 @@ class AuraTTSService {
   }
 
   Timer? _playbackTimer;
+  int _lastTimerId = 0;
 
   // ── Initialization ─────────────────────────────────────────────────────────
   Completer<void>? _initCompleter;
@@ -223,13 +224,14 @@ class AuraTTSService {
     _lastSpokenAt = DateTime.now();
 
     if (Platform.isAndroid) {
-      final speakFuture = _enqueueAndroidSpeak(
+      // Fire-and-forget: don't await the speak future. This prevents TTS
+      // from blocking the generation loop and input handler.
+      unawaited(_enqueueAndroidSpeak(
         cleanText,
         interrupt,
         onComplete,
         volume: _muted ? 0.0 : 1.0,
-      );
-      await speakFuture;
+      ));
       return;
     }
 
@@ -288,6 +290,9 @@ class AuraTTSService {
         await _androidTtsChannel.invokeMethod<bool>('stop');
       } catch (_) {}
     }
+    // Ensure onComplete callbacks are not fired after stop.
+    _playbackTimer?.cancel();
+    _playbackTimer = null;
   }
 
   // ── Streaming stubs ───────────────────────────────────────────────────────

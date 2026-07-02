@@ -2,7 +2,21 @@ part of 'bar_brain.dart';
 
 extension AuraBarBrainUi on AuraBarBrain {
   Future<void> _updateBar(BarState state, {String? message}) async {
+    final wasIdle = _state == BarState.idle;
     _state = state;
+
+    // Gate the webcam gesture watch on bar visibility: only run the camera
+    // when the bar is actively showing content (not idle).
+    if (Platform.isLinux) {
+      if (state == BarState.idle && !wasIdle) {
+        // Bar going idle → stop gesture watch (camera off)
+        onBarHidden();
+      } else if (state != BarState.idle && wasIdle) {
+        // Bar becoming active → start gesture watch (camera on)
+        onBarVisible();
+      }
+    }
+
     try {
       await AuraBarMultiWindowService.instance.sendState(
         state,
@@ -46,9 +60,14 @@ extension AuraBarBrainUi on AuraBarBrain {
     final maxLen = Platform.isAndroid
         ? (state == BarState.proactive ? 70 : 80)
         : (state == BarState.proactive ? 100 : 140);
-    _pendingBarMessage = message.length > maxLen
-        ? '…${message.substring(message.length - maxLen)}'
-        : message;
+    // Truncate from the END (keep the beginning visible, not the tail).
+    if (message.length > maxLen) {
+      final cut = message.substring(0, maxLen);
+      final lastSpace = cut.lastIndexOf(' ');
+      _pendingBarMessage = '${cut.substring(0, lastSpace > 40 ? lastSpace : maxLen).trim()}...';
+    } else {
+      _pendingBarMessage = message;
+    }
 
     final now = DateTime.now();
     final isSentenceEnd =

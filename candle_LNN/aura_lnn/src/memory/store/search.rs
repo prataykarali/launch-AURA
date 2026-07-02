@@ -53,7 +53,7 @@ impl MemoryStore {
             for (a, b) in query_embedding.iter().zip(emb.iter()) {
                 cosine += a * b;
             }
-            if cosine < 0.50 || !safe_context_memory(&content) {
+            if cosine < 0.45 || !safe_context_memory(&content) {
                 continue;
             }
             let tokens = retrieval_tokens(&content);

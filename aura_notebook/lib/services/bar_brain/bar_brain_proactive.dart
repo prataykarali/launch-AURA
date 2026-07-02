@@ -1,6 +1,10 @@
 part of 'bar_brain.dart';
 
 extension AuraBarBrainProactive on AuraBarBrain {
+  // Lock to prevent TOCTOU race between checking isProcessing/isPlaying
+  // and actually starting the proactive generation.
+  static bool _proactiveLock = false;
+
   Future<void> handleProactiveTrigger(String? payload) async {
     lastUserInteraction = DateTime.now();
 
@@ -9,10 +13,13 @@ extension AuraBarBrainProactive on AuraBarBrain {
       debugPrint('AuraBarBrain: proactive trigger ignored — engine not ready');
       return;
     }
-    if (_isProcessing || userIsTyping || AuraTTSService.instance.isPlaying) {
+    // Use a lock to prevent race conditions where TTS starts between
+    // the check and the generation start.
+    if (_proactiveLock || _isProcessing || userIsTyping || AuraTTSService.instance.isPlaying) {
       debugPrint('AuraBarBrain: proactive trigger deferred — busy');
       return;
     }
+    _proactiveLock = true;
 
     final data = _parseTriggerPayload(payload);
     if (data == null) return;
@@ -48,6 +55,8 @@ extension AuraBarBrainProactive on AuraBarBrain {
       _releaseProcessingLock();
       await _updateBar(BarState.idle);
       _resumeWakeWordIfEnabled();
+    } finally {
+      _proactiveLock = false;
     }
   }
 
@@ -74,6 +83,24 @@ extension AuraBarBrainProactive on AuraBarBrain {
     Map<String, dynamic> data,
   ) async {
     final buffer = StringBuffer();
+
+    // For clock-based greetings, use a clean template WITHOUT conversation
+    // context to prevent prior topics from contaminating the greeting.
+    if (type == 'clock' || label == 'morning_greeting' ||
+        label == 'afternoon_checkin' || label == 'evening_winddown') {
+      final greeting = switch (label) {
+        'morning_greeting' => 'Good morning',
+        'afternoon_checkin' => 'Good afternoon',
+        'evening_winddown' => 'Good evening',
+        _ => 'Hello',
+      };
+      buffer.writeln('Say a brief, warm $greeting to the user.');
+      buffer.writeln('Reply in 1-2 sentences. Be natural and friendly.');
+      buffer.writeln('Do NOT mention any previous conversations or context.');
+      return buffer.toString().trim();
+    }
+
+    // For non-greeting triggers, include context but keep it compact.
     buffer.writeln('AURA is being proactive. Context:');
     buffer.writeln('  trigger_label=$label');
     buffer.writeln('  trigger_type=$type');
@@ -91,10 +118,16 @@ extension AuraBarBrainProactive on AuraBarBrain {
       buffer.writeln('  guidance=$sustainedSummary');
     }
 
+    // Only include memory context for non-greeting triggers, and limit it
+    // to avoid flooding the prompt with irrelevant prior conversation.
     try {
       final context = await auraGetProactiveContext();
       if (context.isNotEmpty) {
-        buffer.writeln('  memory_context=$context');
+        // Limit memory context to 200 chars to prevent contamination.
+        final limited = context.length > 200
+            ? '${context.substring(0, 200)}...'
+            : context;
+        buffer.writeln('  memory_context=$limited');
       }
     } catch (e) {
       debugPrint('AuraBarBrain: proactive context fetch failed: $e');

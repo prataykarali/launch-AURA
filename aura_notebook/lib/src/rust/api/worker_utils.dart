@@ -9,10 +9,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `process_memory_with_schedule_embedding`
 
-/// Post-turn memory processing. No hardcoded extractors — the conversation
-/// turn is stored in vec_memory by the caller via store_embed. The embedder
-/// retrieves it naturally via cosine similarity when the user references a
-/// past topic.
+/// Post-turn memory processing. Extracts structured facts using the
+/// centralized rules engine, stores them in the facts table, derives
+/// behavioral insights, and maintains a rolling conversation summary.
 Future<List<String>> processMemory({
   required MemoryStore store,
   required String prompt,

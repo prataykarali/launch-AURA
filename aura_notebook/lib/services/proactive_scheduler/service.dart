@@ -23,7 +23,12 @@ class ProactiveScheduler {
   // │  proactive trigger loop. Set back to false for production schedule.    │
   // └──────────────────────────────────────────────────────────────────────────┘
   static const bool _kDebugTestMode = false;
-  static const Duration _kDebugInterval = Duration(minutes: 1);
+  static const Duration _kDebugInterval = Duration(seconds: 30);
+  // Defense in depth: even if _kDebugTestMode were left true in source, the
+  // shipped binary cannot spam unless AURA_DEBUG_PROACTIVE=1 is explicitly set
+  // in the environment. This prevents stale-debug-binary yapping forever.
+  static final bool _kDebugEnabled =
+      _kDebugTestMode && Platform.environment['AURA_DEBUG_PROACTIVE'] == '1';
 
   Timer? _timer;
   DateTime? _lastActivation;
@@ -65,14 +70,23 @@ class ProactiveScheduler {
   // Idle-uptime threshold: after this much silence the user is considered idle.
   static const Duration idleThreshold = Duration(minutes: 10);
   DateTime? _lastIdleTrigger; // avoid firing idle_checkin back-to-back
+  DateTime? _lastScheduleNoteCheck; // avoid firing schedule notes back-to-back
 
   // Keep track of times checked today to avoid duplicate trigger within the same hour
   final Set<int> _triggeredHours = {};
 
+  // ── Schedule timer management ────────────────────────────────────────────
+  // Active schedule timers keyed by the note content hash.
+  final Map<String, Timer> _scheduleTimers = {};
+  // Already-fired schedule note contents (avoid re-firing).
+  final Set<String> _firedScheduleNotes = {};
+
+  static const int _kScheduleReminderId = -6;
+
   void start() {
     _timer?.cancel();
 
-    if (_kDebugTestMode) {
+    if (_kDebugEnabled) {
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       //  DEBUG: 60-second high-frequency proactive test loop
       // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

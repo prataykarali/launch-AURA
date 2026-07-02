@@ -9,6 +9,7 @@ extension AuraBarBrainVision on AuraBarBrain {
     'wave', 'waving', 'hand_wave', 'greeting',
     'open_palm', 'thumbs_up', 'hi_gesture',
     'hands_raised', 'hand gesture', 'hand pose',
+    'hand_pose', 'hand_wave_pose', 'open_palm_or_wave_pose',
     'raised', 'palm',
   ];
 

@@ -141,7 +141,11 @@ class _AuraRootState extends State<AuraRoot> {
           // hint and actually run inference. Route through setEngineReady() so
           // any prompt submitted while the engine was loading is flushed.
           AuraBarBrain.instance.setEngineReady();
-          ProactiveScheduler.instance.start();
+          if (Platform.environment['AURA_PROACTIVE_OFF'] != '1') {
+            ProactiveScheduler.instance.start();
+          } else {
+            debugPrint('[AURA] Proactive scheduler OFF (AURA_PROACTIVE_OFF=1)');
+          }
           // Wake-word (passive listening) disabled for now — push-to-talk via
           // the mic button still works (handleMicTap is independent of this).
           // Re-enable by uncommenting when STT is rebuilt for ambient listening.

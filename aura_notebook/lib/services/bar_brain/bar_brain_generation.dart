@@ -17,7 +17,7 @@ extension AuraBarBrainGeneration on AuraBarBrain {
     // Backup safety net: if the Rust engine doesn't emit any token within
     // a reasonable window, cancel the stream and return to idle so the user
     // isn't stuck on "Just a moment..." forever. On low-end Android devices
-    // the first token of a 1.2B Q4 model can take 15-30s, so use a longer
+    // the first token of a 230M Q4 model can take 1-3s, so use a longer
     // first-token timeout on mobile.
     final firstTokenTimeout = Platform.isAndroid
         ? const Duration(seconds: 90)
@@ -267,13 +267,24 @@ extension AuraBarBrainGeneration on AuraBarBrain {
     final trimmed = text.trimLeft();
     if (trimmed.isEmpty) return trimmed;
 
+    // If we have 4+ complete sentences, keep only the first 4.
     final matches = RegExp(r'[^.!?\n]+[.!?\n]+').allMatches(trimmed).toList();
     if (matches.length >= 4) {
       return trimmed.substring(0, matches[3].end).trim();
     }
 
+    // Hard cap at 420 chars — cut at the last sentence boundary before the
+    // limit. If no sentence boundary exists, cut at the last word boundary.
     const maxChars = 420;
     if (trimmed.length <= maxChars) return trimmed;
+
+    // Find the last sentence-ending punctuation before the limit.
+    final lastPeriod = trimmed.lastIndexOf(RegExp(r'[.!?]'), maxChars);
+    if (lastPeriod > 80) {
+      return trimmed.substring(0, lastPeriod + 1).trim();
+    }
+
+    // No sentence boundary — cut at last word boundary.
     final cut = trimmed.substring(0, maxChars);
     final lastSpace = cut.lastIndexOf(' ');
     return '${cut.substring(0, lastSpace > 80 ? lastSpace : maxChars).trim()}...';

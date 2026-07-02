@@ -1,19 +1,19 @@
 #[cfg(target_os = "linux")]
-pub(crate) mod capture;
+pub mod capture;
 #[cfg(target_os = "linux")]
-pub(crate) mod detection;
+pub mod detection;
 #[cfg(target_os = "linux")]
-pub(crate) mod draw;
+pub mod draw;
 #[cfg(target_os = "linux")]
-pub(crate) mod emotion;
+pub mod emotion;
 #[cfg(target_os = "linux")]
-pub(crate) mod model;
+pub mod model;
 #[cfg(target_os = "linux")]
-pub(crate) mod pose;
+pub mod pose;
 #[cfg(target_os = "linux")]
-pub(crate) mod state;
+pub mod state;
 #[cfg(target_os = "linux")]
-pub(crate) mod thread;
+pub mod thread;
 
 #[cfg(target_os = "linux")]
 pub use state::{

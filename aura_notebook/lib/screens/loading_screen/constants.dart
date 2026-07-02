@@ -25,7 +25,7 @@ const _kEmbedModelUrl =
 const _kEmbedTokUrl =
     'https://huggingface.co/Xenova/bge-small-en-v1.5/resolve/main/tokenizer.json';
 // Min file sizes we accept as "complete".
-const int _kModelMinBytes = 400 * 1024 * 1024; // LFM2.5 1.2B Q4_K_M ~698 MB
+const int _kModelMinBytes = 600 * 1024 * 1024; // LFM2.5 1.2B Q4_K_M ~698 MB
 const int _kEmbedMinBytes =
     20 * 1024 * 1024; // BGE small fp32 ~44 MB (model.onnx)
 const _kOldModelSuffixes = ['.kvcache', '.kvcache.pos', '.memory.db'];

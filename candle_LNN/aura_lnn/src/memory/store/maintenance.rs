@@ -58,6 +58,57 @@ impl MemoryStore {
         Ok(())
     }
 
+    /// Keep only the `keep` most recent vector-memory rows. Without this,
+    /// `vec_memory` grows without bound — every turn, fact, and user message
+    /// gets embedded and stored, and rows are never removed during normal
+    /// operation (only during critical memory pressure healing, which doesn't
+    /// even trim vec_memory). This prevents the table from becoming a
+    /// multi-hundred-MB memory leak over long sessions.
+    pub fn trim_vec_memory(&self, keep: usize) -> Result<usize> {
+        let conn = self.pool.acquire()?;
+        let n = conn.execute(
+            "DELETE FROM vec_memory WHERE id NOT IN (
+                SELECT id FROM vec_memory ORDER BY id DESC LIMIT ?
+            )",
+            params![keep as i64],
+        )?;
+        if n > 0 {
+            eprintln!("[AURA_MEMORY] trimmed {n} old vec_memory row(s) (kept {keep}).");
+        }
+        Ok(n)
+    }
+
+    /// Keep only the `keep` most recent proactive log entries. The proactive
+    /// log grows by one row per trigger fire and is never trimmed during normal
+    /// operation.
+    pub fn trim_proactive_log(&self, keep: usize) -> Result<usize> {
+        let conn = self.pool.acquire()?;
+        let n = conn.execute(
+            "DELETE FROM proactive_log WHERE id NOT IN (
+                SELECT id FROM proactive_log ORDER BY id DESC LIMIT ?
+            )",
+            params![keep as i64],
+        )?;
+        Ok(n)
+    }
+
+    /// Periodic maintenance: summarize old turns and trim all bounded tables.
+    /// Called every `interval` turns from the post-turn memory processor so
+    /// tables don't grow without bound during normal operation (not just under
+    /// memory pressure). Returns the number of turns folded.
+    pub fn periodic_maintenance(&self) -> Result<usize> {
+        // Fold old turns into a summary, keep the 20 most recent.
+        let folded = self.summarize_history(20, 10)?;
+
+        // Trim vec_memory to the 200 most recent embeddings.
+        let _ = self.trim_vec_memory(200);
+
+        // Trim proactive log to the 100 most recent entries.
+        let _ = self.trim_proactive_log(100);
+
+        Ok(folded)
+    }
+
     /// Consolidate the oldest turns into a single summary row, then trim them.
     ///
     /// This is the missing summarization trigger referenced throughout the

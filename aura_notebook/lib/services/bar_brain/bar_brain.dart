@@ -26,6 +26,14 @@ part 'bar_brain_volume.dart';
 part 'bar_brain_wake_word.dart';
 part 'bar_brain_generation.dart';
 
+// ── Queued prompt entry ────────────────────────────────────────────────────
+class _QueuedPrompt {
+  final String text;
+  final AuraObservationSource source;
+  final DateTime queuedAt;
+  _QueuedPrompt(this.text, this.source) : queuedAt = DateTime.now();
+}
+
 // ── AuraBarBrain ──────────────────────────────────────────────────────────────
 //
 // Clean state machine for the AURA bar. Split into part files for readability.
@@ -57,10 +65,9 @@ class AuraBarBrain {
 
   // ── Engine readiness ───────────────────────────────────────────────────────
   bool engineReady = false;
-  // True while Android background provisioning (download + auraInit) is running.
-  // Keeps the bar in processing state; prevents false idle flicker between phases.
   bool _androidInitInProgress = false;
-  String? _pendingPrompt;
+  final List<_QueuedPrompt> _promptQueue = [];
+  static const int _kMaxQueueSize = 5;
   AuraObservationSource _pendingPromptSource = AuraObservationSource.text;
   String _currentResponse = '';
   bool _isProactive = false;

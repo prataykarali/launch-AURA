@@ -39,9 +39,14 @@ extension _AuraTTSServiceEngine on AuraTTSService {
       await rust_tts.auraTtsSpeak(text: text, speed: 1.0, interrupt: interrupt);
       _playbackTimer?.cancel();
       final durationMs = _estimateDurationMs(text);
+      // Use a unique timer ID to prevent stale timers from firing.
+      final timerId = DateTime.now().millisecondsSinceEpoch;
+      _lastTimerId = timerId;
       _playbackTimer = Timer(Duration(milliseconds: durationMs), () {
-        _isPlaying = false;
-        onComplete?.call();
+        if (_lastTimerId == timerId) {
+          _isPlaying = false;
+          onComplete?.call();
+        }
       });
     } catch (e) {
       debugPrint('AuraTTS Rust error: $e');
@@ -90,7 +95,10 @@ extension _AuraTTSServiceEngine on AuraTTSService {
       // actual audio continues. Hold the playing flag for the estimated duration
       // so proactive triggers don't overlap speech that is still in progress.
       _playbackTimer?.cancel();
+      final timerId = DateTime.now().millisecondsSinceEpoch;
+      _lastTimerId = timerId;
       _playbackTimer = Timer(Duration(milliseconds: _estimateDurationMs(text)), () {
+        if (_lastTimerId != timerId) return;
         _activeSpeakCalls = (_activeSpeakCalls - 1).clamp(0, 999);
         if (_activeSpeakCalls == 0) {
           _isPlaying = false;
@@ -120,17 +128,21 @@ extension _AuraTTSServiceEngine on AuraTTSService {
     onComplete?.call();
   }
 
-  int _estimateDurationMs(String text) => (text.length * 65).clamp(800, 6000);
+  /// Estimate TTS duration from text length. Uses word-based estimation
+  /// instead of character-based for more accuracy. Average speaking rate
+  /// is ~150 words/minute = ~2.5 words/second.
+  int _estimateDurationMs(String text) {
+    final words = text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+    // 150 WPM = 400ms per word. Add 500ms base overhead.
+    final estimated = (words * 400) + 500;
+    return estimated.clamp(800, 8000);
+  }
 
   String _cleanText(String text) {
     return text
         .replaceAll(RegExp(r'\[.*?\]'), '')
         .replaceAll(RegExp(r'[\u2600-\u27BF]'), '')
         .replaceAll(RegExp(r'[\uD800-\uDBFF][\uDC00-\uDFFF]'), '')
-        .replaceAll('!', '.')
-        .replaceAll('?', '.')
-        .replaceAll(';', '.')
-        .replaceAll(':', '.')
         .replaceAll(RegExp(r'\.{2,}'), '.')
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();

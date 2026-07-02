@@ -13,16 +13,18 @@ extension AuraBarBrainPrompt on AuraBarBrain {
     if (trimmed.isEmpty) return;
 
     if (!engineReady) {
-      _pendingPrompt = trimmed;
-      _pendingPromptSource = source;
+      _promptQueue.add(_QueuedPrompt(trimmed, source));
       await showProcessingTransition('Warming up AURA...');
       return;
     }
 
     if (_isProcessing) {
-      _pendingPrompt = trimmed;
-      _pendingPromptSource = source;
-      debugPrint('AuraBarBrain: busy — queueing prompt');
+      if (_promptQueue.length >= AuraBarBrain._kMaxQueueSize) {
+        _promptQueue.removeAt(0); // Drop oldest to make room.
+      }
+      _promptQueue.add(_QueuedPrompt(trimmed, source));
+      debugPrint('AuraBarBrain: busy — queued prompt (${_promptQueue.length} pending)');
+      await _updateBar(BarState.processing, message: 'Queued (${_promptQueue.length})...');
       return;
     }
 
@@ -45,16 +47,36 @@ extension AuraBarBrainPrompt on AuraBarBrain {
 
       if (source == AuraObservationSource.text &&
           VisionService.instance.shouldTriggerCapture(normalized.english)) {
+        await _updateBar(BarState.watching, message: 'AURA is watching...');
         unawaited(VisionService.instance.captureNow(reason: 'user_ask'));
       }
 
-      await _runGeneration(normalized.english, proactive: false);
+      // Build prompt with length hint for the small model.
+      final prompt = _buildPromptWithLengthHint(normalized.english);
+      await _runGeneration(prompt, proactive: false);
     } catch (e, st) {
       debugPrint('AuraBarBrain: processUserPrompt error: $e\n$st');
       _releaseProcessingLock();
       await _updateBar(BarState.idle, message: 'Sorry, something went wrong.');
       _resumeWakeWordIfEnabled();
     }
+  }
+
+  /// Add a length hint to help the small model calibrate response length.
+  String _buildPromptWithLengthHint(String prompt) {
+    final wordCount = prompt.split(RegExp(r'\s+')).length;
+    // Simple factual questions (short prompts) → short answer.
+    if (wordCount <= 4 && !prompt.contains('?')) {
+      return '$prompt Answer in 1-2 sentences.';
+    }
+    if (wordCount <= 6) {
+      return '$prompt Give a brief, clear answer in 2-3 sentences.';
+    }
+    // Complex open-ended questions → allow longer but structured.
+    if (prompt.length > 100) {
+      return '$prompt Give a thoughtful but concise answer in 3-4 sentences.';
+    }
+    return prompt;
   }
 
   // ── Response sanitization ──────────────────────────────────────────────────
@@ -85,6 +107,37 @@ extension AuraBarBrainPrompt on AuraBarBrain {
           cleaned.startsWith('.') ||
           cleaned.startsWith(',')) {
         cleaned = cleaned.substring(1).trim();
+      }
+    }
+
+    // Strip proactive trigger context echoes. The small model sometimes
+    // echoes the internal proactive prompt back mid-response:
+    //   "Sure thing. ... I remember we were talking about AURA is being
+    //    proactive. Context: trigger_label=idle_checkin..."
+    final proactiveMarkers = [
+      'i remember we were talking about aura is being proactive',
+      'aura is being proactive',
+      'trigger_label=',
+      'trigger_type=',
+      'memory_context=',
+      'context:',
+      'schedule request:',
+      'observed:',
+      'guidance:',
+      'the user has shown repeated',
+      'the user appears to be',
+      'make a gentle personalized',
+      'offer one brief help',
+    ];
+    for (final marker in proactiveMarkers) {
+      final idx = cleaned.toLowerCase().indexOf(marker);
+      if (idx >= 0) {
+        final before = cleaned.substring(0, idx).trimRight();
+        if (before.split(' ').where((w) => w.isNotEmpty).length >= 3) {
+          cleaned = before;
+        } else {
+          cleaned = '';
+        }
       }
     }
 

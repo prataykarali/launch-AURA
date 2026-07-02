@@ -11,8 +11,13 @@ use super::CANCEL_FLAG;
 
 impl LlamaEngine {
     pub fn warmup(&mut self) -> Result<(), Box<dyn Error>> {
-        // Prefill system prompt
-        let system_msg = format!("<|startoftext|><|im_start|>system\n{}<|im_end|>\n", system_prompt());
+        let chat_template = std::env::var("AURA_CHAT_TEMPLATE")
+            .unwrap_or_else(|_| "chatml".to_string());
+        let system_msg = if chat_template == "llama3" {
+            format!("<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n{}<|eot_id|>", system_prompt())
+        } else {
+            format!("<|startoftext|><|im_start|>system\n{}<|im_end|>\n", system_prompt())
+        };
         let tokens = self.model.str_to_token(&system_msg, AddBos::Never)?;
         #[cfg(target_os = "android")]
         log::info!("[LLM] Warmup: {} system tokens to prefill", tokens.len());

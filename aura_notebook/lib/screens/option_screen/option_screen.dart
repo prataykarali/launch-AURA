@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:aura_notebook/utils/responsive.dart';
@@ -55,6 +56,18 @@ class _OptionScreenState extends State<OptionScreen> with TickerProviderStateMix
     Future.delayed(const Duration(milliseconds: 200), () {
       if (mounted) _entryCtrl.forward();
     });
+
+    // Auto-navigate to AURA Notebook home page when AURA_AUTO_NAV=1 is set.
+    // This is for UI automation testing where X11 input injection (xdotool/
+    // pyautogui) cannot click Flutter's GestureDetector-based buttons.
+    // Production users never set this env var so behavior is unchanged.
+    if (Platform.environment['AURA_AUTO_NAV'] == '1') {
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.of(context).pushReplacement(_fade(const home()));
+        }
+      });
+    }
   }
 
   @override

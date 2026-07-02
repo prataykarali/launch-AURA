@@ -83,5 +83,13 @@ Future<void> _processFrameImpl(VisionService service, Uint8List frame) async {
 
 bool _shouldTriggerCapture(String text) {
   final lower = text.toLowerCase();
-  return _visionTriggerVocabulary.any(lower.contains);
+  // Check compound phrases first (safe substring match)
+  if (_visionTriggerVocabulary.any(lower.contains)) return true;
+  // Check short trigger words with word boundaries to avoid false positives
+  // e.g. "I see what you mean" should NOT trigger, but "see" alone should
+  final words = lower.split(RegExp(r'\b'));
+  for (final word in _kShortTriggerWords) {
+    if (words.any((w) => w.trim() == word)) return true;
+  }
+  return false;
 }

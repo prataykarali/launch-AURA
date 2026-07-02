@@ -63,7 +63,7 @@ impl MemoryStore {
         for s in name_rows.flatten() {
             let s = s.trim().to_string();
             if !s.is_empty() && valid_profile_fact(&s) && out.len() < limit {
-                out.push(format!("Fact (user): {}", s));
+                out.push(s);
             }
         }
 
@@ -80,7 +80,7 @@ impl MemoryStore {
             for s in other_rows.flatten() {
                 let s = s.trim().to_string();
                 if !s.is_empty() && valid_profile_fact(&s) && out.len() < limit {
-                    out.push(format!("Fact (user): {}", s));
+                    out.push(s);
                 }
             }
         }

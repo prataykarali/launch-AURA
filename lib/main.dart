@@ -9,10 +9,10 @@ import 'package:aura_notebook/src/rust/api.dart';
 
 // ── HuggingFace URLs — update to your real repo ───────────────────────────────
 const _kModelUrl =
-    'https://huggingface.co/LiquidAI/LFM2.5-230M-GGUF/resolve/main/LFM2.5-230M-Q8_0.gguf';
+    'https://huggingface.co/LiquidAI/LFM2.5-230M-GGUF/resolve/main/LFM2.5-230M-Q4_K_M.gguf';
 const _kTokenizerUrl =
     'https://huggingface.co/LiquidAI/LFM2.5-230M/resolve/main/tokenizer.json';
-const _kModelFilename = 'LFM2.5-230M-Q8_0.gguf';
+const _kModelFilename = 'LFM2.5-230M-Q4_K_M.gguf';
 const _kTokenizerFilename = 'tokenizer.json';
 
 Future<void> main() async {

@@ -1,5 +1,6 @@
 use std::time::Instant;
 
+use aura_lnn::api::build_memory_prefix;
 use aura_lnn::llama_engine::LlamaEngine;
 use aura_lnn::memory::store::MemoryStore;
 
@@ -57,9 +58,18 @@ pub fn evaluate_case(case: &TestCase, store: &MemoryStore, engine: &mut LlamaEng
     engine.reset_state();
     let _ = engine.warmup();
 
-    let mut generated_response = String::new();
+    // Inject retrieved facts as a [MEMORY: ...] prefix, exactly like production.
+    // This makes the evaluation measure LLM recall from injected context,
+    // not embedder-retrieval string matching.
+    let memory_prefix = build_memory_prefix(&memories);
     let query = case.verification.query.clone();
+    let generation_prompt = if let Some(prefix) = memory_prefix {
+        format!("{}{}", prefix, query)
+    } else {
+        query
+    };
 
+    let mut generated_response = String::new();
     let gen_start = Instant::now();
     let max_tokens = match case.category.as_str() {
         "multi_fact_synthesis" | "complex_synthesis" => 96,
@@ -67,24 +77,10 @@ pub fn evaluate_case(case: &TestCase, store: &MemoryStore, engine: &mut LlamaEng
         "long_context_recall" | "correction_handling" => 64,
         _ => 48,
     };
-    let _ = engine.generate_with_context(&query, vec![], max_tokens, |piece| {
+    let _ = engine.generate_with_context(&generation_prompt, vec![], max_tokens, |piece| {
         generated_response.push_str(&piece);
     });
     let gen_duration = gen_start.elapsed();
-
-    // Memory is never fed to the model — the embedder retrieves it and we
-    // append it to the reply so recall keywords still appear in the output.
-    if !memories.is_empty() {
-        let append = format!(
-            " I remember: {}.",
-            memories
-                .iter()
-                .map(|m| m.trim())
-                .collect::<Vec<_>>()
-                .join(", ")
-        );
-        generated_response.push_str(&append);
-    }
 
     let lower_response = generated_response.to_lowercase();
     let response_words: Vec<&str> = lower_response.split_whitespace().collect();

@@ -140,7 +140,8 @@ fn generate_full(
     // DECIDES when the answer is complete) or we hit the safety ceiling.
     // This gives stories/explanations exactly as many turns as they need.
     const CONTINUATION_PASS_TOKENS: i32 = 48;
-    const MAX_CONTINUATION_TOKENS: i32 = 512; // safety ceiling — ~10 paragraphs
+    const MAX_CONTINUATION_TOKENS: i32 = 768; // safety ceiling — ~16 paragraphs
+    const SENTENCE_COMPLETION_TOKENS: i32 = 32; // finish current sentence at ceiling
     let should_loop = perf.allow_continuation && plan.continuation > 0;
     if should_loop {
         let mut total_continuation = 0i32;
@@ -167,6 +168,21 @@ fn generate_full(
                     "[AURA_WORKER] continuation loop ended at pass {} (EOS) — {} total continuation tokens",
                     pass, total_continuation
                 );
+                break;
+            }
+            // If we've hit the ceiling, do a short sentence-completion pass
+            // so we don't cut off mid-sentence. Generate up to
+            // SENTENCE_COMPLETION_TOKENS more tokens, stopping at the next
+            // sentence-ending punctuation (. ! ? …).
+            if total_continuation >= MAX_CONTINUATION_TOKENS {
+                eprintln!(
+                    "[AURA_WORKER] hit ceiling ({} tok) — completing sentence",
+                    total_continuation
+                );
+                let _ = engine.generate_continue(SENTENCE_COMPLETION_TOKENS, |tok| {
+                    full_response.push_str(&tok);
+                    let _ = sink.add(tok);
+                })?;
                 break;
             }
         }

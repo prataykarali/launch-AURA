@@ -16,9 +16,10 @@ fn main() {
     println!("Initializing AURA CLI...");
 
     // 1. Memory Store
-    let store = match MemoryStore::open(common::DB_PATH) {
+    let db_path = common::db_path();
+    let store = match MemoryStore::open(&db_path) {
         Ok(s) => {
-            println!("✓ Memory DB opened successfully at: {}", common::DB_PATH);
+            println!("✓ Memory DB opened successfully at: {}", db_path);
             s
         }
         Err(e) => {
@@ -37,9 +38,10 @@ fn main() {
         "/home/pratay-karali/launch-AURA/AURA-Proj/aura_notebook/assets/piper",
     );
 
+    let model_path = common::model_path();
     // 2. LLM Engine
-    println!("Loading LLM model (LFM2.5-1.2B Instruct Q4)...");
-    let embedder = match LlamaEngine::load_sibling_embedder(common::MODEL_PATH) {
+    println!("Loading LLM model from: {}...", model_path);
+    let embedder = match LlamaEngine::load_sibling_embedder(&model_path) {
         Ok(emb) => emb,
         Err(e) => {
             println!("✗ Error: bge embedder not found: {e:?}");
@@ -48,7 +50,7 @@ fn main() {
     };
 
     let mut engine = match LlamaEngine::new(
-        common::MODEL_PATH,
+        &model_path,
         aura_lnn::device_backend::DeviceBackend::Cpu,
         2048,
         2,
@@ -82,12 +84,17 @@ fn main() {
         println!("✗ STT Engine not available.");
     }
 
-    // 5. Vision Engine
-    println!("Initializing local Vision pipeline (camera + YOLO + semantic memory)...");
-    aura_lnn::vision::start_webcam_thread();
+    // 5. Vision Engine — only if AURA_CAMERA_OFF is not set
     let vision_memory_running = Arc::new(AtomicBool::new(true));
-    let vision_memory_handle =
-        vision::start_memory_thread(store.clone(), vision_memory_running.clone());
+    let mut vision_memory_handle: Option<std::thread::JoinHandle<()>> = None;
+    if std::env::var("AURA_CAMERA_OFF").as_deref() != Ok("1") {
+        println!("Initializing local Vision pipeline (camera + YOLO + semantic memory)...");
+        aura_lnn::vision::start_webcam_thread();
+        vision_memory_handle =
+            Some(vision::start_memory_thread(store.clone(), vision_memory_running.clone()));
+    } else {
+        println!("Vision pipeline OFF (AURA_CAMERA_OFF=1)");
+    }
 
     let stdin = io::stdin();
 
@@ -190,8 +197,10 @@ fn main() {
             "7" => {
                 println!("Exiting AURA. Goodbye!");
                 vision_memory_running.store(false, Ordering::Relaxed);
-                aura_lnn::vision::stop_webcam_thread();
-                let _ = vision_memory_handle.join();
+                if vision_memory_handle.is_some() {
+                    aura_lnn::vision::stop_webcam_thread();
+                    let _ = vision_memory_handle.take().unwrap().join();
+                }
                 break;
             }
             _ => {

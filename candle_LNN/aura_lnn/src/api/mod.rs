@@ -21,6 +21,8 @@ pub(crate) static MODEL_DIR: OnceCell<String> = OnceCell::new();
 pub use chat::{
     aura_cancel, aura_chat, aura_chat_chunked, aura_inject, aura_prefill, aura_reset_state,
 };
+pub use chat::turn::build_memory_prefix;
+pub use chat::turn::build_recall_prefill;
 pub use config::{configure_rayon_threads, n_ctx_for_platform, smooth_performance_label};
 pub use engine::{
     aura_clear_memory, aura_get_available_backends, aura_init, aura_set_backend,

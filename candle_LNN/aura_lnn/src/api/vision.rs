@@ -14,6 +14,9 @@ pub fn aura_process_vision(detections: Vec<VisionDetection>) -> bool {
 /// Each call also (re)starts/extends the headless gesture-watch session so the
 /// camera stays alive for wave detection while the bar is polling.
 pub fn aura_get_webcam_gesture() -> String {
+    if std::env::var("AURA_CAMERA_OFF").as_deref() == Ok("1") {
+        return String::new();
+    }
     crate::vision::webcam::start_gesture_watch();
     crate::vision::webcam::take_pending_gesture()
 }

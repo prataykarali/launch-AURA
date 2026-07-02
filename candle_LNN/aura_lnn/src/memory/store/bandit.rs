@@ -44,10 +44,27 @@ impl MemoryStore {
     /// Replaces the old `engagement_score * (random() % 100)` which had no
     /// proper exploration and degenerated to near-deterministic picks.
     pub fn get_proactive_suggestion(&self) -> Result<Option<(i64, String)>> {
-        const COOLDOWN_SECS: i64 = 300; // 5 min — same trigger can't re-fire within this window
+        const COOLDOWN_SECS: i64 = 300; // 5 min — same trigger can't re-fire
+        const GLOBAL_COOLDOWN_SECS: i64 = 120; // 2 min — ANY trigger can't fire within this window
         const EPSILON: f64 = 0.15;
         const SOFTMAX_TAU: f64 = 0.35;
-        const SCORE_FLOOR: f64 = 0.1; // prevent starvation: even zero-engagement arms get a small probability
+        const SCORE_FLOOR: f64 = 0.1;
+
+        // Global cooldown: check the most recent proactive_log entry.
+        // If the last trigger fired less than GLOBAL_COOLDOWN_SECS ago, return None.
+        let conn = self.pool.acquire()?;
+        let recent: Option<i64> = conn.query_row(
+            "SELECT MAX(timestamp) FROM proactive_log", [], |r| r.get(0)
+        ).ok().flatten();
+        if let Some(last_ts) = recent {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.as_secs() as i64)
+                .unwrap_or(0);
+            if now - last_ts < GLOBAL_COOLDOWN_SECS {
+                return Ok(None); // Global cooldown active — no trigger fires
+            }
+        }
 
         let conn = self.pool.acquire()?;
         let mut stmt = conn.prepare(

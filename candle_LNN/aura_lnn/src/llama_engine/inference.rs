@@ -104,7 +104,7 @@ impl LlamaEngine {
             .model
             .token_to_str(token_id, Special::Tokenize)
             .unwrap_or_default();
-        text.contains("<|im_end|>") || text.contains("<|endoftext|>") || text.trim() == "</s>"
+        text.contains("<|im_end|>") || text.contains("<|eot_id|>") || text.contains("") || text.trim() == "</s>"
     }
 
     pub(super) fn observe_generation_speed(&mut self, tps: f64, generated: i32) {

@@ -22,7 +22,7 @@ pub(crate) fn extract_preferences(cleaned: &str) -> Vec<String> {
         ("i enjoy ", "enjoys"),
         ("i prefer ", "prefers"),
         ("i hate ", "hates"),
-        ("my favorite ", "has favorite"), // "my favorite food is X"
+        ("my favorite ", "has favorite"),
         ("my favourite ", "has favourite"),
         // Location
         ("i live in ", "lives in"),
@@ -39,6 +39,21 @@ pub(crate) fn extract_preferences(cleaned: &str) -> Vec<String> {
         ("i study ", "studies"),
         ("i work as ", "works as"),
         ("i work at ", "works at"),
+        // Pets and possessions
+        ("i have a ", "has a"),
+        ("i have an ", "has an"),
+        ("i've got a ", "has a"),
+        // Family
+        ("my mom's name is ", "has mom named"),
+        ("my mum's name is ", "has mum named"),
+        ("my dad's name is ", "has dad named"),
+        ("my mother's name is ", "has mother named"),
+        ("my father's name is ", "has father named"),
+        ("my sister's name is ", "has sister named"),
+        ("my brother's name is ", "has brother named"),
+        ("my friend's name is ", "has friend named"),
+        ("my boyfriend's name is ", "has boyfriend named"),
+        ("my girlfriend's name is ", "has girlfriend named"),
     ];
 
     for (anchor, verb) in anchors {

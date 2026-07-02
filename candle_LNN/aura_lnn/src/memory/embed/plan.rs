@@ -162,11 +162,8 @@ pub fn plan_reply(prompt: &str, is_mobile: bool) -> ReplyPlan {
             || lower.starts_with("got it")
             || lower.starts_with("i see")
             || lower.starts_with("right")
-            || lower.starts_with("yeah")
-            || lower.starts_with("yes")
-            || lower.starts_with("nope")
             || lower.starts_with("yep")
-            || lower.starts_with("no "));
+            || lower.starts_with("nope"));
     if is_plain_greeting {
         return category_plan("greeting", is_mobile);
     }

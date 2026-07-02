@@ -30,7 +30,11 @@ extension _LoadingScreenAndroidLogic on _LoadingScreenState {
     );
 
     // Build candidate dirs (order = priority)
+    // /storage/emulated/0/AURA/models is the PRIMARY location — it's
+    // persistent across reinstalls and easy to push via adb.
     final candidateDirs = <String>[
+      '/storage/emulated/0/AURA/models',
+      '/sdcard/AURA/models',
       appDocsDir,
       ?externalDir,
       '/sdcard/Android/data/com.example.aura_notebook/files',

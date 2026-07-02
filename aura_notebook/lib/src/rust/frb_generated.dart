@@ -5,6 +5,7 @@
 
 import 'api/chat.dart';
 import 'api/chat/persona_retrieval.dart';
+import 'api/chat/turn.dart';
 import 'api/config.dart';
 import 'api/engine.dart';
 import 'api/file_read.dart';
@@ -15,6 +16,16 @@ import 'api/stt.dart';
 import 'api/tts.dart';
 import 'api/vision.dart';
 import 'api/worker_utils.dart';
+import 'api/worker_utils/rules.dart';
+import 'api/worker_utils/rules/edge_cases.dart';
+import 'api/worker_utils/rules/emotions.dart';
+import 'api/worker_utils/rules/events.dart';
+import 'api/worker_utils/rules/family.dart';
+import 'api/worker_utils/rules/goals.dart';
+import 'api/worker_utils/rules/identity.dart';
+import 'api/worker_utils/rules/location.dart';
+import 'api/worker_utils/rules/pets.dart';
+import 'api/worker_utils/rules/preferences.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'frb_generated.dart';
@@ -78,7 +89,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.12.0';
 
   @override
-  int get rustContentHash => 278749510;
+  int get rustContentHash => 187957620;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -220,7 +231,73 @@ abstract class RustLibApi extends BaseApi {
     required bool deleted,
   });
 
+  Future<String?> crateApiChatTurnBuildMemoryPrefix({
+    required List<String> memories,
+  });
+
   Future<BigInt> crateApiConfigConfigureRayonThreads();
+
+  Future<List<String>> crateApiWorkerUtilsRulesEdgeCasesExtract({
+    required String cleaned,
+    required String original,
+  });
+
+  Future<List<String>> crateApiWorkerUtilsRulesEmotionsExtract({
+    required String cleaned,
+    required String original,
+  });
+
+  Future<List<String>> crateApiWorkerUtilsRulesEventsExtract({
+    required String cleaned,
+    required String original,
+  });
+
+  Future<List<String>> crateApiWorkerUtilsRulesFamilyExtract({
+    required String cleaned,
+    required String original,
+  });
+
+  Future<List<String>> crateApiWorkerUtilsRulesGoalsExtract({
+    required String cleaned,
+    required String original,
+  });
+
+  Future<List<String>> crateApiWorkerUtilsRulesIdentityExtract({
+    required String cleaned,
+    required String original,
+  });
+
+  Future<List<String>> crateApiWorkerUtilsRulesLocationExtract({
+    required String cleaned,
+    required String original,
+  });
+
+  Future<List<String>> crateApiWorkerUtilsRulesPetsExtract({
+    required String cleaned,
+    required String original,
+  });
+
+  Future<List<String>> crateApiWorkerUtilsRulesPreferencesExtract({
+    required String cleaned,
+    required String original,
+  });
+
+  Future<List<String>> crateApiWorkerUtilsRulesExtractAllFacts({
+    required String cleaned,
+    required String original,
+  });
+
+  Future<void> crateApiWorkerUtilsRulesExtractAllInsights({
+    required MemoryStore store,
+    required String cleaned,
+  });
+
+  Future<void> crateApiWorkerUtilsRulesEmotionsExtractInsights({
+    required MemoryStore store,
+    required String cleaned,
+  });
+
+  Future<bool> crateApiWorkerUtilsRulesIsValidFact({required String fact});
 
   Future<String?> crateApiChatPersonaRetrievalMatchMemoryRecall({
     required List<double> query,
@@ -1585,6 +1662,39 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<String?> crateApiChatTurnBuildMemoryPrefix({
+    required List<String> memories,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_list_String(memories, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 44,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_opt_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiChatTurnBuildMemoryPrefixConstMeta,
+        argValues: [memories],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiChatTurnBuildMemoryPrefixConstMeta =>
+      const TaskConstMeta(
+        debugName: "build_memory_prefix",
+        argNames: ["memories"],
+      );
+
+  @override
   Future<BigInt> crateApiConfigConfigureRayonThreads() {
     return handler.executeNormal(
       NormalTask(
@@ -1593,7 +1703,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 44,
+            funcId: 45,
             port: port_,
           );
         },
@@ -1612,6 +1722,460 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "configure_rayon_threads", argNames: []);
 
   @override
+  Future<List<String>> crateApiWorkerUtilsRulesEdgeCasesExtract({
+    required String cleaned,
+    required String original,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(cleaned, serializer);
+          sse_encode_String(original, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 46,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesEdgeCasesExtractConstMeta,
+        argValues: [cleaned, original],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesEdgeCasesExtractConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract",
+        argNames: ["cleaned", "original"],
+      );
+
+  @override
+  Future<List<String>> crateApiWorkerUtilsRulesEmotionsExtract({
+    required String cleaned,
+    required String original,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(cleaned, serializer);
+          sse_encode_String(original, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 47,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesEmotionsExtractConstMeta,
+        argValues: [cleaned, original],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesEmotionsExtractConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract",
+        argNames: ["cleaned", "original"],
+      );
+
+  @override
+  Future<List<String>> crateApiWorkerUtilsRulesEventsExtract({
+    required String cleaned,
+    required String original,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(cleaned, serializer);
+          sse_encode_String(original, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 48,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesEventsExtractConstMeta,
+        argValues: [cleaned, original],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesEventsExtractConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract",
+        argNames: ["cleaned", "original"],
+      );
+
+  @override
+  Future<List<String>> crateApiWorkerUtilsRulesFamilyExtract({
+    required String cleaned,
+    required String original,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(cleaned, serializer);
+          sse_encode_String(original, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 49,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesFamilyExtractConstMeta,
+        argValues: [cleaned, original],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesFamilyExtractConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract",
+        argNames: ["cleaned", "original"],
+      );
+
+  @override
+  Future<List<String>> crateApiWorkerUtilsRulesGoalsExtract({
+    required String cleaned,
+    required String original,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(cleaned, serializer);
+          sse_encode_String(original, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 50,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesGoalsExtractConstMeta,
+        argValues: [cleaned, original],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesGoalsExtractConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract",
+        argNames: ["cleaned", "original"],
+      );
+
+  @override
+  Future<List<String>> crateApiWorkerUtilsRulesIdentityExtract({
+    required String cleaned,
+    required String original,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(cleaned, serializer);
+          sse_encode_String(original, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 51,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesIdentityExtractConstMeta,
+        argValues: [cleaned, original],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesIdentityExtractConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract",
+        argNames: ["cleaned", "original"],
+      );
+
+  @override
+  Future<List<String>> crateApiWorkerUtilsRulesLocationExtract({
+    required String cleaned,
+    required String original,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(cleaned, serializer);
+          sse_encode_String(original, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 52,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesLocationExtractConstMeta,
+        argValues: [cleaned, original],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesLocationExtractConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract",
+        argNames: ["cleaned", "original"],
+      );
+
+  @override
+  Future<List<String>> crateApiWorkerUtilsRulesPetsExtract({
+    required String cleaned,
+    required String original,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(cleaned, serializer);
+          sse_encode_String(original, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 53,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesPetsExtractConstMeta,
+        argValues: [cleaned, original],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesPetsExtractConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract",
+        argNames: ["cleaned", "original"],
+      );
+
+  @override
+  Future<List<String>> crateApiWorkerUtilsRulesPreferencesExtract({
+    required String cleaned,
+    required String original,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(cleaned, serializer);
+          sse_encode_String(original, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 54,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesPreferencesExtractConstMeta,
+        argValues: [cleaned, original],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesPreferencesExtractConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract",
+        argNames: ["cleaned", "original"],
+      );
+
+  @override
+  Future<List<String>> crateApiWorkerUtilsRulesExtractAllFacts({
+    required String cleaned,
+    required String original,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(cleaned, serializer);
+          sse_encode_String(original, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 55,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_list_String,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesExtractAllFactsConstMeta,
+        argValues: [cleaned, original],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesExtractAllFactsConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract_all_facts",
+        argNames: ["cleaned", "original"],
+      );
+
+  @override
+  Future<void> crateApiWorkerUtilsRulesExtractAllInsights({
+    required MemoryStore store,
+    required String cleaned,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMemoryStore(
+            store,
+            serializer,
+          );
+          sse_encode_String(cleaned, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 56,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesExtractAllInsightsConstMeta,
+        argValues: [store, cleaned],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesExtractAllInsightsConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract_all_insights",
+        argNames: ["store", "cleaned"],
+      );
+
+  @override
+  Future<void> crateApiWorkerUtilsRulesEmotionsExtractInsights({
+    required MemoryStore store,
+    required String cleaned,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMemoryStore(
+            store,
+            serializer,
+          );
+          sse_encode_String(cleaned, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 57,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesEmotionsExtractInsightsConstMeta,
+        argValues: [store, cleaned],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesEmotionsExtractInsightsConstMeta =>
+      const TaskConstMeta(
+        debugName: "extract_insights",
+        argNames: ["store", "cleaned"],
+      );
+
+  @override
+  Future<bool> crateApiWorkerUtilsRulesIsValidFact({required String fact}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(fact, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 58,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_bool,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiWorkerUtilsRulesIsValidFactConstMeta,
+        argValues: [fact],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiWorkerUtilsRulesIsValidFactConstMeta =>
+      const TaskConstMeta(debugName: "is_valid_fact", argNames: ["fact"]);
+
+  @override
   Future<String?> crateApiChatPersonaRetrievalMatchMemoryRecall({
     required List<double> query,
     required double threshold,
@@ -1625,7 +2189,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 45,
+            funcId: 59,
             port: port_,
           );
         },
@@ -1655,7 +2219,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 46,
+            funcId: 60,
             port: port_,
           );
         },
@@ -1692,7 +2256,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 47,
+            funcId: 61,
             port: port_,
           );
         },
@@ -1727,7 +2291,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 48,
+            funcId: 62,
             port: port_,
           );
         },
@@ -1759,7 +2323,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 49,
+            funcId: 63,
             port: port_,
           );
         },

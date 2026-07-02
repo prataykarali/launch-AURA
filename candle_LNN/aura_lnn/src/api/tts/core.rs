@@ -178,6 +178,16 @@ pub(super) fn init() -> bool {
 }
 
 pub(super) fn speak(text: String, speed: f32, interrupt: bool) -> Result<Option<TtsAudio>> {
+    // Clean text before TTS — strip markdown, asterisks, repeated dots,
+    // and other characters that TTS would speak literally ("asterisk",
+    // "dot dot dot"). This prevents the model's formatting from leaking
+    // into speech.
+    let text = clean_tts_text(&text);
+
+    if text.trim().is_empty() {
+        return Ok(None);
+    }
+
     if interrupt {
         stop();
     }
@@ -266,4 +276,38 @@ pub(super) fn set_volume(v: f32) {
 
 pub(super) fn available() -> bool {
     TTS_ENGINE.get().is_some() && AUDIO_TX.get().is_some() && TTS_TX.get().is_some()
+}
+
+/// Strip markdown, asterisks, dots, JSON, thinking tags before TTS.
+pub(super) fn clean_tts_text(text: &str) -> String {
+    let mut r = text.to_string();
+    // JSON tool blocks → skip TTS entirely if whole response is a tool call
+    if r.trim_start().starts_with("{\"tool\":") { return String::new(); }
+    if let Some(s) = r.find("{\"tool\":") {
+        if let Some(e) = r[s..].find('}') { r = format!("{}{}", &r[..s], &r[s + e + 1..]); }
+    }
+    // Thinking tags
+    if let Some(s) = r.find("<|think|>") {
+        if let Some(e) = r.find("<|/think|>") { r = format!("{}{}", &r[..s], &r[e + 10..]); }
+        else { r.truncate(s); }
+    }
+    // Markdown chars
+    for c in ["**", "__", "~~", "`", "#", ">", "*", "_"] {
+        r = r.replace(c, if c == "_" { " " } else { "" });
+    }
+    // Strip [MEMORY:], [Internal:], [BAR], [BRIEF] blocks
+    while let Some(s) = r.find('[') {
+        if let Some(e) = r[s..].find(']') {
+            let tag = &r[s..s + e + 1].to_lowercase();
+            if tag.starts_with("[memory:") || tag.starts_with("[internal:")
+                || tag.starts_with("[bar") || tag.starts_with("[brief") {
+                r = format!("{}{}", &r[..s], &r[s + e + 1..]);
+            } else { break; }
+        } else { break; }
+    }
+    // Collapse dots and spaces
+    while r.contains("...") { r = r.replace("...", "."); }
+    while r.contains("..") { r = r.replace("..", "."); }
+    while r.contains("  ") { r = r.replace("  ", " "); }
+    r.trim().to_string()
 }

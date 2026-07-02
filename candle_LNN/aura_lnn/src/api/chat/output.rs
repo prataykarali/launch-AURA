@@ -47,7 +47,45 @@ pub(crate) fn clean_model_output_prefix(text: &str) -> String {
     }
     cleaned = strip_think_blocks(&cleaned);
     cleaned = strip_action_lines(&cleaned);
+    cleaned = strip_proactive_echo(&cleaned);
     cleaned
+}
+
+/// Strip echoes of the proactive trigger context from the model output.
+///
+/// The small model sometimes echoes the proactive prompt back: "I remember we
+/// were talking about AURA is being proactive. Context: trigger_label=...".
+/// This removes any trailing or embedded proactive-context fragments so the
+/// user never sees the internal trigger metadata.
+pub(crate) fn strip_proactive_echo(text: &str) -> String {
+    let lower = text.to_lowercase();
+    // If the entire response is a proactive echo, return empty.
+    if lower.contains("aura is being proactive") || lower.contains("trigger_label=") {
+        let mut cleaned = text.to_string();
+        // Remove "I remember we were talking about AURA is being proactive..." tail.
+        for marker in [
+            "i remember we were talking about aura is being proactive",
+            "aura is being proactive",
+            "trigger_label=",
+            "trigger_type=",
+            "memory_context=",
+            "observed=",
+            "guidance=",
+        ] {
+            if let Some(pos) = cleaned.to_lowercase().find(marker) {
+                let before = cleaned[..pos].trim_end();
+                // Keep the part before the echo if it's substantial;
+                // otherwise drop the whole thing.
+                if before.chars().count() > 15 {
+                    cleaned = before.to_string();
+                } else {
+                    cleaned = String::new();
+                }
+            }
+        }
+        return cleaned.trim().to_string();
+    }
+    text.to_string()
 }
 
 /// Remove paired <|think|>...<|/think|> blocks from anywhere in the response.

@@ -62,22 +62,13 @@ class BarWindowAppController {
   Future<void> _initBarWindow() async {
     await windowManager.ensureInitialized();
     await windowManager.setResizable(false);
-    // Start compact so the transparent child window does not block clicks on
-    // apps behind it. It grows only while an actual response/proactive bubble
-    // is visible.
     await windowManager.setSize(const Size(_kWindowWidth, _kCompactHeight));
     await windowManager.setAsFrameless();
     await windowManager.setAlwaysOnTop(true);
-    // Try setFocusable (added in window_manager 0.4.0). Some compositors
-    // drop click events on transparent frameless child windows unless the
-    // window is explicitly marked focusable. Guarded because older plugin
-    // versions don't expose the method.
     try {
       // ignore: avoid_dynamic_calls
       await (windowManager as dynamic).setFocusable(true);
-    } catch (_) {
-      // Plugin version doesn't support setFocusable — rely on default.
-    }
+    } catch (_) {}
 
     // Repeated attempts to force transparency if compositor is laggy
     for (int i = 0; i < 5; i++) {
@@ -85,14 +76,26 @@ class BarWindowAppController {
       await windowManager.setBackgroundColor(const Color(0x00000000));
       try {
         await windowManager.setHasShadow(false);
-      } catch (_) {
-        // Some Linux child windows do not register this optional method.
-      }
+      } catch (_) {}
     }
+
+    // Force focus after initialization to ensure keyboard/IME handlers are
+    // registered. This is critical for fixing input death after relaunch.
+    await Future.delayed(const Duration(milliseconds: 300));
+    try {
+      await windowManager.focus();
+    } catch (_) {}
   }
 
   Future<void> showAndFocus() async {
     await _host.controller?.show();
+    try {
+      await windowManager.focus();
+    } catch (_) {}
+    // Re-request focus after a brief delay to ensure the window manager
+    // has fully registered the window. This fixes input death after relaunch
+    // where the Flutter embedder doesn't re-attach IME handlers.
+    await Future.delayed(const Duration(milliseconds: 150));
     try {
       await windowManager.focus();
     } catch (_) {}

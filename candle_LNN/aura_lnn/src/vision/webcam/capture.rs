@@ -21,7 +21,7 @@ pub fn open_device() -> anyhow::Result<(Device, usize, usize)> {
                 .map_err(|e| anyhow::anyhow!("No video capture device found: {e}"))?
         }
     };
-    let req_fmt = Format::new(640, 480, FourCC::new(b"YUYV"));
+    let req_fmt = Format::new(320, 240, FourCC::new(b"YUYV"));
     let fmt = dev
         .set_format(&req_fmt)
         .map_err(|e| anyhow::anyhow!("set_format: {e}"))?;

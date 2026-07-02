@@ -1,34 +1,45 @@
 part of 'vision_service.dart';
 
-// Linux — take a screenshot via scrot or import (imagemagick) if available.
+// Unique temp file per capture to avoid concurrent write races.
+int _captureCounter = 0;
+
+// Linux — take a screenshot via grim (Wayland), scrot, or import (X11).
 Future<Uint8List?> _captureLinuxScreenshot(VisionService service) async {
   try {
     service._lastActiveWindow = await _readLinuxActiveWindowTitle();
-    final tmp = '/tmp/_aura_vision_frame.jpg';
-    var result = await Process.run('scrot', [
-      '-q',
-      '60',
-      '--thumb',
-      '320',
+    final id = _captureCounter++;
+    final tmp = '/tmp/_aura_vision_frame_$id.jpg';
+
+    // Try grim first (Wayland-native), then scrot, then import (X11).
+    var result = await Process.run('grim', [
+      '-t', 'jpeg',
+      '-q', '60',
+      '-s', '0.5',
       tmp,
-    ], runInShell: true);
+    ], runInShell: true).timeout(const Duration(seconds: 5));
+
     if (result.exitCode != 0) {
-      // Fallback to import (ImageMagick) if scrot fails or is missing
-      result = await Process.run('import', [
-        '-window',
-        'root',
-        '-quality',
-        '60',
-        '-resize',
-        '320',
+      result = await Process.run('scrot', [
+        '-q', '60',
+        '--thumb', '320',
         tmp,
-      ], runInShell: true);
+      ], runInShell: true).timeout(const Duration(seconds: 5));
     }
+
+    if (result.exitCode != 0) {
+      result = await Process.run('import', [
+        '-window', 'root',
+        '-quality', '60',
+        '-resize', '320',
+        tmp,
+      ], runInShell: true).timeout(const Duration(seconds: 5));
+    }
+
     if (result.exitCode != 0) return null;
     final file = File(tmp);
     if (!await file.exists()) return null;
     final bytes = await file.readAsBytes();
-    await file.delete(); // clean up immediately
+    try { await file.delete(); } catch (_) {}
     return bytes;
   } catch (_) {
     return null;

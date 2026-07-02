@@ -10,8 +10,8 @@ pub(super) fn category_plan(category: &'static str, is_mobile: bool) -> ReplyPla
         "greeting" => (0, 40, 28, 0, "calm"),
         "acknowledgement" => (1, 60, 40, 0, "calm"),
         "factual" => (3, 120, 80, 0, "focused"),
-        "open_ended" => (4, 96, 48, 1, "focused"),
-        "task_coding" => (5, 160, 48, 1, "focused"),
+        "open_ended" => (4, 128, 64, 1, "focused"),
+        "task_coding" => (5, 192, 64, 1, "focused"),
         _ => (2, 96, 64, 0, "calm"),
     };
     ReplyPlan {
@@ -44,9 +44,9 @@ pub(super) fn level_plan(level: u8, is_mobile: bool) -> ReplyPlan {
         (96, 48, 0), // 1: identity / preference
         (160, 72, 0), // 2: simple Q / banter
         (256, 112, 0), // 3: real question
-        (96, 48, 1), // 4: detailed Q — loop on mobile
-        (160, 48, 1), // 5: deep Q / list — loop on mobile
-        (96, 48, 1), // 6: explain / write — loop on mobile
+        (128, 64, 1), // 4: detailed Q — loop
+        (192, 64, 1), // 5: deep Q / list — loop
+        (160, 64, 1), // 6: explain / write — loop
     ];
     let idx = (level as usize).min(TABLE.len() - 1);
     let (dmax, mmax, cont) = TABLE[idx];

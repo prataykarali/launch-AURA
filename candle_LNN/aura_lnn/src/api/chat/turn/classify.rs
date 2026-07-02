@@ -5,7 +5,14 @@ pub(crate) struct PromptClass {
 }
 
 pub(crate) fn prepare_prompt(prompt: &str) -> (bool, bool, String) {
-    let is_internal = prompt.trim().starts_with("[Internal:");
+    let trimmed = prompt.trim();
+    // Proactive prompts start with "AURA is being proactive." — treat them as
+    // internal so they are NOT stored as user turns and get the internal
+    // generation treatment. Without this, the model echoes the trigger context
+    // ("I remember we were talking about AURA is being proactive. Context:
+    // trigger_label=idle_checkin") back to the user.
+    let is_proactive = trimmed.starts_with("AURA is being proactive.");
+    let is_internal = trimmed.starts_with("[Internal:") || is_proactive;
     let prompt_trimmed = prompt.trim_end();
     let is_bar =
         !is_internal && (prompt_trimmed.ends_with("[BAR]") || prompt_trimmed.ends_with("[BRIEF]"));

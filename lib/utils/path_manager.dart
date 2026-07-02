@@ -1,6 +1,6 @@
 import 'dart:io';
 
-const _kModelFile = 'LFM2.5-230M-Q8_0.gguf';
+const _kModelFile = 'LFM2.5-230M-Q4_K_M.gguf';
 const _kTokenizerFile = 'tokenizer.json';
 
 class PathManager {

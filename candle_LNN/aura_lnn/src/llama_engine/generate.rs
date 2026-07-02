@@ -40,17 +40,17 @@ impl LlamaEngine {
             self.warmup()?;
         }
 
-        // Build the user block:
-        //   <|im_start|>user
-        //   [persona examples]
-        //   <user message>
-        //   |im_end|>
-        //   <|im_start|>assistant
-        // No facts / no memory instruction / no prefill — memory is appended
-        // post-generation, never injected into the model context.
+        // Build the user block using the model's chat template.
+        // ChatML (LFM, Qwen):  <|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n
+        // Llama-3:             <|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n
+        let chat_template = std::env::var("AURA_CHAT_TEMPLATE")
+            .unwrap_or_else(|_| "chatml".to_string());
 
-        let mut context_to_decode = String::new();
-        context_to_decode.push_str("<|im_start|>user\n");
+        let mut context_to_decode = if chat_template == "llama3" {
+            format!("<|start_header_id|>user<|end_header_id|>\n\n")
+        } else {
+            "<|im_start|>user\n".to_string()
+        };
 
         let has_examples = !persona_examples.is_empty();
         if has_examples {
@@ -63,8 +63,11 @@ impl LlamaEngine {
         }
 
         context_to_decode.push_str(prompt);
-        context_to_decode.push_str("<|im_end|>\n");
-        context_to_decode.push_str("<|im_start|>assistant\n");
+        if chat_template == "llama3" {
+            context_to_decode.push_str("<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n");
+        } else {
+            context_to_decode.push_str("<|im_end|>\n<|im_start|>assistant\n");
+        }
 
         let user_tokens = self.model.str_to_token(&context_to_decode, AddBos::Never)?;
         if user_tokens.is_empty() {
@@ -75,8 +78,11 @@ impl LlamaEngine {
 
         // Proactive context reset: for recurrent models, decode cost grows with
         // n_past and the recurrent state cannot be partially rewound. Reset at a
-        // low watermark before the turn so latency stays bounded.
-        const RESET_MARGIN_FRAC: usize = 4;
+        // high watermark before the turn so latency stays bounded. The margin
+        // is 1/8 of n_ctx (was 1/4 — too aggressive, resetting after only ~2000
+        // tokens of conversation). A conversation recap is now included in the
+        // generation prompt so the model retains multi-turn context after reset.
+        const RESET_MARGIN_FRAC: usize = 8;
         let headroom_needed = user_tokens.len() + (max_new_tokens as usize) + 32;
         let reset_watermark = n_ctx.saturating_sub(n_ctx / RESET_MARGIN_FRAC);
         let should_reset = (self.n_past as usize) + headroom_needed >= n_ctx

@@ -52,6 +52,9 @@ class AuraBarMultiWindowService {
     _opening = true;
 
     try {
+      // Clean up stale bar windows from previous process instances.
+      await _cleanupStaleBarWindows();
+
       final existing = await _findExistingBarWindow();
       if (existing != null) {
         _barWindow = existing;
@@ -173,6 +176,28 @@ class AuraBarMultiWindowService {
       debugPrint('AURA_BAR_FIND_ERROR: $e');
     }
     return null;
+  }
+
+  /// Kill stale bar windows left over from previous process instances.
+  /// When AURA is killed and relaunched, old X11 child windows can persist
+  /// and the new process may try to attach to them, causing input death.
+  Future<void> _cleanupStaleBarWindows() async {
+    try {
+      final windows = await WindowController.getAll();
+      for (final controller in windows) {
+        final args = _decodeArgs(controller.arguments);
+        if (args['type'] == kAuraBarWindowType) {
+          // This is a bar window from a previous instance — hide it.
+          try {
+            await controller.hide();
+            debugPrint('AURA_BAR: hid stale bar window ${controller.windowId}');
+          } catch (_) {}
+        }
+      }
+      _barWindow = null;
+    } catch (e) {
+      debugPrint('AURA_BAR_CLEANUP_WARN: $e');
+    }
   }
 
   Future<void> _focus(WindowController controller) async {

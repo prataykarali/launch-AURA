@@ -5,6 +5,7 @@
 
 import 'api/chat.dart';
 import 'api/chat/persona_retrieval.dart';
+import 'api/chat/turn.dart';
 import 'api/config.dart';
 import 'api/engine.dart';
 import 'api/file_read.dart';
@@ -15,6 +16,16 @@ import 'api/stt.dart';
 import 'api/tts.dart';
 import 'api/vision.dart';
 import 'api/worker_utils.dart';
+import 'api/worker_utils/rules.dart';
+import 'api/worker_utils/rules/edge_cases.dart';
+import 'api/worker_utils/rules/emotions.dart';
+import 'api/worker_utils/rules/events.dart';
+import 'api/worker_utils/rules/family.dart';
+import 'api/worker_utils/rules/goals.dart';
+import 'api/worker_utils/rules/identity.dart';
+import 'api/worker_utils/rules/location.dart';
+import 'api/worker_utils/rules/pets.dart';
+import 'api/worker_utils/rules/preferences.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;

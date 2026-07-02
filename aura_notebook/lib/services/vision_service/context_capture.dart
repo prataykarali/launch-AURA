@@ -19,14 +19,18 @@ Future<AuraVisionContext?> _captureTier1Context(VisionService service) async {
 
   final title = service._lastActiveWindow ?? await _readLinuxActiveWindowTitle();
   final activity = _activityFromWindowTitle(title);
+  final screenText = service._lastScreenText;
+  final detail = screenText != null && screenText.trim().isNotEmpty
+      ? screenText.trim()
+      : (title == null || title.trim().isEmpty ? null : title.trim());
   return AuraVisionContext(
     activity: activity,
-    detail: title == null || title.trim().isEmpty ? null : title.trim(),
+    detail: detail,
     stuck: service._sameOcrHashCount >= 10,
     stuckDurationMins: _stuckDurationMins(service),
-    sourceTier: 1,
+    sourceTier: screenText != null ? 2 : 1,
     deviceProfile: profile,
-    confidence: 0.75,
+    confidence: screenText != null ? 0.9 : 0.75,
   );
 }
 
@@ -61,11 +65,10 @@ Future<AuraVisionContext?> _captureTier2DetailIfUseful(
 }
 
 Future<String?> _runMoondreamDetail(Uint8List frame) async {
-  // Hook point for quantized moondream2. The model/assets are not present in
-  // this repo yet, so we expose the gated call site without fabricating detail.
   final runner = Platform.environment['AURA_MOONDREAM_CMD']?.trim();
   if (runner == null || runner.isEmpty) return null;
-  final tmp = '/tmp/_aura_moondream_frame.jpg';
+  final id = _captureCounter++;
+  final tmp = '/tmp/_aura_moondream_frame_$id.jpg';
   try {
     await File(tmp).writeAsBytes(frame, flush: true);
     final result = await Process.run(runner, [

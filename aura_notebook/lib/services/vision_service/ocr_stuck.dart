@@ -28,7 +28,8 @@ Future<void> _updateStuckDetection(VisionService service, Uint8List frame) async
 }
 
 Future<String?> _ocrFrame(VisionService service, Uint8List frame) async {
-  final tmp = '/tmp/_aura_ocr_frame.jpg';
+  final id = _captureCounter++;
+  final tmp = '/tmp/_aura_ocr_frame_$id.jpg';
   try {
     await File(tmp).writeAsBytes(frame, flush: true);
     final result = await Process.run('tesseract', [

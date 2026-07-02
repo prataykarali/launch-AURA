@@ -3,43 +3,63 @@ part of 'vision_service.dart';
 // ── Frame analysis ────────────────────────────────────────────────────────
 //
 // Produces VisionDetection objects from the frame.
-//
-// Tier 1 (implemented): simple heuristic pixel stats → "bright scene",
-//   "dim scene", "screen content" — enough for the pipeline to function.
-// Tier 2 (TODO): plug in ML Kit OCR + YOLO via MethodChannel when ready.
+// Tier 1: heuristic pixel stats + window title labels.
+// Tier 2: OCR text extraction from screen frames (tesseract).
 
 Future<List<VisionDetection>> _analyseFrame(VisionService service, Uint8List frame) async {
-  // Compute average luminance and simple scene labels.
   final luma = _averageLuma(frame);
   final detections = <VisionDetection>[];
 
   if (luma > 180) {
-    detections.add(
-      const VisionDetection(label: 'bright_scene', confidence: 0.45),
-    );
+    detections.add(const VisionDetection(label: 'bright_scene', confidence: 0.45));
   } else if (luma < 40) {
-    detections.add(
-      const VisionDetection(label: 'dim_scene', confidence: 0.45),
-    );
+    detections.add(const VisionDetection(label: 'dim_scene', confidence: 0.45));
   } else {
-    detections.add(
-      const VisionDetection(label: 'normal_scene', confidence: 0.4),
-    );
+    detections.add(const VisionDetection(label: 'normal_scene', confidence: 0.4));
   }
 
-  // On Linux we can also add "screen" label since we captured a screenshot.
   if (Platform.isLinux) {
-    detections.add(
-      const VisionDetection(label: 'screen_visible', confidence: 0.55),
-    );
+    detections.add(const VisionDetection(label: 'screen_visible', confidence: 0.55));
     for (final label in _labelsFromWindowTitle(service._lastActiveWindow)) {
       detections.add(VisionDetection(label: label, confidence: 0.5));
+    }
+    // OCR: extract screen text so AURA can read what's on screen.
+    final ocrText = await _extractScreenText(frame);
+    if (ocrText != null && ocrText.trim().isNotEmpty) {
+      service._lastScreenText = ocrText.trim();
+      detections.add(VisionDetection(
+        label: 'screen_text_available',
+        confidence: 0.9,
+      ));
     }
   } else if (Platform.isAndroid) {
     detections.addAll(service._lastAndroidDetections);
   }
 
   return _dedupeDetections(detections);
+}
+
+/// Extract readable text from a screenshot frame via tesseract OCR.
+/// Returns null if OCR fails or produces empty output.
+Future<String?> _extractScreenText(Uint8List frame) async {
+  final id = _captureCounter++;
+  final tmp = '/tmp/_aura_ocr_extract_$id.jpg';
+  try {
+    await File(tmp).writeAsBytes(frame, flush: true);
+    final result = await Process.run('tesseract', [
+      tmp, 'stdout', '--psm', '6',
+    ]).timeout(const Duration(seconds: 5));
+    if (result.exitCode != 0) return null;
+    final text = result.stdout.toString().trim();
+    // Filter out noise: require at least 10 chars of actual content.
+    if (text.length < 10) return null;
+    // Limit to first 500 chars to avoid flooding the context.
+    return text.length > 500 ? '${text.substring(0, 500)}...' : text;
+  } catch (_) {
+    return null;
+  } finally {
+    try { await File(tmp).delete(); } catch (_) {}
+  }
 }
 
 List<VisionDetection> _dedupeDetections(List<VisionDetection> detections) {

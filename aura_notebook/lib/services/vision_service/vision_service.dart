@@ -71,6 +71,7 @@ class VisionService {
   DateTime? _stuckStartedAt;
   DateTime? _lastStuckOcrAt;
   int _motionStreak = 0;
+  String? _lastScreenText;
   final List<VisionDetection> _lastAndroidDetections = const [];
   final BoundedWorkBucket<Uint8List> _frameBucket =
       BoundedWorkBucket<Uint8List>(name: 'vision_frames', capacity: 2);
@@ -84,6 +85,7 @@ class VisionService {
 
   bool get isRunning => _running && !_healthPaused;
   AuraVisionContext? get latestContext => _latestContext;
+  String? get lastScreenText => _lastScreenText;
 
   AuraVisionDeviceProfile get deviceProfile => _deviceProfile();
 
