@@ -41,3 +41,7 @@ aura_notebook/linux/bundle/
 
 # Root-level .so copies — use linux_libs/ instead
 aura_notebook/libaura_lnn.so
+
+# Android local config — user-specific paths
+**/android/**/local.properties
+**/.gradle/
