@@ -3,6 +3,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,8 @@ import 'package:aura_notebook/bar/bar_multi_window_service.dart';
 import 'package:aura_notebook/bar/bar_state.dart';
 import 'package:aura_notebook/services/natural_context_service.dart';
 import 'package:aura_notebook/services/tts_service.dart';
+import 'package:aura_notebook/services/vision_service.dart';
+import 'package:aura_notebook/services/proactive_scheduler.dart';
 
 import '../../../notebook_page.dart';
 

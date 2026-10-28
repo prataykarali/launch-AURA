@@ -37,7 +37,10 @@ pub fn run_turn(engine: &mut LlamaEngine, store: &MemoryStore, prompt: &str, tts
     // 2. Semantic search via embedder
     if let Ok(qemb) = engine.embed_query(prompt) {
         if let Ok(semantic) = store.search_relevant_hybrid(prompt, &qemb, 5) {
-            eprintln!("[EMBEDDER_DEBUG] Hybrid search: {} results for '{prompt}'", semantic.len());
+            eprintln!(
+                "[EMBEDDER_DEBUG] Hybrid search: {} results for '{prompt}'",
+                semantic.len()
+            );
             for (i, s) in semantic.iter().enumerate() {
                 let preview: String = s.chars().take(80).collect();
                 eprintln!("[EMBEDDER_DEBUG]   hit[{i}]: {preview}...");

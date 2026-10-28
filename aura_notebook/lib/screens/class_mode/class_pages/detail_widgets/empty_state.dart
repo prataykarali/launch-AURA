@@ -35,7 +35,6 @@ class EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-
           // Illustration or icon
           if (imagePath != null)
             Image.asset(
@@ -44,27 +43,36 @@ class EmptyState extends StatelessWidget {
               fit: BoxFit.contain,
               // Falls back to icon if image not found
               errorBuilder: (_, __, ___) => _FallbackIcon(
-                  icon: icon ?? Icons.inbox_outlined, color: accent),
+                icon: icon ?? Icons.inbox_outlined,
+                color: accent,
+              ),
             )
           else
             _FallbackIcon(icon: icon ?? Icons.inbox_outlined, color: accent),
 
           const SizedBox(height: 20),
 
-          Text(title,
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.white, fontSize: 16,
-                  fontWeight: FontWeight.w700)),
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 6),
-          Text(subtitle,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white.withOpacity(0.38),
-                  fontSize: 13, height: 1.5)),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.38),
+              fontSize: 13,
+              height: 1.5,
+            ),
+          ),
 
-          if (action != null) ...[
-            const SizedBox(height: 20),
-            action!,
-          ],
+          if (action != null) ...[const SizedBox(height: 20), action!],
         ],
       ),
     ),
@@ -72,11 +80,13 @@ class EmptyState extends StatelessWidget {
 }
 
 class _FallbackIcon extends StatelessWidget {
-  final IconData icon; final Color color;
+  final IconData icon;
+  final Color color;
   const _FallbackIcon({required this.icon, required this.color});
   @override
   Widget build(BuildContext context) => Container(
-    width: 80, height: 80,
+    width: 80,
+    height: 80,
     decoration: BoxDecoration(
       color: color.withOpacity(0.08),
       shape: BoxShape.circle,

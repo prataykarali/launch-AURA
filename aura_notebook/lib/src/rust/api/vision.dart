@@ -20,3 +20,17 @@ Future<bool> auraProcessVision({required List<VisionDetection> detections}) =>
 /// camera stays alive for wave detection while the bar is polling.
 Future<String> auraGetWebcamGesture() =>
     RustLib.instance.api.crateApiVisionAuraGetWebcamGesture();
+
+/// Returns recent visual context entries from the vision store.
+/// Used by proactive idle prompts to know what the user was doing before going idle.
+Future<String> auraGetRecentVisualContext({required BigInt limit}) =>
+    RustLib.instance.api.crateApiVisionAuraGetRecentVisualContext(limit: limit);
+
+Future<void> auraStartWebcamThread() =>
+    RustLib.instance.api.crateApiVisionAuraStartWebcamThread();
+
+Future<void> auraStopWebcamThread() =>
+    RustLib.instance.api.crateApiVisionAuraStopWebcamThread();
+
+Future<String> auraGetLatestWebcamScene() =>
+    RustLib.instance.api.crateApiVisionAuraGetLatestWebcamScene();

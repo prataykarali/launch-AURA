@@ -107,11 +107,8 @@ pub(super) fn find_file(dir: &Path, name: &str) -> Option<PathBuf> {
         return Some(p4);
     }
 
-    let p5 = Path::new("/home/pratay-karali/launch-AURA/AURA-Proj/aura_notebook/assets/piper")
-        .join(name);
-    if p5.exists() {
-        return Some(p5);
-    }
+    // ponytail: removed hardcoded /home/pratay-karali/ developer path.
+    // Use AURA_TTS_MODEL_DIR env var or MODEL_DIR for custom locations.
 
     None
 }

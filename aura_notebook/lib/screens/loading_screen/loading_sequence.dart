@@ -110,7 +110,9 @@ extension _LoadingScreenSequence on _LoadingScreenState {
             ).timeout(
               initTimeout,
               onTimeout: () {
-                debugPrint('auraInit timed out after ${initTimeout.inSeconds}s');
+                debugPrint(
+                  'auraInit timed out after ${initTimeout.inSeconds}s',
+                );
                 return false;
               },
             );
@@ -160,6 +162,10 @@ extension _LoadingScreenSequence on _LoadingScreenState {
       // processing/loading overlay from the earlier model-status pushes.
       AuraBarBrain.instance.clearLoadingOverlay();
 
+      // Play transit video 1 time to smoothly transition into option screen
+      await _playTransitVideo();
+
+      if (!mounted || _errorMsg != null) return;
       widget.onDone?.call();
     } catch (e, st) {
       _setError('Unexpected error:\n$e');

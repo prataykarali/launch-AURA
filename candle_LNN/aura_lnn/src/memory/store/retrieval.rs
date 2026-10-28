@@ -50,6 +50,10 @@ impl MemoryStore {
     /// These are the identity/preferences the user explicitly shared (e.g. "my
     /// name is Pratay"). Called BEFORE semantic search so the LLM always has
     /// this critical knowledge.
+    ///
+    /// FIX: Exclude schedule-related facts so reminders don't leak into chat
+    /// responses (Issue #18). Schedule notes are only injected into proactive
+    /// trigger prompts, not regular chat.
     pub fn get_facts_strings(&self, limit: usize) -> Result<Vec<String>> {
         let conn = self.pool.acquire()?;
 
@@ -68,12 +72,17 @@ impl MemoryStore {
         }
 
         // 2. Fetch other facts to fill up the remaining limit
+        //    Exclude vision events AND schedule-related facts
         if out.len() < limit {
             let remaining = (limit - out.len()) as i64;
             let mut stmt_other = conn.prepare(
                 "SELECT fact FROM facts
                  WHERE fact NOT LIKE 'User''s name is %'
                    AND fact NOT LIKE 'vision:%'
+                   AND fact NOT LIKE '%schedule%'
+                   AND fact NOT LIKE '%Schedule%'
+                   AND fact NOT LIKE '%reminder%'
+                   AND fact NOT LIKE '%remind me%'
                  ORDER BY timestamp DESC LIMIT ?",
             )?;
             let other_rows = stmt_other.query_map([remaining], |row| row.get::<_, String>(0))?;
@@ -115,11 +124,16 @@ impl MemoryStore {
         let mut results = Vec::new();
 
         // 1. Facts (long-term identity knowledge)
+        //    Exclude vision events AND schedule-related facts (Issue #18)
         {
             let mut stmt = conn.prepare(
                 "SELECT 'Fact: ' || fact AS content
                  FROM facts
                  WHERE fact NOT LIKE 'vision:%'
+                   AND fact NOT LIKE '%schedule%'
+                   AND fact NOT LIKE '%Schedule%'
+                   AND fact NOT LIKE '%reminder%'
+                   AND fact NOT LIKE '%remind me%'
                  ORDER BY timestamp DESC LIMIT ?",
             )?;
             let rows = stmt.query_map([per_bucket], |row| row.get::<_, String>(0))?;
@@ -174,18 +188,26 @@ impl MemoryStore {
     /// — proactive prompts are short by design and we don't want to bloat the KV
     /// cache. Returns an empty string when there is nothing to recall.
     pub fn get_proactive_context(&self) -> Result<String> {
-        const FACT_BUDGET: usize = 220;
+        // FACT_BUDGET is 0 for proactive context — user facts are NOT
+        // injected into proactive prompts. The 1.2B model cannot ignore
+        // irrelevant context and will regurgitate facts (coffee, music,
+        // ocean) into every proactive message. Facts are only injected
+        // into regular chat via build_memory_prefix (relevance-filtered).
+        const FACT_BUDGET: usize = 0;
         const SUMMARY_BUDGET: usize = 200;
         const TURN_BUDGET: usize = 240;
 
         let mut lines: Vec<String> = Vec::new();
 
         // 1. Top facts (most recently updated first).
+        //    Exclude schedule-related facts so reminders don't leak into
+        //    proactive context and contaminate chat responses (Issue #18).
         {
             let conn = self.pool.acquire()?;
             let mut stmt = conn.prepare(
                 "SELECT fact FROM facts
                  WHERE fact NOT LIKE 'vision:%'
+                   AND fact NOT LIKE '%schedule%'
                  ORDER BY timestamp DESC LIMIT 4",
             )?;
             let mut facts = stmt.query_map([], |row| row.get::<_, String>(0))?;
@@ -230,6 +252,31 @@ impl MemoryStore {
                     "Recent visual observations:\n{}",
                     vis_lines.join("\n")
                 ));
+            }
+        }
+
+        // 1.6. Schedule notes (for the proactive scheduler to find and set timers).
+        //     These are stored as memory_notes with content "Schedule request: ...".
+        //     The scheduler's _checkScheduleNotes reads these from the proactive
+        //     context and creates Timer objects. They are NOT injected into regular
+        //     chat because build_memory_prefix filters out "schedule" content.
+        {
+            let conn = self.pool.acquire()?;
+            let mut stmt = conn.prepare(
+                "SELECT content FROM memory_notes
+                 WHERE deleted = 0 AND content LIKE 'Schedule request:%'
+                 ORDER BY timestamp DESC LIMIT 5",
+            )?;
+            let mut sched_notes = stmt.query_map([], |row| row.get::<_, String>(0))?;
+            let mut sched_lines: Vec<String> = Vec::new();
+            while let Some(Ok(s)) = sched_notes.next() {
+                let s = s.trim();
+                if !s.is_empty() {
+                    sched_lines.push(format!("- {s}"));
+                }
+            }
+            if !sched_lines.is_empty() {
+                lines.push(format!("Schedule notes:\n{}", sched_lines.join("\n")));
             }
         }
 

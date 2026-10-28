@@ -8,3 +8,4 @@ export 'loading_screen.dart';
 export 'class_mode/class_pages/class_detail_page.dart';
 export 'class_mode/class_pages/class_data.dart';
 export 'info_page.dart';
+export 'settings_screen.dart';

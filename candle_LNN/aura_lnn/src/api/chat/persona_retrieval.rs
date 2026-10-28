@@ -32,7 +32,7 @@ impl PersonaIndex {
     }
 
     /// Find the top-k most similar persona cases to the query embedding and
-    /// return them formatted as few-shot "User: ... AURA: ..." lines.
+    /// return them formatted as few-shot "User: ... ARIA: ..." lines.
     pub fn retrieve_examples(&self, query: &[f32], k: usize) -> Vec<String> {
         let k = k.min(self.cases.len());
         if k == 0 || query.is_empty() {
@@ -76,7 +76,7 @@ impl PersonaIndex {
 }
 
 fn format_example(case: &PersonaCase) -> String {
-    format!("User: {}\nAURA: {}", case.prompt, case.reference_response)
+    format!("User: {}\nARIA: {}", case.prompt, case.reference_response)
 }
 
 fn cosine_similarity(a: &[f32], b: &[f32]) -> f32 {
@@ -129,11 +129,4 @@ pub fn match_memory_recall(query: &[f32], threshold: f32) -> Option<String> {
     PERSONA_INDEX
         .get()
         .and_then(|idx| idx.match_memory_recall(query, threshold))
-}
-
-/// Return a reference to the global index, if it has been initialized.
-#[allow(dead_code)]
-#[frb(ignore)]
-pub fn persona_index() -> Option<&'static PersonaIndex> {
-    PERSONA_INDEX.get()
 }

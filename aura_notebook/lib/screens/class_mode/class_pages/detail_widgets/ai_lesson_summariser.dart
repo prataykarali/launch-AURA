@@ -13,7 +13,7 @@ const _kSentinel = '\x00__THINKING__\x00';
 class AiLessonSummariser extends StatefulWidget {
   final String lessonTitle;
   final String objectives;
-  final Color  accent;
+  final Color accent;
 
   const AiLessonSummariser({
     super.key,
@@ -28,8 +28,8 @@ class AiLessonSummariser extends StatefulWidget {
 
 class _AiLessonSummariserState extends State<AiLessonSummariser> {
   final _streamText = ValueNotifier<String>('');
-  bool   _loading   = false;
-  bool   _done      = false;
+  bool _loading = false;
+  bool _done = false;
   String _finalText = '';
 
   Timer? _typewriterTimer;
@@ -39,7 +39,9 @@ class _AiLessonSummariserState extends State<AiLessonSummariser> {
 
   void _startTypewriter() {
     _typewriterTimer?.cancel();
-    _typewriterTimer = Timer.periodic(const Duration(milliseconds: 15), (timer) {
+    _typewriterTimer = Timer.periodic(const Duration(milliseconds: 15), (
+      timer,
+    ) {
       if (!mounted) {
         timer.cancel();
         return;
@@ -64,7 +66,10 @@ class _AiLessonSummariserState extends State<AiLessonSummariser> {
         timer.cancel();
         _finalText = _displayedBuffer.toString().trim();
         _streamText.value = _finalText;
-        setState(() { _loading = false; _done = true; });
+        setState(() {
+          _loading = false;
+          _done = true;
+        });
       }
     });
   }
@@ -72,7 +77,11 @@ class _AiLessonSummariserState extends State<AiLessonSummariser> {
   Future<void> _generate() async {
     if (_loading) return;
     HapticFeedback.lightImpact();
-    setState(() { _loading = true; _done = false; _finalText = ''; });
+    setState(() {
+      _loading = true;
+      _done = false;
+      _finalText = '';
+    });
     _streamText.value = '';
     _displayedBuffer.clear();
     _typewriterQueue.clear();
@@ -104,7 +113,9 @@ class _AiLessonSummariserState extends State<AiLessonSummariser> {
   }
 
   void _clear() => setState(() {
-    _done = false; _finalText = ''; _streamText.value = '';
+    _done = false;
+    _finalText = '';
+    _streamText.value = '';
   });
 
   @override
@@ -128,14 +139,21 @@ class _AiLessonSummariserState extends State<AiLessonSummariser> {
             borderRadius: BorderRadius.circular(10),
             border: Border.all(color: widget.accent.withOpacity(0.25)),
           ),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.auto_awesome_rounded,
-                size: 13, color: widget.accent),
-            const SizedBox(width: 6),
-            Text('Generate AI Summary',
-                style: TextStyle(color: widget.accent, fontSize: 11,
-                    fontWeight: FontWeight.w700)),
-          ]),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.auto_awesome_rounded, size: 13, color: widget.accent),
+              const SizedBox(width: 6),
+              Text(
+                'Generate AI Summary',
+                style: TextStyle(
+                  color: widget.accent,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -147,37 +165,51 @@ class _AiLessonSummariserState extends State<AiLessonSummariser> {
       decoration: BoxDecoration(
         color: const Color(0xFF1A1A2E),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: widget.accent.withOpacity(0.22)),
+        border: Border.all(color: widget.accent.withOpacity(0.22)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [
-            // Spinning orb while loading
-            if (_loading)
-              SizedBox(
-                width: 12, height: 12,
-                child: CircularProgressIndicator(
-                  strokeWidth: 1.5,
+          Row(
+            children: [
+              // Spinning orb while loading
+              if (_loading)
+                SizedBox(
+                  width: 12,
+                  height: 12,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1.5,
+                    color: widget.accent,
+                  ),
+                )
+              else
+                Icon(
+                  Icons.auto_awesome_rounded,
+                  size: 12,
                   color: widget.accent,
                 ),
-              )
-            else
-              Icon(Icons.auto_awesome_rounded,
-                  size: 12, color: widget.accent),
-            const SizedBox(width: 6),
-            Text('AURA Summary',
-                style: TextStyle(color: widget.accent, fontSize: 10,
-                    fontWeight: FontWeight.w800, letterSpacing: 0.5)),
-            const Spacer(),
-            if (_done)
-              GestureDetector(
-                onTap: _clear,
-                child: Icon(Icons.close_rounded, size: 14,
-                    color: Colors.white.withOpacity(0.25)),
+              const SizedBox(width: 6),
+              Text(
+                'AURA Summary',
+                style: TextStyle(
+                  color: widget.accent,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.5,
+                ),
               ),
-          ]),
+              const Spacer(),
+              if (_done)
+                GestureDetector(
+                  onTap: _clear,
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 14,
+                    color: Colors.white.withOpacity(0.25),
+                  ),
+                ),
+            ],
+          ),
           const SizedBox(height: 8),
           ValueListenableBuilder<String>(
             valueListenable: _streamText,
@@ -187,7 +219,8 @@ class _AiLessonSummariserState extends State<AiLessonSummariser> {
                 color: txt.isEmpty
                     ? Colors.white.withOpacity(0.3)
                     : Colors.white.withOpacity(0.75),
-                fontSize: 12, height: 1.55,
+                fontSize: 12,
+                height: 1.55,
               ),
             ),
           ),

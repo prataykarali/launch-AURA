@@ -13,7 +13,7 @@ enum AttendanceStatus { present, absent, late }
 class StudentModel {
   final String name;
   final String roll;
-  final bool   isCR;
+  final bool isCR;
 
   const StudentModel({
     required this.name,

@@ -23,23 +23,30 @@ impl LlamaEngine {
         n_threads: i32,
         embedder: Arc<dyn Embedder + Send + Sync>,
     ) -> Result<Self, Box<dyn Error>> {
-        static BACKEND: once_cell::sync::OnceCell<&'static LlamaBackend> =
-            once_cell::sync::OnceCell::new();
+        static BACKEND: std::sync::OnceLock<Result<&'static LlamaBackend, String>> =
+            std::sync::OnceLock::new();
         let backend = *BACKEND
-            .get_or_try_init(|| {
-                LlamaBackend::init().map(|b| -> &'static LlamaBackend { Box::leak(Box::new(b)) })
+            .get_or_init(|| {
+                LlamaBackend::init()
+                    .map(|b| -> &'static LlamaBackend { Box::leak(Box::new(b)) })
+                    .map_err(|e| e.to_string())
             })
-            .map_err(|e| -> Box<dyn Error> { Box::new(e) })?;
+            .as_ref()
+            .map_err(|e| -> Box<dyn Error> { e.clone().into() })?;
 
         let mut model_params = LlamaModelParams::default();
         model_params = model_params.with_use_mmap(true);
 
-        static MODEL_CACHE: once_cell::sync::OnceCell<&'static LlamaModel> =
-            once_cell::sync::OnceCell::new();
-        let model = *MODEL_CACHE.get_or_try_init(|| {
-            LlamaModel::load_from_file(backend, model_path, &model_params)
-                .map(|m| -> &'static LlamaModel { Box::leak(Box::new(m)) })
-        })?;
+        static MODEL_CACHE: std::sync::OnceLock<Result<&'static LlamaModel, String>> =
+            std::sync::OnceLock::new();
+        let model = *MODEL_CACHE
+            .get_or_init(|| {
+                LlamaModel::load_from_file(backend, model_path, &model_params)
+                    .map(|m| -> &'static LlamaModel { Box::leak(Box::new(m)) })
+                    .map_err(|e| e.to_string())
+            })
+            .as_ref()
+            .map_err(|e| -> Box<dyn Error> { e.clone().into() })?;
         #[cfg(target_os = "android")]
         log::info!("[LLM] Model loaded from {}", model_path);
 
@@ -65,7 +72,12 @@ impl LlamaEngine {
             .with_embeddings(false);
         let context = model.new_context(backend, ctx_params)?;
         #[cfg(target_os = "android")]
-        log::info!("[LLM] Context created: ctx={} batch={} threads={}", effective_ctx, effective_batch, effective_threads);
+        log::info!(
+            "[LLM] Context created: ctx={} batch={} threads={}",
+            effective_ctx,
+            effective_batch,
+            effective_threads
+        );
 
         let sampler = LlamaSampler::chain_simple([
             LlamaSampler::penalties(

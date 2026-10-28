@@ -60,17 +60,42 @@ class ProactiveScheduler {
     return jsonEncode({'id': id, 'label': label, 'type': type});
   }
 
-  // Cooldown — 20 minutes minimum between proactive triggers so AURA
-  // feels like a quiet companion, not a notification spammer.
-  static const Duration cooldownDuration = Duration(minutes: 20);
-  static const Duration _kDesktopMinInterval = Duration(minutes: 15);
-  static const Duration _kDesktopMaxInterval = Duration(minutes: 30);
-  static const Duration _kAndroidPollInterval = Duration(minutes: 15);
+  // Fast mode (AURA_PROACTIVE_FAST=1): shorter cooldowns for smoke tests only.
+  // Production defaults stay quiet so AURA feels like a companion, not a spammer.
+  static final bool _kFastProactive =
+      Platform.environment['AURA_PROACTIVE_FAST'] == '1';
+
+  // Cooldown between automated (idle/bandit) proactive triggers.
+  // Schedule reminders bypass this — they are user-initiated.
+  static Duration get cooldownDuration => _kFastProactive
+      ? const Duration(minutes: 3)
+      : const Duration(minutes: 20);
+
+  static Duration get _kDesktopMinInterval => _kFastProactive
+      ? const Duration(seconds: 45)
+      : const Duration(minutes: 15);
+
+  static Duration get _kDesktopMaxInterval => _kFastProactive
+      ? const Duration(minutes: 2)
+      : const Duration(minutes: 30);
+
+  static Duration get _kAndroidPollInterval => _kFastProactive
+      ? const Duration(minutes: 1)
+      : const Duration(minutes: 15);
 
   // Idle-uptime threshold: after this much silence the user is considered idle.
-  static const Duration idleThreshold = Duration(minutes: 10);
+  static Duration get idleThreshold => _kFastProactive
+      ? const Duration(minutes: 2)
+      : const Duration(minutes: 10);
+
+  // Minimum gap between idle_checkin firings (independent of bandit).
+  static Duration get _idleRefireGap => _kFastProactive
+      ? const Duration(minutes: 4)
+      : const Duration(minutes: 45);
+
   DateTime? _lastIdleTrigger; // avoid firing idle_checkin back-to-back
   DateTime? _lastScheduleNoteCheck; // avoid firing schedule notes back-to-back
+  DateTime? _lastBanditAttempt; // soft throttle on FFI bandit polls
 
   // Keep track of times checked today to avoid duplicate trigger within the same hour
   final Set<int> _triggeredHours = {};
@@ -120,7 +145,9 @@ class ProactiveScheduler {
         unawaited(_runProductionCycle());
       });
       debugPrint(
-        'AuraProactiveScheduler: started (production mode, '
+        'AuraProactiveScheduler: started '
+        '(${_kFastProactive ? "FAST smoke" : "production"} mode, '
+        'idle≥${idleThreshold.inMinutes}m, cooldown=${cooldownDuration.inMinutes}m, '
         'next=${interval.inSeconds}s)',
       );
     }
@@ -154,13 +181,16 @@ class ProactiveScheduler {
     final span = _kDesktopMaxInterval - _kDesktopMinInterval;
     final baseMs =
         _kDesktopMinInterval.inMilliseconds +
-        _rng.nextInt(span.inMilliseconds + 1);
+        (span.inMilliseconds > 0 ? _rng.nextInt(span.inMilliseconds + 1) : 0);
     final jitter = 0.85 + (_rng.nextDouble() * 0.30);
+    final minMs = _kFastProactive
+        ? const Duration(seconds: 30).inMilliseconds
+        : const Duration(minutes: 10).inMilliseconds;
+    final maxMs = _kFastProactive
+        ? const Duration(minutes: 3).inMilliseconds
+        : const Duration(minutes: 30).inMilliseconds;
     final adjusted = (baseMs * _cadenceBias * jitter)
-        .clamp(
-          const Duration(minutes: 1).inMilliseconds,
-          const Duration(minutes: 12).inMilliseconds,
-        )
+        .clamp(minMs, maxMs)
         .round();
     return Duration(milliseconds: adjusted);
   }

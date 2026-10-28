@@ -7,9 +7,8 @@ import '../../frb_generated.dart';
 import '../../memory/store/core.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-/// Run ALL extraction rules on a cleaned (lowercased, whitespace-collapsed)
-/// prompt and the original-case prompt. Returns a list of structured facts
-/// like "User's name is Sam", "User loves ramen", "User has a cat named Patchwork".
+// These functions are ignored because they are not marked as `pub`: `extract_subject_verb`, `has_subject_verb`, `is_question_about_user`, `run_all_extractors`, `split_into_clauses`
+
 Future<List<String>> extractAllFacts({
   required String cleaned,
   required String original,

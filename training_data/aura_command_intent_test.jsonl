@@ -1,0 +1,27 @@
+{"text": "aria, make sure I call dad at 9 pm", "label": "reminder"}
+{"text": "remind me to drink water in 5 minutes please", "label": "reminder"}
+{"text": "summarize this screen please", "label": "see"}
+{"text": "look at my screen", "label": "see"}
+{"text": "aria, i like coffee", "label": "chat"}
+{"text": "aria, what does the page say", "label": "see"}
+{"text": "/see current window please", "label": "see"}
+{"text": "what am i looking at please", "label": "see"}
+{"text": "read the error on screen please", "label": "see"}
+{"text": "tell me a joke", "label": "chat"}
+{"text": "aria, make this sentence cleaner", "label": "chat"}
+{"text": "aria, wake me up at 8am", "label": "reminder"}
+{"text": "/reminder 5m drink water please", "label": "reminder"}
+{"text": "aria, /reminder tomorrow morning pack bag", "label": "reminder"}
+{"text": "timer for 30 seconds", "label": "reminder"}
+{"text": "/reminder at 7pm call mom", "label": "reminder"}
+{"text": "aria, do you know what I like", "label": "chat"}
+{"text": "hi", "label": "chat"}
+{"text": "tell me what is visible please", "label": "see"}
+{"text": "timer for 30 seconds please", "label": "reminder"}
+{"text": "dont let me forget to email Alex tomorrow", "label": "reminder"}
+{"text": "how are you", "label": "chat"}
+{"text": "/reminder 20s check build please", "label": "reminder"}
+{"text": "wake me up at 8am", "label": "reminder"}
+{"text": "read the error on screen", "label": "see"}
+{"text": "do you know what I like", "label": "chat"}
+{"text": "aria, /see current window", "label": "see"}

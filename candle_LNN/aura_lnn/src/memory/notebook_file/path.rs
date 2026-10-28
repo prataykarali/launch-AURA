@@ -1,21 +1,22 @@
 use std::io::Write;
 use std::path::PathBuf;
 
-/// Resolve the durable, uninstall-safe path for the notebook mirror.
+/// Resolve the secure, app-private path for the notebook mirror.
 ///
 /// Resolution order (first existing-or-creatable wins):
 ///   1. `AURA_NOTEBOOK_PATH` env override (tests / pinning).
-///   2. Android external storage (`/sdcard/AURA`, `/storage/emulated/0/AURA`)
-///      — survives uninstall. Probed by attempting to create + write a probe.
+///   2. Android app-private internal storage — secure, NOT world-readable.
+///      Deleted on uninstall (correct privacy behavior).
 ///   3. XDG data home (`$XDG_DATA_HOME/AURA`).
 ///   4. `~/.local/share/AURA`.
-///   5. `<app_data_dir>/notebook.jsonl` (last resort — NOT uninstall-safe, but
-///      always writable so memory is never silently lost).
+///   5. `<app_data_dir>/notebook.jsonl` (last resort — always writable so
+///      memory is never silently lost).
 ///
-/// On Android the external-storage candidates may be read-only on some OEMs
-/// (Samsung errno 30). We probe each by creating the dir + touching a file; the
-/// first one that actually accepts a write wins. This is why this fn returns
-/// Option<PathBuf> rather than just computing a path.
+/// On Android we deliberately avoid external storage (`/sdcard`, world-readable)
+/// which previously exposed unencrypted user memory to any app. We probe each
+/// candidate by creating the dir + touching a file; the first one that actually
+/// accepts a write wins. This is why this fn returns Option<PathBuf> rather than
+/// just computing a path.
 pub(crate) fn resolve_durable_path(app_data_dir: &str) -> Option<PathBuf> {
     // 1. Explicit override.
     if let Ok(p) = std::env::var("AURA_NOTEBOOK_PATH") {
@@ -34,16 +35,22 @@ pub(crate) fn resolve_durable_path(app_data_dir: &str) -> Option<PathBuf> {
 
     #[cfg(target_os = "android")]
     {
-        // External storage survives app uninstall on Android. These are the
-        // canonical paths; both are probed (one is usually a symlink of the
+        // App-private internal storage — secure, NOT world-readable, and
+        // sandboxed per-app by Android's SELinux policy. These probe both the
+        // /data/data and /data/user/0 forms (one is usually a symlink of the
         // other, but probing both costs nothing and covers OEM quirks).
-        candidates.push(PathBuf::from("/sdcard/AURA/notebook.jsonl"));
-        candidates.push(PathBuf::from("/storage/emulated/0/AURA/notebook.jsonl"));
-        // App external files dir — also survives reinstall if the user
-        // re-grants storage, but is wiped on uninstall. Better than nothing.
-        candidates.push(PathBuf::from(format!(
-            "/sdcard/Android/data/com.example.aura_notebook/files/notebook.jsonl"
-        )));
+        candidates.push(PathBuf::from(
+            "/data/data/com.example.aura_notebook/app_flutter/notebook.jsonl",
+        ));
+        candidates.push(PathBuf::from(
+            "/data/user/0/com.example.aura_notebook/app_flutter/notebook.jsonl",
+        ));
+        candidates.push(PathBuf::from(
+            "/data/data/com.example.aura_notebook/files/notebook.jsonl",
+        ));
+        candidates.push(PathBuf::from(
+            "/data/user/0/com.example.aura_notebook/files/notebook.jsonl",
+        ));
     }
 
     // XDG / HOME (Linux desktop, and a harmless extra candidate on Android).

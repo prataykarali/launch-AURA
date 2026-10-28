@@ -6,11 +6,21 @@ extension AuraBarBrainVision on AuraBarBrain {
   // greeting gesture, respond immediately with a natural AURA greeting.
   // All other detections are forwarded to NaturalContextService as before.
   static const _kGestureKeywords = [
-    'wave', 'waving', 'hand_wave', 'greeting',
-    'open_palm', 'thumbs_up', 'hi_gesture',
-    'hands_raised', 'hand gesture', 'hand pose',
-    'hand_pose', 'hand_wave_pose', 'open_palm_or_wave_pose',
-    'raised', 'palm',
+    'wave',
+    'waving',
+    'hand_wave',
+    'greeting',
+    'open_palm',
+    'thumbs_up',
+    'hi_gesture',
+    'hands_raised',
+    'hand gesture',
+    'hand pose',
+    'hand_pose',
+    'hand_wave_pose',
+    'open_palm_or_wave_pose',
+    'raised',
+    'palm',
   ];
 
   void _onVisionDetected(List<String> labels, double confidence) {

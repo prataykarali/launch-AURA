@@ -78,18 +78,57 @@ class ActiveTabContent extends StatelessWidget {
             'No personal facts found.\nTalk to AURA to build your profile!',
           );
         }
+        final grouped = _groupFacts(facts);
         return Column(
           children: [
             StatsBar(
-              mainLabel: '${facts.length} facts',
+              mainLabel: '${facts.length} facts mapped',
               dateLabel: formatShort(facts.first.updatedAt),
               dateColor: Colors.teal.shade300,
             ),
             Expanded(
-              child: ListView.builder(
+              child: ListView(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                itemCount: facts.length,
-                itemBuilder: (_, i) => FactCard(fact: facts[i]),
+                children: grouped.entries.map((entry) {
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(color: Colors.indigo.shade50),
+                    ),
+                    color: Colors.white,
+                    child: Theme(
+                      data: Theme.of(
+                        context,
+                      ).copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        initiallyExpanded: true,
+                        tilePadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
+                        title: Text(
+                          entry.key,
+                          style: TextStyle(
+                            color: Colors.indigo.shade800,
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        childrenPadding: const EdgeInsets.fromLTRB(
+                          12,
+                          0,
+                          12,
+                          12,
+                        ),
+                        children: entry.value
+                            .map((f) => FactCard(fact: f))
+                            .toList(),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
           ],
@@ -99,5 +138,58 @@ class ActiveTabContent extends StatelessWidget {
       default:
         return const SizedBox.shrink();
     }
+  }
+
+  Map<String, List<Fact>> _groupFacts(List<Fact> facts) {
+    final Map<String, List<Fact>> groups = {
+      '👤 Identity & Info': [],
+      '🎨 Preferences & Hobbies': [],
+      '💼 Professional & Academic': [],
+      '🏥 Health & Lifestyle': [],
+      '💡 General Details': [],
+    };
+
+    for (final fact in facts) {
+      final key = fact.key.toLowerCase();
+      if (key == 'name' ||
+          key == 'birthday' ||
+          key == 'age' ||
+          key == 'location' ||
+          key == 'origin' ||
+          key.contains('live') ||
+          key.contains('born')) {
+        groups['👤 Identity & Info']!.add(fact);
+      } else if (key == 'likes' ||
+          key == 'loves' ||
+          key == 'hates' ||
+          key == 'dislikes' ||
+          key == 'enjoys' ||
+          key == 'prefers' ||
+          key == 'favorite' ||
+          key == 'favourite' ||
+          key == 'hobby') {
+        groups['🎨 Preferences & Hobbies']!.add(fact);
+      } else if (key == 'work' ||
+          key == 'workplace' ||
+          key.contains('stud') ||
+          key.contains('job') ||
+          key.contains('career')) {
+        groups['💼 Professional & Academic']!.add(fact);
+      } else if (key == 'allergy' ||
+          key == 'diet' ||
+          key.contains('health') ||
+          key.contains('allerg') ||
+          key.contains('asthma') ||
+          key.contains('diabetes') ||
+          key == 'vegan' ||
+          key == 'vegetarian') {
+        groups['🏥 Health & Lifestyle']!.add(fact);
+      } else {
+        groups['💡 General Details']!.add(fact);
+      }
+    }
+
+    groups.removeWhere((key, value) => value.isEmpty);
+    return groups;
   }
 }

@@ -1,5 +1,5 @@
-use std::process::Command;
 use std::path::Path;
+use std::process::Command;
 
 /// Open a real headless Chrome browser, navigate to a test page,
 /// capture a screenshot, then run YOLO detection on it.
@@ -29,7 +29,10 @@ pub fn test_browser_vision() {
 
     match result {
         Ok(output) => {
-            println!("    Chrome exit code: {}", output.status.code().unwrap_or(-1));
+            println!(
+                "    Chrome exit code: {}",
+                output.status.code().unwrap_or(-1)
+            );
             if !output.stderr.is_empty() {
                 let stderr = String::from_utf8_lossy(&output.stderr);
                 if !stderr.is_empty() && stderr.len() < 500 {
@@ -45,7 +48,11 @@ pub fn test_browser_vision() {
 
     if Path::new(screenshot_path).exists() {
         let meta = std::fs::metadata(screenshot_path).unwrap();
-        println!("    Screenshot captured: {} ({} bytes)", screenshot_path, meta.len());
+        println!(
+            "    Screenshot captured: {} ({} bytes)",
+            screenshot_path,
+            meta.len()
+        );
 
         // Now try to run YOLO on the screenshot
         // The webcam pipeline uses v4l2, but YOLO inference can run on any image

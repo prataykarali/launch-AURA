@@ -11,10 +11,10 @@ const _kSentinel = '\x00__THINKING__\x00';
 
 class SmartBriefingCard extends StatefulWidget {
   final ClassData data;
-  final int       topicsDone;
-  final int       topicsTotal;
-  final int       xp;
-  final int       studentCount;
+  final int topicsDone;
+  final int topicsTotal;
+  final int xp;
+  final int studentCount;
 
   const SmartBriefingCard({
     super.key,

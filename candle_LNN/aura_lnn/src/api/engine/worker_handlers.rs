@@ -5,6 +5,7 @@ use crate::api::EngineMsg;
 use crate::llama_engine::LlamaEngine;
 use crate::memory::store::MemoryStore;
 use crate::memory_health::{self, MemoryPressure};
+use crate::plugins::{PluginConfig, PluginContext, PluginRegistry};
 
 pub(crate) fn dispatch_message(
     engine: &mut LlamaEngine,
@@ -12,11 +13,31 @@ pub(crate) fn dispatch_message(
     prefilled_memories: &mut Option<Vec<String>>,
     vision_gate: &mut crate::vision::VisionGate,
     msg: EngineMsg,
+    plugin_registry: &PluginRegistry,
 ) {
     match msg {
         EngineMsg::Chat { prompt, sink } => {
             eprintln!("[AURA_WORKER] Chat request: {} chars", prompt.len());
             maybe_heal_memory_pressure(engine, memory_store, prefilled_memories);
+
+            // ── Plugin pre-processing ──────────────────────────────────
+            // Check if any plugin wants to handle this prompt.
+            // If a plugin returns Some(response), skip the LLM entirely.
+            let ctx = PluginContext {
+                memory_store: memory_store.clone(),
+                embedder: engine.embedder(),
+                config: PluginConfig::detect(),
+            };
+            if let Some(plugin_response) = plugin_registry.try_handle(&prompt, &ctx) {
+                let _ = sink.add(plugin_response.clone());
+                if let Some(store) = memory_store {
+                    let _ = store.insert_turn("assistant", &plugin_response);
+                }
+                drop(sink);
+                return;
+            }
+
+            // ── LLM generation (default path) ──────────────────────────
             process_chat(
                 engine,
                 memory_store,
@@ -140,7 +161,10 @@ pub(crate) fn dispatch_message(
             reply,
         } => {
             let ok = if let Some(ref store) = memory_store {
-                if trigger_id > 0 && trigger_type == "bandit" && !engaged {
+                // Always mark trigger fired (updates last_fired for cooldown).
+                // Previously this only ran for !engaged, causing engaged
+                // triggers to have no cooldown and dominate forever.
+                if trigger_id > 0 && trigger_type == "bandit" {
                     let _ = store.mark_trigger_fired(trigger_id);
                 }
                 store
@@ -259,6 +283,7 @@ pub(crate) fn dispatch_message(
             if let Some(event) = vision_gate.process_detections(detections) {
                 if let Some(ref store) = memory_store {
                     let _ = crate::vision::store_visual_event(store, &event);
+                    #[cfg(debug_assertions)]
                     eprintln!("[AURA_VISION] Stored visual event: {}", event.text);
                 }
             }
@@ -270,7 +295,21 @@ pub(crate) fn dispatch_message(
                 let _ = reply.send(json);
             }
         }
-        _ => {}
+        EngineMsg::GetRecentVisualContext { limit, reply } => {
+            let ctx = if let Some(ref store) = memory_store {
+                crate::vision::get_recent_visual_context(store, limit)
+                    .map(|v| v.join("; "))
+                    .unwrap_or_default()
+            } else {
+                String::new()
+            };
+            let _ = reply.send(ctx);
+        }
+        // TODO: Prefill, Inject, GetHistory, GetSummaries, GetFacts are
+        // sent but not handled. These messages are silently dropped.
+        _ => {
+            eprintln!("[AURA_WORKER] Unhandled message variant (dropped)");
+        }
     }
 }
 

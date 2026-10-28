@@ -31,7 +31,9 @@ class _BarWindowAppState extends State<BarWindowApp>
     _controller = BarWindowAppController(this);
     _controller.init();
     windowManager.addListener(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _controller.showAndFocus());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _controller.showAndFocus(),
+    );
   }
 
   @override

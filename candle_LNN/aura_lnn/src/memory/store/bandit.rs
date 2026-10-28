@@ -53,9 +53,10 @@ impl MemoryStore {
         // Global cooldown: check the most recent proactive_log entry.
         // If the last trigger fired less than GLOBAL_COOLDOWN_SECS ago, return None.
         let conn = self.pool.acquire()?;
-        let recent: Option<i64> = conn.query_row(
-            "SELECT MAX(timestamp) FROM proactive_log", [], |r| r.get(0)
-        ).ok().flatten();
+        let recent: Option<i64> = conn
+            .query_row("SELECT MAX(timestamp) FROM proactive_log", [], |r| r.get(0))
+            .ok()
+            .flatten();
         if let Some(last_ts) = recent {
             let now = std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
@@ -77,9 +78,10 @@ impl MemoryStore {
                 row.get::<_, String>(1)?, // label
                 row.get::<_, f64>(2)?,    // engagement_score (mean reward)
                 row.get::<_, i64>(3)?,    // n_shown
+                row.get::<_, i64>(4)?,    // last_fired
             ))
         })?;
-        let candidates: Vec<(i64, String, f64, i64)> = rows.filter_map(|r| r.ok()).collect();
+        let candidates: Vec<(i64, String, f64, i64, i64)> = rows.filter_map(|r| r.ok()).collect();
         if candidates.is_empty() {
             return Ok(None);
         }
@@ -98,10 +100,12 @@ impl MemoryStore {
             // measured from last_fired (older = more attractive again).
             let mut probs: Vec<f64> = candidates
                 .iter()
-                .map(|(_id, _label, score, _shown)| {
-                    let age = now_secs.max(1) as f64; // placeholder; recency handled by cooldown
-                    let _ = age;
-                    (*score).max(SCORE_FLOOR)
+                .map(|(_id, _label, score, _shown, last_fired)| {
+                    // Recency penalty: triggers fired long ago get a small boost.
+                    // Decays linearly over 1 hour (3600s), capped at 1.0.
+                    let age_secs = (now_secs - *last_fired).max(0) as f64;
+                    let recency_boost = (age_secs / 3600.0).min(1.0);
+                    ((*score) + recency_boost * 0.1).max(SCORE_FLOOR)
                 })
                 .collect();
             // Rescale for numerical stability then exponentiate.
@@ -130,8 +134,8 @@ impl MemoryStore {
         // Resolve label for the picked id.
         let label = candidates
             .iter()
-            .find(|(id, _, _, _)| *id == pick)
-            .map(|(_, label, _, _)| label.clone());
+            .find(|(id, _, _, _, _)| *id == pick)
+            .map(|(_, label, _, _, _)| label.clone());
         Ok(label.map(|l| (pick, l)))
     }
 

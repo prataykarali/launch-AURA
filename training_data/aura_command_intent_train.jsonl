@@ -1,0 +1,108 @@
+{"text": "/reminder 20s check build", "label": "reminder"}
+{"text": "read my screen please", "label": "see"}
+{"text": "what text is visible", "label": "see"}
+{"text": "/reminder at 7pm call mom please", "label": "reminder"}
+{"text": "summarize this screen", "label": "see"}
+{"text": "dont let me forget to email Alex tomorrow please", "label": "reminder"}
+{"text": "aria, i feel sad today", "label": "chat"}
+{"text": "aria, /see what is on my screen", "label": "see"}
+{"text": "aria, explain embeddings simply", "label": "chat"}
+{"text": "write a short caption", "label": "chat"}
+{"text": "aria, set a reminder to submit the form at 6pm", "label": "reminder"}
+{"text": "aria, what am i looking at", "label": "see"}
+{"text": "aria, can you read this window", "label": "see"}
+{"text": "what is on my screen please", "label": "see"}
+{"text": "wake me up at 8am please", "label": "reminder"}
+{"text": "what text is visible please", "label": "see"}
+{"text": "don't let me forget to pay rent tomorrow", "label": "reminder"}
+{"text": "ping me in 15 minutes", "label": "reminder"}
+{"text": "aria, dont let me forget to email Alex tomorrow", "label": "reminder"}
+{"text": "nudge me to leave in an hour please", "label": "reminder"}
+{"text": "my brother is visiting", "label": "chat"}
+{"text": "aria, /see", "label": "see"}
+{"text": "explain embeddings simply", "label": "chat"}
+{"text": "aria, hey aria", "label": "chat"}
+{"text": "help me debug this code", "label": "chat"}
+{"text": "aria, write a short caption", "label": "chat"}
+{"text": "/reminder tomorrow morning pack bag please", "label": "reminder"}
+{"text": "/reminder tonight take medicine please", "label": "reminder"}
+{"text": "aria, can you see my screen", "label": "see"}
+{"text": "why is my rust build failing", "label": "chat"}
+{"text": "/reminder 5m drink water", "label": "reminder"}
+{"text": "aria, how are you", "label": "chat"}
+{"text": "what is on my screen", "label": "see"}
+{"text": "aria, what text is visible", "label": "see"}
+{"text": "aria, hi", "label": "chat"}
+{"text": "aria, tell me a joke", "label": "chat"}
+{"text": "aria, summarize this screen", "label": "see"}
+{"text": "aria, can you help me plan today", "label": "chat"}
+{"text": "aria, /reminder 20s check build", "label": "reminder"}
+{"text": "aria, scan my screen", "label": "see"}
+{"text": "aria, don't let me forget to pay rent tomorrow", "label": "reminder"}
+{"text": "look at my screen please", "label": "see"}
+{"text": "set a reminder to submit the form at 6pm please", "label": "reminder"}
+{"text": "/see what is on my screen please", "label": "see"}
+{"text": "aria, why is my rust build failing", "label": "chat"}
+{"text": "/reminder tonight take medicine", "label": "reminder"}
+{"text": "aria, /see this", "label": "see"}
+{"text": "aria, ping me in 15 minutes", "label": "reminder"}
+{"text": "ping me in 15 minutes please", "label": "reminder"}
+{"text": "/see this", "label": "see"}
+{"text": "aria, look at my screen", "label": "see"}
+{"text": "can you see my screen", "label": "see"}
+{"text": "/see current window", "label": "see"}
+{"text": "aria, what did we talk about", "label": "chat"}
+{"text": "what did we talk about", "label": "chat"}
+{"text": "/reminder noon standup", "label": "reminder"}
+{"text": "/reminder in 10 minutes stretch", "label": "reminder"}
+{"text": "aria, nudge me to leave in an hour", "label": "reminder"}
+{"text": "can you read this window", "label": "see"}
+{"text": "what does the page say", "label": "see"}
+{"text": "/see what is on my screen", "label": "see"}
+{"text": "can you help me plan today", "label": "chat"}
+{"text": "/reminder in 10 minutes stretch please", "label": "reminder"}
+{"text": "nudge me to leave in an hour", "label": "reminder"}
+{"text": "aria, what should i cook", "label": "chat"}
+{"text": "aria, timer for 30 seconds", "label": "reminder"}
+{"text": "can you see my screen please", "label": "see"}
+{"text": "aria, help me debug this code", "label": "chat"}
+{"text": "i feel sad today", "label": "chat"}
+{"text": "/see screen please", "label": "see"}
+{"text": "make this sentence cleaner", "label": "chat"}
+{"text": "/see", "label": "see"}
+{"text": "aria, what is my name", "label": "chat"}
+{"text": "aria, /reminder 5m drink water", "label": "reminder"}
+{"text": "aria, my brother is visiting", "label": "chat"}
+{"text": "/see this please", "label": "see"}
+{"text": "scan my screen please", "label": "see"}
+{"text": "aria, tell me what is visible", "label": "see"}
+{"text": "i like coffee", "label": "chat"}
+{"text": "can you read this window please", "label": "see"}
+{"text": "/see please", "label": "see"}
+{"text": "aria, /reminder in 10 minutes stretch", "label": "reminder"}
+{"text": "make sure I call dad at 9 pm", "label": "reminder"}
+{"text": "aria, remind me to drink water in 5 minutes", "label": "reminder"}
+{"text": "what is my name", "label": "chat"}
+{"text": "/reminder tomorrow morning pack bag", "label": "reminder"}
+{"text": "what am i looking at", "label": "see"}
+{"text": "aria, read my screen", "label": "see"}
+{"text": "aria, /reminder tonight take medicine", "label": "reminder"}
+{"text": "what does the page say please", "label": "see"}
+{"text": "/reminder noon standup please", "label": "reminder"}
+{"text": "aria, /reminder at 7pm call mom", "label": "reminder"}
+{"text": "tell me what is visible", "label": "see"}
+{"text": "remind me to drink water in 5 minutes", "label": "reminder"}
+{"text": "aria, what is on my screen", "label": "see"}
+{"text": "make sure I call dad at 9 pm please", "label": "reminder"}
+{"text": "hey aria", "label": "chat"}
+{"text": "aria, /see screen", "label": "see"}
+{"text": "aria, /reminder noon standup", "label": "reminder"}
+{"text": "aria, read the error on screen", "label": "see"}
+{"text": "what is the difference between http and websocket", "label": "chat"}
+{"text": "/see screen", "label": "see"}
+{"text": "scan my screen", "label": "see"}
+{"text": "what should i cook", "label": "chat"}
+{"text": "don't let me forget to pay rent tomorrow please", "label": "reminder"}
+{"text": "set a reminder to submit the form at 6pm", "label": "reminder"}
+{"text": "read my screen", "label": "see"}
+{"text": "aria, what is the difference between http and websocket", "label": "chat"}

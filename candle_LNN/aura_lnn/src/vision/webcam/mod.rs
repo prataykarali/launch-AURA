@@ -14,6 +14,7 @@ pub mod pose;
 pub mod state;
 #[cfg(target_os = "linux")]
 pub mod thread;
+pub mod vlm;
 
 #[cfg(target_os = "linux")]
 pub use state::{

@@ -9,29 +9,8 @@ pub(crate) fn resolve_db_path(model_dir: &str, _tokenizer_path: &str) -> String 
 
     #[cfg(target_os = "android")]
     {
-        // PRIMARY: External storage — survives app reinstall so AURA
-        // remembers the user even after uninstall+reinstall.
-        let ext_candidates = vec![
-            "/storage/emulated/0/AURA",
-            "/sdcard/AURA",
-        ];
-        for path_str in &ext_candidates {
-            let path = std::path::Path::new(path_str);
-            if std::fs::create_dir_all(path).is_ok() {
-                let test_file = path.join(".write_test");
-                if std::fs::write(&test_file, b"test").is_ok() {
-                    let _ = std::fs::remove_file(test_file);
-                    let target = path.join("aura_memory.db");
-                    let target_str = target.to_string_lossy().to_string();
-                    eprintln!(
-                        "[AURA_MEMORY] Android persistent DB path (survives reinstall): {target_str}"
-                    );
-                    return target_str;
-                }
-            }
-        }
-
-        // FALLBACK: App private sandbox (wiped on uninstall)
+        // PRIMARY: App-private internal storage — secure, not world-readable.
+        // Files are deleted on uninstall (correct privacy behavior).
         let tokenizer_path = _tokenizer_path;
         let candidates = vec![
             "/data/data/com.example.aura_notebook/app_flutter",
@@ -49,7 +28,7 @@ pub(crate) fn resolve_db_path(model_dir: &str, _tokenizer_path: &str) -> String 
                     let target = path.join("aura_memory.db");
                     let target_str = target.to_string_lossy().to_string();
                     eprintln!(
-                        "[AURA_MEMORY] Android stable DB path (private sandbox): {target_str}"
+                        "[AURA_MEMORY] Android secure DB path (app-private storage): {target_str}"
                     );
                     return target_str;
                 }

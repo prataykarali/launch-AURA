@@ -40,9 +40,10 @@ Widget _buildAuraBar(_AuraBarState state, BuildContext context) {
                   ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: maxW),
                     child: AnimatedBuilder(
-                      animation: Listenable.merge(
-                        [state._rainbowCtrl, state._glowCtrl],
-                      ),
+                      animation: Listenable.merge([
+                        state._rainbowCtrl,
+                        state._glowCtrl,
+                      ]),
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
@@ -86,8 +87,8 @@ Widget _buildAuraBar(_AuraBarState state, BuildContext context) {
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: (state.widget.state ==
-                                                BarState.idle ||
+                                    child:
+                                        (state.widget.state == BarState.idle ||
                                             state.widget.state ==
                                                 BarState.proactive ||
                                             state.widget.state ==

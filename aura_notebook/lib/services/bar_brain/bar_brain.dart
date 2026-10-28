@@ -10,6 +10,7 @@ import '../stt_model_service.dart';
 import '../vision_service.dart';
 import '../resource_guard_service.dart';
 import '../natural_context_service.dart';
+import '../proactive_scheduler.dart';
 import '../../bar/bar_multi_window_service.dart';
 import '../../bar/bar_state.dart';
 import '../../src/rust/api.dart';
@@ -67,7 +68,7 @@ class AuraBarBrain {
   bool engineReady = false;
   bool _androidInitInProgress = false;
   final List<_QueuedPrompt> _promptQueue = [];
-  static const int _kMaxQueueSize = 5;
+  static const int _kMaxQueueSize = 20;
   AuraObservationSource _pendingPromptSource = AuraObservationSource.text;
   String _currentResponse = '';
   bool _isProactive = false;
@@ -114,6 +115,77 @@ class AuraBarBrain {
   Map<String, dynamic>? _currentTriggerData;
   Timer? _proactiveTimeout;
   Timer? _thinkingTimer;
+
+  // ── Bandit RL engagement tracking ──────────────────────────────────────────
+  // When a proactive trigger fires, we start a 30s engagement window.
+  // If the user sends any message within 30s → engaged=true.
+  // If they don't → engaged=false (ignored).
+  // This is the ACTUAL learning signal for the bandit. Without it,
+  // engagement scores stay at 1.0 forever and the bandit picks randomly.
+  Timer? _engagementTimer;
+  int? _pendingEngagementTriggerId;
+  String? _pendingEngagementTriggerType;
+  DateTime? _proactiveFiredAt;
+  static const Duration _kEngagementWindow = Duration(seconds: 30);
+
+  void _startEngagementWindow(int triggerId, String triggerType) {
+    _pendingEngagementTriggerId = triggerId;
+    _pendingEngagementTriggerType = triggerType;
+    _proactiveFiredAt = DateTime.now();
+    _engagementTimer?.cancel();
+    _engagementTimer = Timer(_kEngagementWindow, () {
+      // User did NOT respond within 30s → record as ignored (negative signal)
+      _recordEngagement(false);
+    });
+  }
+
+  void _recordEngagement(bool engaged) {
+    final triggerId = _pendingEngagementTriggerId;
+    final triggerType = _pendingEngagementTriggerType;
+    if (triggerId == null) return;
+
+    _engagementTimer?.cancel();
+    _pendingEngagementTriggerId = null;
+    _pendingEngagementTriggerType = null;
+
+    // Only record for Rust bandit triggers (positive IDs).
+    // Dart-originated triggers (clock/idle/debug) use negative IDs and
+    // don't exist in the Rust triggers table.
+    if (triggerId > 0) {
+      debugPrint(
+        '[BANDIT_RL] Recording engagement: trigger=$triggerId '
+        'type=$triggerType engaged=$engaged',
+      );
+      unawaited(
+        auraRecordEngagement(triggerId: triggerId, engaged: engaged)
+            .then((_) {
+              debugPrint('[BANDIT_RL] Engagement recorded successfully');
+            })
+            .catchError((e) {
+              debugPrint('[BANDIT_RL] Failed to record engagement: $e');
+            }),
+      );
+      // Log the proactive event to the RL timeline so the bandit can learn.
+      unawaited(
+        auraLogProactive(
+          triggerId: triggerId,
+          label: _currentTriggerLabel ?? 'unknown',
+          triggerType: triggerType ?? 'bandit',
+          engaged: engaged,
+        ).catchError((e) {
+          debugPrint('[BANDIT_RL] Failed to log proactive event: $e');
+        }),
+      );
+    }
+
+    // Also update Dart-side category weights for non-bandit triggers
+    if (triggerType != null) {
+      ProactiveScheduler.instance.recordFeedback(
+        category: triggerType,
+        engaged: engaged,
+      );
+    }
+  }
 
   // ── Vision / context sensing ───────────────────────────────────────────────
   Timer? _healthWarningTimer;

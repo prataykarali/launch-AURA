@@ -2,42 +2,74 @@
 // runs the full pipeline (memory, fact extraction, proactive check),
 // prints the response. Also prints side effects (facts extracted,
 // proactive triggers, emotion changes).
-use std::sync::Arc;
+use aura_lnn::api::worker_utils::process_memory;
 use aura_lnn::api::{build_memory_prefix, configure_rayon_threads};
 use aura_lnn::llama_engine::LlamaEngine;
-use aura_lnn::memory::store::MemoryStore;
 use aura_lnn::memory::plan_reply;
-use aura_lnn::api::worker_utils::process_memory;
+use aura_lnn::memory::store::MemoryStore;
+use std::sync::Arc;
 
-const MODEL: &str = "/home/pratay-karali/launch-AURA/AURA-Proj/aura_notebook/assets/LFM2.5-1.2B-Instruct-Q4_K_M.gguf";
+const DEFAULT_MODEL: &str = "/home/pratay-karali/launch-AURA/AURA-Proj/aura_notebook/assets/LFM2.5-1.2B-Instruct-Q4_K_M.gguf";
 const DEFAULT_DB: &str = "/home/pratay-karali/.local/share/aura_notebook/aura_memory.db";
+
+fn model_path() -> String {
+    std::env::var("AURA_MODEL_PATH").unwrap_or_else(|_| DEFAULT_MODEL.to_string())
+}
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    if args.len() < 2 { eprintln!("Usage: sam_chat \"message\" [db_path]"); return; }
+    if args.len() < 2 {
+        eprintln!("Usage: sam_chat \"message\" [db_path]");
+        return;
+    }
     let msg = &args[1];
-    let db = args.get(2).cloned().unwrap_or_else(|| DEFAULT_DB.to_string());
+    let db = args
+        .get(2)
+        .cloned()
+        .unwrap_or_else(|| DEFAULT_DB.to_string());
+    let model = model_path();
 
     std::env::set_var("AURA_NOTEBOOK_PATH", "/dev/null");
     configure_rayon_threads();
 
-    let embedder = LlamaEngine::load_sibling_embedder(MODEL).expect("embedder");
-    let mut engine = LlamaEngine::new(MODEL, aura_lnn::device_backend::DeviceBackend::Cpu, 2048, 2, embedder)
-        .expect("engine");
+    let embedder = LlamaEngine::load_sibling_embedder(&model).expect("embedder");
+    let mut engine = LlamaEngine::new(
+        &model,
+        aura_lnn::device_backend::DeviceBackend::Cpu,
+        2048,
+        2,
+        embedder,
+    )
+    .expect("engine");
     let store = Arc::new(MemoryStore::open(&db).expect("db"));
 
     // Gather memories (same as production with the fix)
     let mut memories = Vec::new();
     let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
     if let Ok(facts) = store.get_facts_strings(10) {
-        for f in facts { let k = f.to_lowercase(); if seen.insert(k) { memories.push(f); } }
+        for f in facts {
+            let k = f.to_lowercase();
+            if seen.insert(k) {
+                memories.push(f);
+            }
+        }
     }
     if let Ok(recent) = store.recent_turn_strings_filtered(4) {
-        for t in recent { let k = t.to_lowercase(); if seen.insert(k) { memories.push(t); } }
+        for t in recent {
+            let k = t.to_lowercase();
+            if seen.insert(k) {
+                memories.push(t);
+            }
+        }
     }
     if let Ok(qemb) = engine.embed_query(msg) {
         if let Ok(sem) = store.search_relevant_hybrid(msg, &qemb, 8) {
-            for s in sem { let k = s.to_lowercase(); if seen.insert(k) { memories.push(s); } }
+            for s in sem {
+                let k = s.to_lowercase();
+                if seen.insert(k) {
+                    memories.push(s);
+                }
+            }
         }
     }
 
@@ -46,9 +78,15 @@ fn main() {
 
     // Build prefix + generate
     let prefix = build_memory_prefix(&memories);
-    let prompt = if let Some(p) = &prefix { format!("{}{}", p, msg) } else { msg.clone() };
+    let prompt = if let Some(p) = &prefix {
+        format!("{}{}", p, msg)
+    } else {
+        msg.clone()
+    };
     let plan = plan_reply(msg, false);
-    let max_tokens = engine.performance_profile().clamp_reply_tokens(plan.max_tokens);
+    let max_tokens = engine
+        .performance_profile()
+        .clamp_reply_tokens(plan.max_tokens);
 
     store.insert_turn("user", msg).unwrap();
     engine.reset_state();
@@ -100,10 +138,18 @@ fn main() {
 
     // Print bandit scores
     if let Ok(conn) = store.acquire_conn() {
-        if let Ok(mut stmt) = conn.prepare("SELECT trigger_id, label, engagement_score, n_shown, n_engaged FROM triggers") {
+        if let Ok(mut stmt) = conn
+            .prepare("SELECT trigger_id, label, engagement_score, n_shown, n_engaged FROM triggers")
+        {
             if let Ok(rows) = stmt.query_map([], |r| {
-                Ok(format!("{}:{}:{:.2}:{}:{}", r.get::<_,i64>(0)?, r.get::<_,String>(1)?,
-                           r.get::<_,f64>(2)?, r.get::<_,i64>(3)?, r.get::<_,i64>(4)?))
+                Ok(format!(
+                    "{}:{}:{:.2}:{}:{}",
+                    r.get::<_, i64>(0)?,
+                    r.get::<_, String>(1)?,
+                    r.get::<_, f64>(2)?,
+                    r.get::<_, i64>(3)?,
+                    r.get::<_, i64>(4)?
+                ))
             }) {
                 let scores: Vec<String> = rows.filter_map(|r| r.ok()).collect();
                 if !scores.is_empty() {
@@ -116,9 +162,15 @@ fn main() {
     // Print proactive log
     if let Ok(logs) = store.recent_proactive_log(20) {
         if !logs.is_empty() {
-            let entries: Vec<String> = logs.iter().map(|l| {
-                format!("{}:{}:{}:{}", l.trigger_id, l.trigger_type, l.engaged, l.timestamp)
-            }).collect();
+            let entries: Vec<String> = logs
+                .iter()
+                .map(|l| {
+                    format!(
+                        "{}:{}:{}:{}",
+                        l.trigger_id, l.trigger_type, l.engaged, l.timestamp
+                    )
+                })
+                .collect();
             println!("PROACTIVE_LOG:{}", entries.join(","));
         }
     }

@@ -1,8 +1,8 @@
+mod llm_tests;
+mod proactive_tests;
+mod report;
 mod types;
 mod vision_tests;
-mod proactive_tests;
-mod llm_tests;
-mod report;
 
 fn main() {
     std::env::set_var("AURA_NOTEBOOK_PATH", "/dev/null");

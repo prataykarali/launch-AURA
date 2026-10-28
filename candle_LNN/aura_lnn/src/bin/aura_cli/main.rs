@@ -2,9 +2,10 @@ use std::io::{self, Write};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
-use aura_lnn::api::{aura_stt_init, aura_tts_init, configure_rayon_threads};
+use aura_lnn::api::{aura_stt_init, aura_tts_init, aura_tts_stop, configure_rayon_threads};
 use aura_lnn::llama_engine::LlamaEngine;
 use aura_lnn::memory::store::MemoryStore;
+use libc;
 
 mod chat;
 mod common;
@@ -90,8 +91,10 @@ fn main() {
     if std::env::var("AURA_CAMERA_OFF").as_deref() != Ok("1") {
         println!("Initializing local Vision pipeline (camera + YOLO + semantic memory)...");
         aura_lnn::vision::start_webcam_thread();
-        vision_memory_handle =
-            Some(vision::start_memory_thread(store.clone(), vision_memory_running.clone()));
+        vision_memory_handle = Some(vision::start_memory_thread(
+            store.clone(),
+            vision_memory_running.clone(),
+        ));
     } else {
         println!("Vision pipeline OFF (AURA_CAMERA_OFF=1)");
     }
@@ -171,10 +174,22 @@ fn main() {
                 let mut confirm = String::new();
                 if stdin.read_line(&mut confirm).is_ok() && confirm.trim().to_lowercase() == "y" {
                     let conn = store.acquire_conn().unwrap();
-                    let _ = conn.execute("DELETE FROM turns", []);
-                    let _ = conn.execute("DELETE FROM facts", []);
-                    let _ = conn.execute("DELETE FROM summaries", []);
-                    let _ = conn.execute("DELETE FROM vec_memory", []);
+                    let tables = [
+                        "turns",
+                        "facts",
+                        "summaries",
+                        "vec_memory",
+                        "triggers",
+                        "insights",
+                        "proactive_log",
+                        "memory_notes",
+                    ];
+                    for table in tables {
+                        match conn.execute(&format!("DELETE FROM {table}"), []) {
+                            Ok(_) => println!("  cleared: {table}"),
+                            Err(e) => println!("  skip {table}: {e}"),
+                        }
+                    }
                     println!("Memory DB cleared.");
                 }
             }
@@ -196,12 +211,15 @@ fn main() {
             }
             "7" => {
                 println!("Exiting AURA. Goodbye!");
+                aura_tts_stop();
                 vision_memory_running.store(false, Ordering::Relaxed);
                 if vision_memory_handle.is_some() {
                     aura_lnn::vision::stop_webcam_thread();
                     let _ = vision_memory_handle.take().unwrap().join();
                 }
-                break;
+                // ponytail: sherpa-onnx C++ destructor throws a foreign exception
+                // during normal Rust drop. _exit() skips ALL destructors.
+                unsafe { libc::_exit(0) };
             }
             _ => {
                 println!("Invalid choice. Please select 1-7.");

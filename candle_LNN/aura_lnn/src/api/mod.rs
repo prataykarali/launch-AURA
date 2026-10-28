@@ -9,20 +9,20 @@ pub(crate) mod tts;
 pub(crate) mod vision;
 pub mod worker_utils;
 
-use once_cell::sync::OnceCell;
 use std::sync::mpsc;
+use std::sync::OnceLock;
 
 pub(crate) use messages::EngineMsg;
 
-pub(crate) static TX: OnceCell<mpsc::SyncSender<EngineMsg>> = OnceCell::new();
-pub(crate) static DB_PATH: OnceCell<String> = OnceCell::new();
-pub(crate) static MODEL_DIR: OnceCell<String> = OnceCell::new();
+pub(crate) static TX: OnceLock<mpsc::SyncSender<EngineMsg>> = OnceLock::new();
+pub(crate) static DB_PATH: OnceLock<String> = OnceLock::new();
+pub(crate) static MODEL_DIR: OnceLock<String> = OnceLock::new();
 
+pub use chat::turn::build_memory_prefix;
+pub use chat::turn::build_recall_prefill;
 pub use chat::{
     aura_cancel, aura_chat, aura_chat_chunked, aura_inject, aura_prefill, aura_reset_state,
 };
-pub use chat::turn::build_memory_prefix;
-pub use chat::turn::build_recall_prefill;
 pub use config::{configure_rayon_threads, n_ctx_for_platform, smooth_performance_label};
 pub use engine::{
     aura_clear_memory, aura_get_available_backends, aura_init, aura_set_backend,
@@ -41,4 +41,7 @@ pub use stt::{aura_stt_available, aura_stt_init, aura_stt_push_audio, aura_stt_r
 pub use tts::{
     aura_tts_available, aura_tts_init, aura_tts_set_volume, aura_tts_speak, aura_tts_stop, TtsAudio,
 };
-pub use vision::aura_process_vision;
+pub use vision::{
+    aura_get_latest_webcam_scene, aura_get_recent_visual_context, aura_get_webcam_gesture,
+    aura_process_vision, aura_start_webcam_thread, aura_stop_webcam_thread,
+};

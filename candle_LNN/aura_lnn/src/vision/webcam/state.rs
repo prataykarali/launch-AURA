@@ -2,13 +2,14 @@ use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
 use std::sync::Mutex;
 use std::thread::JoinHandle;
 
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 
 pub static RUNNING: AtomicBool = AtomicBool::new(false);
 pub static WATCH_UNTIL_MS: AtomicI64 = AtomicI64::new(0);
-pub static WEBCAM_THREAD: Lazy<Mutex<Option<JoinHandle<()>>>> = Lazy::new(|| Mutex::new(None));
-pub static PREV_FRAME: Lazy<Mutex<Option<Vec<u8>>>> = Lazy::new(|| Mutex::new(None));
-pub static MOTION_STREAK: Lazy<Mutex<usize>> = Lazy::new(|| Mutex::new(0));
+pub static WEBCAM_THREAD: LazyLock<Mutex<Option<JoinHandle<()>>>> =
+    LazyLock::new(|| Mutex::new(None));
+pub static PREV_FRAME: LazyLock<Mutex<Option<Vec<u8>>>> = LazyLock::new(|| Mutex::new(None));
+pub static MOTION_STREAK: LazyLock<Mutex<usize>> = LazyLock::new(|| Mutex::new(0));
 pub static GESTURE_PENDING: AtomicBool = AtomicBool::new(false);
 // Mirror of GESTURE_PENDING that stays set until Dart polls it via
 // aura_get_webcam_gesture(), so a wave can trigger an immediate greeting

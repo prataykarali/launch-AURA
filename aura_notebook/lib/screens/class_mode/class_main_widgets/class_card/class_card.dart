@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../class_pages/class_data.dart';
@@ -21,14 +20,6 @@ class _ClassCardState extends State<ClassCard>
     with SingleTickerProviderStateMixin {
   late final AnimationController _press;
   late final Animation<double> _scale;
-
-  // Generate a deterministic 6-char class code from the class name
-  String get _classCode {
-    final seed = widget.data.name.codeUnits.fold(0, (a, b) => a + b);
-    final rng = Random(seed);
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    return List.generate(6, (_) => chars[rng.nextInt(chars.length)]).join();
-  }
 
   @override
   void initState() {
@@ -56,14 +47,9 @@ class _ClassCardState extends State<ClassCard>
       backgroundColor: Colors.transparent,
       builder: (_) => _CardOptionsSheet(
         data: widget.data,
-        classCode: _classCode,
         onOpen: () {
           Navigator.pop(context);
           widget.onTap?.call();
-        },
-        onShare: () {
-          Navigator.pop(context);
-          _shareCode();
         },
         onDelete: widget.onDelete == null
             ? null
@@ -71,20 +57,6 @@ class _ClassCardState extends State<ClassCard>
                 Navigator.pop(context);
                 widget.onDelete?.call();
               },
-      ),
-    );
-  }
-
-  void _shareCode() {
-    // In a real app: Share.share('Join ${widget.data.name} with code: $_classCode');
-    Clipboard.setData(ClipboardData(text: _classCode));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Class code "$_classCode" copied to clipboard!'),
-        backgroundColor: const Color(0xFF1A1A2E),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -124,7 +96,7 @@ class _ClassCardState extends State<ClassCard>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _Header(d: d, classCode: _classCode, onOptions: _showOptions),
+                _Header(d: d, onOptions: _showOptions),
                 _Body(d: d),
               ],
             ),

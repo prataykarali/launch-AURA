@@ -6,7 +6,7 @@
 import '../../../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `capitalize`, `extract_age`, `extract_name`, `find_in_original`
+// These functions are ignored because they are not marked as `pub`: `capitalize`, `extract_age`, `extract_name`, `find_in_original`, `find_name_end`
 
 Future<List<String>> extract({
   required String cleaned,

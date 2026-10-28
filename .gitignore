@@ -39,9 +39,12 @@ libc++_shared.so
 aura_notebook/build/reports/
 aura_notebook/linux/bundle/
 
-# Root-level .so copies — use linux_libs/ instead
+# Shared libraries — compiled binaries (>200MB), rebuild using scripts/build_rust_linux.sh
+*.so
 aura_notebook/libaura_lnn.so
+aura_notebook/linux_libs/
 
 # Android local config — user-specific paths
 **/android/**/local.properties
 **/.gradle/
+

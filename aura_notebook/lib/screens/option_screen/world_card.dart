@@ -19,17 +19,22 @@ class _WorldCard extends StatefulWidget {
   State<_WorldCard> createState() => _WorldCardState();
 }
 
-class _WorldCardState extends State<_WorldCard> with SingleTickerProviderStateMixin {
+class _WorldCardState extends State<_WorldCard>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _press;
   late final Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
-    _press = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scale = Tween<double>(begin: 1.0, end: 0.97).animate(
-      CurvedAnimation(parent: _press, curve: Curves.easeOut),
+    _press = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
     );
+    _scale = Tween<double>(
+      begin: 1.0,
+      end: 0.97,
+    ).animate(CurvedAnimation(parent: _press, curve: Curves.easeOut));
   }
 
   @override
@@ -60,20 +65,27 @@ class _WorldCardState extends State<_WorldCard> with SingleTickerProviderStateMi
                 Image.asset(
                   widget.assetPath,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(color: widget.accent.withOpacity(0.15)),
+                  errorBuilder: (_, __, ___) =>
+                      Container(color: widget.accent.withOpacity(0.15)),
                 ),
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
-                      colors: [Colors.black.withOpacity(0.72), Colors.black.withOpacity(0.2)],
+                      colors: [
+                        Colors.black.withOpacity(0.72),
+                        Colors.black.withOpacity(0.2),
+                      ],
                     ),
                   ),
                 ),
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: widget.accent.withOpacity(0.45), width: 1.5),
+                    border: Border.all(
+                      color: widget.accent.withOpacity(0.45),
+                      width: 1.5,
+                    ),
                     borderRadius: BorderRadius.circular(18),
                   ),
                 ),
@@ -92,12 +104,17 @@ class _WorldCardState extends State<_WorldCard> with SingleTickerProviderStateMi
                           fontSize: 17,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 1.2,
-                          shadows: [Shadow(color: Colors.black54, blurRadius: 6)],
+                          shadows: [
+                            Shadow(color: Colors.black54, blurRadius: 6),
+                          ],
                         ),
                       ),
                       Text(
                         widget.subtitle,
-                        style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.6),
+                          fontSize: 11,
+                        ),
                       ),
                     ],
                   ),
@@ -111,9 +128,18 @@ class _WorldCardState extends State<_WorldCard> with SingleTickerProviderStateMi
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: widget.accent.withOpacity(0.9),
-                      boxShadow: [BoxShadow(color: widget.accent.withOpacity(0.4), blurRadius: 10)],
+                      boxShadow: [
+                        BoxShadow(
+                          color: widget.accent.withOpacity(0.4),
+                          blurRadius: 10,
+                        ),
+                      ],
                     ),
-                    child: const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 16),
+                    child: const Icon(
+                      Icons.arrow_forward_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
                   ),
                 ),
               ],

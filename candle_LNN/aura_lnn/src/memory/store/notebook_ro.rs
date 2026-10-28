@@ -19,7 +19,12 @@ impl MemoryStore {
             Ok(c) => c,
             Err(_) => return Vec::new(),
         };
-        Self::pair_turns_ro(&conn)
+        let paired = Self::pair_turns_ro(&conn);
+        if paired.len() > 10 {
+            paired[paired.len() - 10..].to_vec()
+        } else {
+            paired
+        }
     }
 
     pub fn read_notebook_summaries_ro(db_path: &str) -> Vec<serde_json::Value> {

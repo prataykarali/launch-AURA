@@ -1,7 +1,36 @@
 part of 'tts_service.dart';
 
-// ── AuraTTSService online mixin (configured online TTS + Google Translate) ───
+// ── AuraTTSService online mixin (Microsoft Edge Neural TTS + Fallbacks) ───────
 extension _AuraTTSServiceOnline on AuraTTSService {
+  Future<bool> _speakEdge(
+    String text,
+    bool interrupt,
+    VoidCallback? onComplete,
+  ) async {
+    try {
+      final bytes = await EdgeTTSClient.synthesize(
+        text: text,
+        voice: _edgeVoice,
+        timeout: const Duration(seconds: 6),
+      );
+      if (bytes == null || bytes.isEmpty) {
+        debugPrint('AuraTTS: Edge TTS unavailable or offline');
+        return false;
+      }
+      _lastProvider = 'edge_tts';
+      debugPrint('AuraTTS: Microsoft Edge Neural TTS succeeded (voice=$_edgeVoice)');
+      return _playOnlineBytes(
+        bytes,
+        'aura_edge_tts.mp3',
+        interrupt,
+        onComplete,
+      );
+    } catch (e) {
+      debugPrint('AuraTTS: Edge TTS error: $e');
+      _onlineBackoffUntil = DateTime.now().add(const Duration(seconds: 15));
+      return false;
+    }
+  }
   Future<Uint8List?> _synthesizeConfiguredOnlineTTS(String text) async {
     final endpoint = Platform.environment['AURA_ONLINE_TTS_URL']?.trim();
     if (endpoint == null || endpoint.isEmpty) return null;

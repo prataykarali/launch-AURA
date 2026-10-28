@@ -55,7 +55,8 @@ extension _NaturalContextServiceSummarization on NaturalContextService {
     final now = DateTime.now();
     for (final key in _firstSeenBySignal.keys.toList()) {
       final firstSeen = _firstSeenBySignal[key];
-      if (firstSeen == null || now.difference(firstSeen) > NaturalContextService._sustainedWindow) {
+      if (firstSeen == null ||
+          now.difference(firstSeen) > NaturalContextService._sustainedWindow) {
         _firstSeenBySignal.remove(key);
         _seenCountBySignal.remove(key);
       }

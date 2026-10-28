@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:aura_notebook/src/rust/api.dart' show auraDeleteMemoryNote;
-import 'package:aura_notebook/src/rust/api/memory.dart' show auraUpdateMemoryNote, auraRecoverMemoryNote, auraDeleteMemoryNotePermanently;
+import 'package:aura_notebook/src/rust/api/memory.dart'
+    show
+        auraUpdateMemoryNote,
+        auraRecoverMemoryNote,
+        auraDeleteMemoryNotePermanently;
 
-Future<void> togglePinNote(Map<String, dynamic> note, VoidCallback onLoad) async {
+Future<void> togglePinNote(
+  Map<String, dynamic> note,
+  VoidCallback onLoad,
+) async {
   final id = note['id'] as int;
   final title = note['title'] ?? '';
   final content = note['content'] ?? '';

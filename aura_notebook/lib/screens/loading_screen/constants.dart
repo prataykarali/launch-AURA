@@ -1,11 +1,12 @@
 part of 'main.dart';
 
-const _kModelFilename = 'LFM2.5-1.2B-Instruct-Q4_K_M.gguf';
+const _kModelFilename = 'aura-aria-gguf/LFM2.5-VL-450M.Q4_K_M.gguf';
+const _kLegacyModelFilename = 'LFM2.5-VL-1.6B-Q4_0.gguf';
 const _kTokenizerFilename = 'tokenizer.json';
 const _kEmbedFilename = 'bge_model.onnx';
 const _kEmbedTokFilename = 'bge_tokenizer.json';
 
-const _kModelAssetPath = 'assets/LFM2.5-1.2B-Instruct-Q4_K_M.gguf';
+const _kModelAssetPath = 'assets/aura-aria-gguf/LFM2.5-VL-450M.Q4_K_M.gguf';
 const _kTokenizerAssetPath = 'assets/tokenizer.json';
 const _kEmbedAssetPath = 'assets/embedder/model_quantized.onnx';
 const _kEmbedTokAssetPath = 'assets/embedder/tokenizer.json';
@@ -16,16 +17,20 @@ const _kEmbedTokAssetPath = 'assets/embedder/tokenizer.json';
 //  • Desktop: read it directly from the bundle / source assets dir at runtime
 //    (same candidate-walk pattern tts_service.dart uses for piper).
 //  • Android: download it ONCE to app-docs on the loading screen, then reuse.
-const _kModelUrl =
-    'https://huggingface.co/LiquidAI/LFM2.5-1.2B-GGUF/resolve/main/LFM2.5-1.2B-Instruct-Q4_K_M.gguf';
+const _kModelUrl = '';
 // Embedder URL — upload model_quantized.onnx + tokenizer.json to the same repo.
 // If empty, Android will skip the embedder (semantic memory disabled, chat still works).
 const _kEmbedModelUrl =
     'https://huggingface.co/Xenova/bge-small-en-v1.5/resolve/main/onnx/model.onnx';
 const _kEmbedTokUrl =
     'https://huggingface.co/Xenova/bge-small-en-v1.5/resolve/main/tokenizer.json';
+// SHA-256 checksums for downloaded files (integrity verification)
+const _kEmbedModelSha256 =
+    '828e1496d7fabb79cfa4dcd84fa38625c0d3d21da474a00f08db0f559940cf35';
+const _kEmbedTokSha256 =
+    'd241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66';
 // Min file sizes we accept as "complete".
-const int _kModelMinBytes = 600 * 1024 * 1024; // LFM2.5 1.2B Q4_K_M ~698 MB
+const int _kModelMinBytes = 200 * 1024 * 1024; // Aura-Aria 450M Q4_K_M ~219 MB
 const int _kEmbedMinBytes =
     20 * 1024 * 1024; // BGE small fp32 ~44 MB (model.onnx)
 const _kOldModelSuffixes = ['.kvcache', '.kvcache.pos', '.memory.db'];

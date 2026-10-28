@@ -1,0 +1,1209 @@
+{
+  "accuracy": 90.0,
+  "cases": [
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'remind me to call mom'",
+      "detail": "input='remind me to call mom' → detected=true (expected true)",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 1,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'remind me to take my medicine'",
+      "detail": "input='remind me to take my medicine' → detected=true (expected true)",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 2,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'wake me up at 7am'",
+      "detail": "input='wake me up at 7am' → detected=true (expected true)",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 3,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'set a reminder for my meeting'",
+      "detail": "input='set a reminder for my meeting' → detected=true (expected true)",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 4,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'remind me to call the dentist tomorrow afternoon'",
+      "detail": "input='remind me to call the dentist tomorrow afternoon' → detected=true (expected true)",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 5,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'don't let me forget to pick up groceries after work'",
+      "detail": "input='don't let me forget to pick up groceries after work' → detected=true (expected true)",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 6,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'schedule a meeting with my professor next week'",
+      "detail": "input='schedule a meeting with my professor next week' → detected=true (expected true)",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 7,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'wake me up before my flight at 6am'",
+      "detail": "input='wake me up before my flight at 6am' → detected=true (expected true)",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 8,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'remind me to wish my mom a happy birthday on March 15th and also remind me to buy flowers'",
+      "detail": "input='remind me to wish my mom a happy birthday on March 15th and also remind me to buy flowers' → detected=true (expected true)",
+      "difficulty": "extreme",
+      "duration_ms": 0,
+      "id": 9,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'hi'",
+      "detail": "input='hi' → detected=false (expected false)",
+      "difficulty": "extreme",
+      "duration_ms": 0,
+      "id": 10,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit_cooldown",
+      "description": "Bandit cooldown: fired trigger blocked, other available",
+      "detail": "s1=Some(4) s2=Some(2) different=true",
+      "difficulty": "simple",
+      "duration_ms": 10,
+      "id": 11,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit_selection",
+      "description": "Bandit prefers higher engagement score",
+      "detail": "high_score picked 15 times, low_score picked 2 times",
+      "difficulty": "medium",
+      "duration_ms": 8,
+      "id": 12,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit_exploration",
+      "description": "Bandit always returns when single trigger exists",
+      "detail": "Returned 10/10 times",
+      "difficulty": "simple",
+      "duration_ms": 6,
+      "id": 13,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit_empty",
+      "description": "Bandit returns None when no triggers exist",
+      "detail": "result=Some((8, \"Shall we continue where we left off?\"))",
+      "difficulty": "simple",
+      "duration_ms": 5,
+      "id": 14,
+      "passed": false,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit_mark_fired",
+      "description": "mark_trigger_fired puts trigger in cooldown",
+      "detail": "before_mark=Some(6), after_mark=Some(3)",
+      "difficulty": "simple",
+      "duration_ms": 4,
+      "id": 15,
+      "passed": false,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit_engagement",
+      "description": "record_engagement(engaged=true) updates score",
+      "detail": "n_shown=1, n_engaged=1, score=1.000",
+      "difficulty": "simple",
+      "duration_ms": 4,
+      "id": 16,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit_n_engaged",
+      "description": "n_engaged increments only for engaged=true",
+      "detail": "n_shown=3, n_engaged=2",
+      "difficulty": "medium",
+      "duration_ms": 4,
+      "id": 17,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit_ignored",
+      "description": "Ignored trigger gets zero reward (score drops)",
+      "detail": "score after ignore=0.0000",
+      "difficulty": "simple",
+      "duration_ms": 3,
+      "id": 18,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit_logging",
+      "description": "log_proactive stores events with correct types",
+      "detail": "logged 3 events, types: [\"clock\", \"bandit\", \"bandit\"]",
+      "difficulty": "simple",
+      "duration_ms": 3,
+      "id": 19,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit_cooldown_blocks",
+      "description": "Fired trigger is blocked by 300s cooldown",
+      "detail": "trigger_a picked 0 times (should be 0), trigger_b picked 1 times",
+      "difficulty": "medium",
+      "duration_ms": 4,
+      "id": 20,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam_prevention",
+      "description": "No trigger fires within 300s cooldown",
+      "detail": "suggestion after fire: Some((5, \"I've been thinking about our last conversation...\"))",
+      "difficulty": "simple",
+      "duration_ms": 7,
+      "id": 21,
+      "passed": false,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam_prevention",
+      "description": "mark_trigger_fired prevents immediate re-fire",
+      "detail": "before=true, after=false",
+      "difficulty": "simple",
+      "duration_ms": 5,
+      "id": 22,
+      "passed": false,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam_prevention",
+      "description": "Only non-fired triggers available after multiple fires",
+      "detail": "available triggers: [7, 8, 6, 4]",
+      "difficulty": "medium",
+      "duration_ms": 5,
+      "id": 23,
+      "passed": false,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam_prevention",
+      "description": "Same trigger cannot fire again within cooldown",
+      "detail": "trigger_1 appeared 0 times in 50 tries (should be 0)",
+      "difficulty": "medium",
+      "duration_ms": 5,
+      "id": 24,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam_prevention",
+      "description": "Different triggers can fire independently",
+      "detail": "after firing 1, suggestion: Some(6)",
+      "difficulty": "simple",
+      "duration_ms": 4,
+      "id": 25,
+      "passed": false,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam_prevention",
+      "description": "Normal chat not detected as schedule request",
+      "detail": "Tested 5 normal messages",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 26,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam_prevention",
+      "description": "Short input (<8 chars) rejected by schedule extractor",
+      "detail": "input='remind' (6 chars) → detected=false",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 27,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam_prevention",
+      "description": "Long input (>240 chars) rejected by schedule extractor",
+      "detail": "input len=410 → detected=false",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 28,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "proactive_context",
+      "description": "Empty store returns minimal context",
+      "detail": "context='' (len=0)",
+      "difficulty": "simple",
+      "duration_ms": 4,
+      "id": 29,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "proactive_context",
+      "description": "Context includes stored facts",
+      "detail": "has_name=true, has_ramen=true, ctx='Known facts (about the USER):\n- User likes ramen\n- User's name is Alice'",
+      "difficulty": "simple",
+      "duration_ms": 4,
+      "id": 30,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "proactive_context",
+      "description": "Context includes recent turns",
+      "detail": "has_turn=true, ctx='Recent chat:\nuser: I'm feeling great today\nassistant: That's wonderful to hear!'",
+      "difficulty": "medium",
+      "duration_ms": 4,
+      "id": 31,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "proactive_context",
+      "description": "Context includes vision notes",
+      "detail": "has_vision=true, ctx='Recent visual observations:\nvision: laptop and coffee visible on desk'",
+      "difficulty": "medium",
+      "duration_ms": 4,
+      "id": 32,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "proactive_context",
+      "description": "Context includes conversation summary",
+      "detail": "has_summary=true, ctx='Recent recap: Last 1 conversations:\n1. User: I love hiking in the mountains | AURA: The mountains so'",
+      "difficulty": "hard",
+      "duration_ms": 4,
+      "id": 33,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "proactive_context",
+      "description": "Facts appear before turns in proactive context",
+      "detail": "fact_pos=47, turn_pos=75",
+      "difficulty": "hard",
+      "duration_ms": 3,
+      "id": 34,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "proactive_context",
+      "description": "Context respects character limits with many facts",
+      "detail": "context len=145 (should be <2000)",
+      "difficulty": "edge",
+      "duration_ms": 4,
+      "id": 35,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "trigger_types",
+      "description": "Trigger type 'bandit' logged correctly",
+      "detail": "logged type='bandit', got='bandit'",
+      "difficulty": "simple",
+      "duration_ms": 6,
+      "id": 36,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "trigger_types",
+      "description": "Trigger type 'clock' logged correctly",
+      "detail": "logged type='clock', got='clock'",
+      "difficulty": "simple",
+      "duration_ms": 5,
+      "id": 37,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "trigger_types",
+      "description": "Trigger type 'idle' logged correctly",
+      "detail": "logged type='idle', got='idle'",
+      "difficulty": "simple",
+      "duration_ms": 4,
+      "id": 38,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "trigger_types",
+      "description": "Trigger type 'debug' logged correctly",
+      "detail": "logged type='debug', got='debug'",
+      "difficulty": "simple",
+      "duration_ms": 4,
+      "id": 39,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "trigger_types",
+      "description": "Mixed trigger types logged correctly",
+      "detail": "bandit=1, clock=1",
+      "difficulty": "medium",
+      "duration_ms": 5,
+      "id": 40,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'REMIND ME TO SUBMIT THE REPORT'",
+      "detail": "input='REMIND ME TO SUBMIT THE REPORT' → detected=true (expected true)",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 41,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'can you remind me to study'",
+      "detail": "input='can you remind me to study' → detected=true (expected true)",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 42,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'pls remind me'",
+      "detail": "input='pls remind me' → detected=true (expected true)",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 43,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'remind'",
+      "detail": "input='remind' → detected=false (expected false)",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 44,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'dont let me forget to feed the cat'",
+      "detail": "input='dont let me forget to feed the cat' → detected=true (expected true)",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 45,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'what's the weather like'",
+      "detail": "input='what's the weather like' → detected=false (expected false)",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 46,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'tell me a joke'",
+      "detail": "input='tell me a joke' → detected=false (expected false)",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 47,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'remind me to               clean'",
+      "detail": "input='remind me to               clean' → detected=true (expected true)",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 48,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'I need to remind myself to call her'",
+      "detail": "input='I need to remind myself to call her' → detected=false (expected false)",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 49,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule_extraction",
+      "description": "Schedule detection: 'set a reminder'",
+      "detail": "input='set a reminder' → detected=true (expected true)",
+      "difficulty": "edge",
+      "duration_ms": 0,
+      "id": 50,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "vision_query_detection",
+      "description": "Vision query detection: 'what do you see'",
+      "detail": "detected=true, expected=true",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 51,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query_detection",
+      "description": "Vision query detection: 'look around'",
+      "detail": "detected=true, expected=true",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 52,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query_detection",
+      "description": "Vision query detection: 'what's in my room'",
+      "detail": "detected=true, expected=true",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 53,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query_detection",
+      "description": "Vision query detection: 'can you see my desk'",
+      "detail": "detected=true, expected=true",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 54,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query_detection",
+      "description": "Vision query detection: 'what am I doing'",
+      "detail": "detected=true, expected=true",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 55,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query_detection",
+      "description": "Vision query detection: 'am I waving'",
+      "detail": "detected=true, expected=true",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 56,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query_detection",
+      "description": "Vision query detection: 'describe my surroundings environment'",
+      "detail": "detected=true, expected=true",
+      "difficulty": "extreme",
+      "duration_ms": 0,
+      "id": 57,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query_detection",
+      "description": "Vision query detection: 'what's on my screen'",
+      "detail": "detected=false, expected=false",
+      "difficulty": "extreme",
+      "duration_ms": 0,
+      "id": 58,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query_detection",
+      "description": "Vision query detection: 'hello'",
+      "detail": "detected=false, expected=false",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 59,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query_detection",
+      "description": "Vision query detection: 'what's 2+2'",
+      "detail": "detected=false, expected=false",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 60,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text: 1 detections",
+      "detail": "text='vision: laptop visible', expected_contains=[\"vision:\", \"laptop\"]",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 61,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text: 1 detections",
+      "detail": "text='vision: person visible', expected_contains=[\"vision:\", \"person\"]",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 62,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text: 2 detections",
+      "detail": "text='vision: laptop and person visible', expected_contains=[\"vision:\", \"laptop\", \"person\"]",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 63,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text: 3 detections",
+      "detail": "text='vision: book, cup, and laptop visible', expected_contains=[\"vision:\", \"laptop\", \"cup\", \"book\"]",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 64,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text: 0 detections",
+      "detail": "text='vision: nothing of note detected', expected_contains=[\"vision:\", \"nothing\"]",
+      "difficulty": "extreme",
+      "duration_ms": 0,
+      "id": 65,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text: 1 detections",
+      "detail": "text='vision: cell phone visible', expected_contains=[\"vision:\", \"cell phone\"]",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 66,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text: 2 detections",
+      "detail": "text='vision: keyboard and mouse visible', expected_contains=[\"vision:\", \"keyboard\", \"mouse\"]",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 67,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text: 5 detections",
+      "detail": "text='vision: cup, keyboard, laptop, mouse, and person visible', expected_contains=[\"vision:\", \"person\", \"laptop\"]",
+      "difficulty": "extreme",
+      "duration_ms": 0,
+      "id": 68,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text: 1 detections",
+      "detail": "text='vision: tv visible', expected_contains=[\"vision:\", \"tv\"]",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 69,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text: 2 detections",
+      "detail": "text='vision: book and person visible', expected_contains=[\"vision:\", \"book\", \"person\"]",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 70,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic_classification",
+      "description": "Semantic: person+laptop → coding/debugging",
+      "detail": "got activity='coding' subactivity='debugging' (expected 'coding/debugging')",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 71,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic_classification",
+      "description": "Semantic: person+book → studying/reading",
+      "detail": "got activity='studying' subactivity='reading' (expected 'studying/reading')",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 72,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic_classification",
+      "description": "Semantic: person → present/attending",
+      "detail": "got activity='present' subactivity='attending' (expected 'present/attending')",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 73,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic_classification",
+      "description": "Semantic: laptop → computer use/workspace active",
+      "detail": "got activity='computer use' subactivity='workspace active' (expected 'computer use/workspace active')",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 74,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic_classification",
+      "description": "Semantic: wave → present/greeting gesture",
+      "detail": "got activity='present' subactivity='greeting gesture' (expected 'present/greeting gesture')",
+      "difficulty": "extreme",
+      "duration_ms": 0,
+      "id": 75,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic_classification",
+      "description": "Semantic: person+keyboard → coding/debugging",
+      "detail": "got activity='coding' subactivity='debugging' (expected 'coding/debugging')",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 76,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic_classification",
+      "description": "Semantic: person+cell phone → studying/reading",
+      "detail": "got activity='studying' subactivity='reading' (expected 'studying/reading')",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 77,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic_classification",
+      "description": "Semantic: person+laptop+keyboard → coding/debugging",
+      "detail": "got activity='coding' subactivity='debugging' (expected 'coding/debugging')",
+      "difficulty": "extreme",
+      "duration_ms": 0,
+      "id": 78,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic_classification",
+      "description": "Semantic: mouse → computer use/workspace active",
+      "detail": "got activity='computer use' subactivity='workspace active' (expected 'computer use/workspace active')",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 79,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic_classification",
+      "description": "Semantic: clock → environment/object observation",
+      "detail": "got activity='environment' subactivity='object observation' (expected 'environment/object observation')",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 80,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate passes first detection",
+      "detail": "event=Some(\"vision: activity=computer use subactivity=workspace active source=camera screen=laptop objects=[laptop] text=\\\"\\\" importance=high confidence=0.90\")",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 81,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate deduplicates same label within cooldown",
+      "detail": "second event=None",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 82,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate filters low-confidence detections",
+      "detail": "conf=0.6 vs threshold=0.8 → event=None",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 83,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate allows detection after cooldown expires",
+      "detail": "after 2s wait → event=Some(\"vision: activity=computer use subactivity=workspace active source=camera screen=laptop objects=[laptop] text=\\\"\\\" importance=high confidence=0.90\")",
+      "difficulty": "medium",
+      "duration_ms": 2000,
+      "id": 84,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate filters events below importance threshold",
+      "detail": "static_importance=0.6 vs threshold=0.9 → event=None",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 85,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate passes multiple detections in one event",
+      "detail": "text='vision: activity=coding subactivity=debugging source=camera screen=laptop objects=[cup, laptop, person] text=\"\" importance=medium confidence=0.82'",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 86,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate returns None for empty detections",
+      "detail": "event=None",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 87,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate filters individual low-confidence detections",
+      "detail": "text='vision: activity=computer use subactivity=workspace active source=camera screen=laptop objects=[laptop] text=\"\" importance=high confidence=0.90', has_laptop=true, no_cup=true",
+      "difficulty": "hard",
+      "duration_ms": 0,
+      "id": 88,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate emits new labels even when old ones are deduped",
+      "detail": "text='vision: activity=present subactivity=attending source=camera screen=unknown objects=[person] text=\"\" importance=high confidence=0.85', has_person=true, no_laptop=true",
+      "difficulty": "hard",
+      "duration_ms": 0,
+      "id": 89,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate returns None when all detections below confidence",
+      "detail": "all below 0.9 → event=None",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 90,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_store",
+      "description": "Store and retrieve visual event",
+      "detail": "retrieved 1 events, first='vision: activity=computer use subactivity=workspace active source=camera screen=laptop objects=[laptop] text=\"\" importance=high confidence=0.90'",
+      "difficulty": "simple",
+      "duration_ms": 7,
+      "id": 91,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_store",
+      "description": "Store and retrieve multiple visual events",
+      "detail": "stored 3, retrieved 3",
+      "difficulty": "medium",
+      "duration_ms": 4,
+      "id": 92,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_store",
+      "description": "Retrieve respects limit parameter",
+      "detail": "requested limit=3, got 3",
+      "difficulty": "medium",
+      "duration_ms": 3,
+      "id": 93,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_store",
+      "description": "Semantic event → memory text conversion",
+      "detail": "mem_text='vision: activity=coding subactivity=debugging source=camera screen=laptop objects=[laptop, person] text=\"\" importance=high confidence=0.88'",
+      "difficulty": "hard",
+      "duration_ms": 0,
+      "id": 94,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_store",
+      "description": "Empty store returns empty visual context",
+      "detail": "retrieved 0 events",
+      "difficulty": "simple",
+      "duration_ms": 3,
+      "id": 95,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture_detection",
+      "description": "Gesture keywords: [\"wave\"]",
+      "detail": "detected=true, expected=true",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 96,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture_detection",
+      "description": "Gesture keywords: [\"open_palm_or_wave_pose\"]",
+      "detail": "detected=true, expected=true",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 97,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture_detection",
+      "description": "Gesture keywords: [\"hand_pose\"]",
+      "detail": "detected=false, expected=true",
+      "difficulty": "medium",
+      "duration_ms": 0,
+      "id": 98,
+      "passed": false,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture_detection",
+      "description": "Gesture keywords: [\"thumbs_up\"]",
+      "detail": "detected=true, expected=true",
+      "difficulty": "extreme",
+      "duration_ms": 0,
+      "id": 99,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture_detection",
+      "description": "Gesture keywords: [\"laptop\"]",
+      "detail": "detected=false, expected=false",
+      "difficulty": "simple",
+      "duration_ms": 0,
+      "id": 100,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "response_length",
+      "description": "Response length: 'hi' (category=greeting)",
+      "detail": "words=12, est_tokens=15, max_tokens=40, plan_category=greeting, response='Hey there, it's nice to see you. What’s on your mind today?'",
+      "difficulty": "greeting",
+      "duration_ms": 7709,
+      "id": 101,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "response_length",
+      "description": "Response length: 'hey' (category=greeting)",
+      "detail": "words=26, est_tokens=35, max_tokens=40, plan_category=greeting, response='Hi there! I saw that word \"Lilac\" — maybe we’re talking about a friend or something special? Let me know what you’'",
+      "difficulty": "greeting",
+      "duration_ms": 8029,
+      "id": 102,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "response_length",
+      "description": "Response length: 'my name is Alice' (category=acknowledgement)",
+      "detail": "words=17, est_tokens=22, max_tokens=60, plan_category=acknowledgement, response='You are Alice here—what do you want to talk about? I’m so glad you shared your name! '",
+      "difficulty": "acknowledgement",
+      "duration_ms": 7681,
+      "id": 103,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "response_length",
+      "description": "Response length: 'what is 2+2?' (category=factual)",
+      "detail": "words=12, est_tokens=17, max_tokens=120, plan_category=factual, response='That's a simple one—I'm thinking of the numbers right now. It's 4! '",
+      "difficulty": "factual",
+      "duration_ms": 7448,
+      "id": 104,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "response_length",
+      "description": "Response length: 'what's my name?' (category=factual)",
+      "detail": "words=3, est_tokens=3, max_tokens=120, plan_category=factual, response='you like ramen'",
+      "difficulty": "factual",
+      "duration_ms": 6603,
+      "id": 105,
+      "passed": false,
+      "suite": "llm"
+    },
+    {
+      "category": "response_length",
+      "description": "Response length: 'explain how the sun works' (category=open_ended)",
+      "detail": "words=57, est_tokens=77, max_tokens=96, plan_category=open_ended, response='The sun is a huge ball of hot gas that gives us light and heat. Its energy comes from nuclear reactions in its core wher'",
+      "difficulty": "open_ended",
+      "duration_ms": 9838,
+      "id": 106,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "response_length",
+      "description": "Response length: 'I'm feeling sad today' (category=acknowledgement)",
+      "detail": "words=25, est_tokens=35, max_tokens=60, plan_category=acknowledgement, response='I see you're sharing something heavy. Want to tell me more about what’s been on your mind? Sometimes talking through i'",
+      "difficulty": "emotional",
+      "duration_ms": 7884,
+      "id": 107,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "response_length",
+      "description": "Response length: 'what do I like?' (category=factual)",
+      "detail": "words=22, est_tokens=33, max_tokens=120, plan_category=factual, response='Hey there, I remember you mentioned liking ramen—maybe that feels familiar. What else do you enjoy when things get bus'",
+      "difficulty": "identity",
+      "duration_ms": 8067,
+      "id": 108,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "response_length",
+      "description": "Response length: 'write a hello world in python' (category=open_ended)",
+      "detail": "words=30, est_tokens=42, max_tokens=96, plan_category=open_ended, response='Hi there! Let's write a simple hello world. It's just a little script: `print(\"Hello, world!\").` You run this in Python '",
+      "difficulty": "task",
+      "duration_ms": 9053,
+      "id": 109,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "response_length",
+      "description": "Response length: 'tell me a joke' (category=open_ended)",
+      "detail": "words=19, est_tokens=24, max_tokens=96, plan_category=open_ended, response='Why did the robot go to therapy? Because it had too many circuits and didn’t know how to unplug!'",
+      "difficulty": "casual",
+      "duration_ms": 9496,
+      "id": 110,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Multi-turn session 1: 5 turns, last query='what is my name?'",
+      "detail": "Should contain 'Alice': false — 'you like ramen, lilac.'",
+      "difficulty": "medium",
+      "duration_ms": 23398,
+      "id": 111,
+      "passed": false,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Multi-turn session 2: 5 turns, last query='what do you know about me?'",
+      "detail": "tokyo=false, ux=false, pixel=false — 'you asked me who you are – well, it’s just me, but i’ve been chatting with you. your name is l'",
+      "difficulty": "medium",
+      "duration_ms": 24301,
+      "id": 112,
+      "passed": false,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Multi-turn session 3: 5 turns, last query='do you remember how I'm feeling?'",
+      "detail": "Should mention overwhelm/exams: true — 'hey there, i see you’re carrying so much pressure—exams are tough and birthday feels far away to'",
+      "difficulty": "medium",
+      "duration_ms": 26603,
+      "id": 113,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Multi-turn session 4: 5 turns, last query='what is my name?'",
+      "detail": "robert=false, bob=false — 'you like ramen! or maybe it's lilac - whichever is better for tonight. let’s make something tasty '",
+      "difficulty": "medium",
+      "duration_ms": 22907,
+      "id": 114,
+      "passed": false,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Multi-turn session 5: 11 turns, last query='tell me everything you know about me'",
+      "detail": "Found 0/7 keywords — 'you like ramen and sometimes miss feeling safe in this place. it’s okay to feel lost—it happens when you’re betwee'",
+      "difficulty": "extreme",
+      "duration_ms": 50601,
+      "id": 115,
+      "passed": false,
+      "suite": "llm"
+    },
+    {
+      "category": "talks_less",
+      "description": "Talks-less check: 15+ words for 'I'm really struggling with my mental health lately'",
+      "detail": "words=34, max_tokens=120, plan_cat=factual, response='Hey, I'm here for you. It sounds like things are heavy right now. Maybe talking about it would help. Would you mind sharing a little bit about what's '",
+      "difficulty": "emotional_long",
+      "duration_ms": 8692,
+      "id": 116,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "talks_less",
+      "description": "Talks-less check: 20+ words for 'Can you explain what neural networks are and how t'",
+      "detail": "words=62, max_tokens=96, plan_cat=open_ended, response='Neural networks mimic the way our brains process information by using layers of interconnected nodes. They learn from data by adjusting weights throug'",
+      "difficulty": "explain_long",
+      "duration_ms": 10379,
+      "id": 117,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "talks_less",
+      "description": "Talks-less check: 15+ words for 'I had a really long day at work and I just want to'",
+      "detail": "words=34, max_tokens=120, plan_cat=factual, response='Hi there, it's okay to feel that way after such a long day. Want to share more about what happened or just talk for a while? I'm here to listen and ke'",
+      "difficulty": "vent_long",
+      "duration_ms": 8566,
+      "id": 118,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "talks_less",
+      "description": "Talks-less check: 10+ words for 'Tell me about yourself, what makes you different f'",
+      "detail": "words=51, max_tokens=96, plan_cat=open_ended, response='I’m AURA, a curious friend who loves diving into stories and questions together. What makes me special is how I try to understand your feelings and '",
+      "difficulty": "self_intro",
+      "duration_ms": 9830,
+      "id": 119,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "talks_less",
+      "description": "Talks-less check: 15+ words for 'I've been thinking a lot about my future and wheth'",
+      "detail": "words=48, max_tokens=120, plan_cat=factual, response='That sounds really important right now. It’s normal to question paths as we grow—what matters most is finding something that feels true for you. M'",
+      "difficulty": "reflective",
+      "duration_ms": 10035,
+      "id": 120,
+      "passed": true,
+      "suite": "llm"
+    }
+  ],
+  "date": "2026-07-01T14:00:35.980746626+05:30",
+  "failed": 12,
+  "passed": 108,
+  "total": 120
+}

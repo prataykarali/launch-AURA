@@ -9,15 +9,13 @@ class R {
   // ── Platform checks ───────────────────────────────────────────────────────
   static bool get isDesktop =>
       Platform.isLinux || Platform.isWindows || Platform.isMacOS;
-  static bool get isMobile =>
-      Platform.isAndroid || Platform.isIOS;
+  static bool get isMobile => Platform.isAndroid || Platform.isIOS;
 
   // ── Screen size breakpoints ───────────────────────────────────────────────
-  static bool isPhone(BuildContext ctx) =>
-      MediaQuery.of(ctx).size.width < 600;
+  static bool isPhone(BuildContext ctx) => MediaQuery.of(ctx).size.width < 600;
   static bool isTablet(BuildContext ctx) =>
       MediaQuery.of(ctx).size.width >= 600 &&
-          MediaQuery.of(ctx).size.width < 1024;
+      MediaQuery.of(ctx).size.width < 1024;
   static bool isLaptop(BuildContext ctx) =>
       MediaQuery.of(ctx).size.width >= 1024;
 
@@ -57,11 +55,10 @@ class R {
   }
 
   // ── Max content width (centers content on wide screens) ──────────────────
-  static Widget maxWidth(Widget child, {double max = 700}) =>
-      Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: max),
-          child: child,
-        ),
-      );
+  static Widget maxWidth(Widget child, {double max = 700}) => Center(
+    child: ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: max),
+      child: child,
+    ),
+  );
 }

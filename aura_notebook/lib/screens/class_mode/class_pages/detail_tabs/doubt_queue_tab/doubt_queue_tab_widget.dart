@@ -47,7 +47,9 @@ class _DoubtQueueTabState extends State<DoubtQueueTab> {
 
   void _startTypewriter(Doubt doubt) {
     _typewriterTimer?.cancel();
-    _typewriterTimer = Timer.periodic(const Duration(milliseconds: 15), (timer) {
+    _typewriterTimer = Timer.periodic(const Duration(milliseconds: 15), (
+      timer,
+    ) {
       if (!mounted) {
         timer.cancel();
         return;
@@ -63,9 +65,7 @@ class _DoubtQueueTabState extends State<DoubtQueueTab> {
           charsToPop = 2;
         }
 
-        for (int i = 0;
-            i < charsToPop && _typewriterQueue.isNotEmpty;
-            i++) {
+        for (int i = 0; i < charsToPop && _typewriterQueue.isNotEmpty; i++) {
           _displayedBuffer.write(_typewriterQueue.removeAt(0));
         }
 
@@ -102,7 +102,8 @@ class _DoubtQueueTabState extends State<DoubtQueueTab> {
   }
 
   Future<void> _generateAnswer(Doubt doubt) async {
-    final prompt = 'You are a ${widget.data.subject} teacher. A student asked: '
+    final prompt =
+        'You are a ${widget.data.subject} teacher. A student asked: '
         '"${doubt.question}"\n\n'
         'Give a clear, helpful answer in 2–3 sentences. Be concise.';
 
@@ -123,7 +124,8 @@ class _DoubtQueueTabState extends State<DoubtQueueTab> {
     } catch (e) {
       debugPrint('Doubt answer error: $e');
       _generationFinished = true;
-      doubt.streamText.value = "Sorry, I couldn't generate an answer right now.";
+      doubt.streamText.value =
+          "Sorry, I couldn't generate an answer right now.";
     }
 
     _generationFinished = true;
@@ -138,12 +140,21 @@ class _DoubtQueueTabState extends State<DoubtQueueTab> {
         Container(
           color: const Color(0xFF0D0D18),
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Row(children: [
-            _statChip(Icons.help_outline_rounded, '${_doubts.length} Doubts', d.accent),
-            const SizedBox(width: 10),
-            _statChip(Icons.escalator_warning_rounded,
-                '${_doubts.where((x) => x.escalated).length} Escalated', Colors.orange),
-          ]),
+          child: Row(
+            children: [
+              _statChip(
+                Icons.help_outline_rounded,
+                '${_doubts.length} Doubts',
+                d.accent,
+              ),
+              const SizedBox(width: 10),
+              _statChip(
+                Icons.escalator_warning_rounded,
+                '${_doubts.where((x) => x.escalated).length} Escalated',
+                Colors.orange,
+              ),
+            ],
+          ),
         ),
 
         // Main List
@@ -177,80 +188,101 @@ class _DoubtQueueTabState extends State<DoubtQueueTab> {
             bottom: MediaQuery.of(context).padding.bottom + 12,
             top: 8,
           ),
-          child: Row(children: [
-            Expanded(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E32),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
+          child: Row(
+            children: [
+              Expanded(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E1E32),
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
                       color: _hasText
                           ? d.accent.withOpacity(0.5)
-                          : Colors.white.withOpacity(0.08)),
-                ),
-                child: TextField(
-                  controller: _ctrl,
-                  focusNode: _focus,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
-                  onSubmitted: (_) => _postDoubt(),
-                  textInputAction: TextInputAction.send,
-                  decoration: InputDecoration(
-                    hintText: 'Ask a doubt…',
-                    hintStyle: TextStyle(
-                        color: Colors.white.withOpacity(0.22), fontSize: 13),
-                    prefixIcon: Icon(Icons.help_outline_rounded,
-                        size: 18, color: d.accent.withOpacity(0.5)),
-                    border: InputBorder.none,
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 4, vertical: 13),
+                          : Colors.white.withOpacity(0.08),
+                    ),
+                  ),
+                  child: TextField(
+                    controller: _ctrl,
+                    focusNode: _focus,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    onSubmitted: (_) => _postDoubt(),
+                    textInputAction: TextInputAction.send,
+                    decoration: InputDecoration(
+                      hintText: 'Ask a doubt…',
+                      hintStyle: TextStyle(
+                        color: Colors.white.withOpacity(0.22),
+                        fontSize: 13,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.help_outline_rounded,
+                        size: 18,
+                        color: d.accent.withOpacity(0.5),
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 13,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            GestureDetector(
-              onTap: _postDoubt,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: _hasText
-                      ? LinearGradient(
-                          colors: [d.color, d.accent],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight)
-                      : null,
-                  color: !_hasText ? Colors.white.withOpacity(0.08) : null,
-                ),
-                child: Icon(Icons.send_rounded,
+              const SizedBox(width: 10),
+              GestureDetector(
+                onTap: _postDoubt,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 46,
+                  height: 46,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: _hasText
+                        ? LinearGradient(
+                            colors: [d.color, d.accent],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    color: !_hasText ? Colors.white.withOpacity(0.08) : null,
+                  ),
+                  child: Icon(
+                    Icons.send_rounded,
                     color: _hasText
                         ? Colors.white
                         : Colors.white.withOpacity(0.2),
-                    size: 18),
+                    size: 18,
+                  ),
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ],
     );
   }
 
   Widget _statChip(IconData icon, String label, Color color) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withOpacity(0.3)),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    decoration: BoxDecoration(
+      color: color.withOpacity(0.1),
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: color.withOpacity(0.3)),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: color),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: TextStyle(
+            color: color,
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+          ),
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: 13, color: color),
-          const SizedBox(width: 5),
-          Text(label,
-              style: TextStyle(
-                  color: color, fontSize: 11, fontWeight: FontWeight.w700)),
-        ]),
-      );
+      ],
+    ),
+  );
 }

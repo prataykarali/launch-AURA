@@ -6,6 +6,12 @@
 import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// ── Re-exports from codegen sub-modules ─────────────────────────────────────
+// FRB codegen now places notes & proactive under api/memory/{notes,proactive}.
+// Re-export here so all existing callers importing api/memory.dart keep working.
+export 'memory/notes.dart';
+export 'memory/proactive.dart';
+
 // These functions are ignored because they are not marked as `pub`: `database_file_empty`, `with_db_path_or_empty`, `worker_get_facts`, `worker_get_history`, `worker_get_summaries`
 
 Future<String> auraGetAllNotebookTurns() =>
@@ -56,69 +62,3 @@ Future<String> auraGetOverlayConfig() =>
 /// memory full" toast.
 Future<String> auraCheckMemoryHealth() =>
     RustLib.instance.api.crateApiMemoryAuraCheckMemoryHealth();
-
-// ── Manually added: re-exported from notes.rs and proactive.rs ──────
-// FRB codegen put these under submodule paths (Notes/Proactive) instead
-// of the flat Memory path, so we wire them manually.
-
-Future<int> auraAddMemoryNote({
-  required String title,
-  required String content,
-  required bool pinned,
-}) => RustLib.instance.api.crateApiMemoryNotesAuraAddMemoryNote(
-  title: title,
-  content: content,
-  pinned: pinned,
-);
-
-Future<bool> auraDeleteMemoryNote({required PlatformInt64 id}) =>
-    RustLib.instance.api.crateApiMemoryNotesAuraDeleteMemoryNote(id: id);
-
-Future<bool> auraDeleteMemoryNotePermanently({required PlatformInt64 id}) =>
-    RustLib.instance.api.crateApiMemoryNotesAuraDeleteMemoryNotePermanently(id: id);
-
-Future<bool> auraRecoverMemoryNote({required PlatformInt64 id}) =>
-    RustLib.instance.api.crateApiMemoryNotesAuraRecoverMemoryNote(id: id);
-
-Future<bool> auraUpdateMemoryNote({
-  required PlatformInt64 id,
-  required String title,
-  required String content,
-  required bool pinned,
-  required bool deleted,
-}) => RustLib.instance.api.crateApiMemoryNotesAuraUpdateMemoryNote(
-  id: id,
-  title: title,
-  content: content,
-  pinned: pinned,
-  deleted: deleted,
-);
-
-Future<String> auraGetBufferStatus() =>
-    RustLib.instance.api.crateApiMemoryProactiveAuraGetBufferStatus();
-
-Future<String> auraCheckProactive() =>
-    RustLib.instance.api.crateApiMemoryProactiveAuraCheckProactive();
-
-Future<String> auraGetProactiveContext() =>
-    RustLib.instance.api.crateApiMemoryProactiveAuraGetProactiveContext();
-
-Future<bool> auraRecordEngagement({
-  required PlatformInt64 triggerId,
-  required bool engaged,
-}) => RustLib.instance.api.crateApiMemoryProactiveAuraRecordEngagement(
-  triggerId: triggerId,
-  engaged: engaged,
-);
-
-Future<void> auraLogProactive({
-  required PlatformInt64 triggerId,
-  required String label,
-  required String triggerType,
-  required bool engaged,
-}) => RustLib.instance.api.crateApiMemoryProactiveAuraLogProactive(
-  triggerId: triggerId,
-  label: label,
-  triggerType: triggerType,
-  engaged: engaged,
-);

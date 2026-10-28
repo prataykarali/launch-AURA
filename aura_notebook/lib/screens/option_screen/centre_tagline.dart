@@ -10,7 +10,11 @@ class _CentreTagline extends StatelessWidget {
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(width: 40, height: 1, color: Colors.white.withOpacity(0.25)),
+          Container(
+            width: 40,
+            height: 1,
+            color: Colors.white.withOpacity(0.25),
+          ),
           const SizedBox(width: 12),
           AnimatedBuilder(
             animation: orb,
@@ -19,7 +23,11 @@ class _CentreTagline extends StatelessWidget {
               height: 6,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color.lerp(const Color(0xFFFF3CAC), const Color(0xFF7C4DFF), orb.value),
+                color: Color.lerp(
+                  const Color(0xFFFF3CAC),
+                  const Color(0xFF7C4DFF),
+                  orb.value,
+                ),
                 boxShadow: [
                   BoxShadow(
                     color: const Color(0xFFFF3CAC).withOpacity(0.6),
@@ -30,7 +38,11 @@ class _CentreTagline extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Container(width: 40, height: 1, color: Colors.white.withOpacity(0.25)),
+          Container(
+            width: 40,
+            height: 1,
+            color: Colors.white.withOpacity(0.25),
+          ),
         ],
       ),
       const SizedBox(height: 20),

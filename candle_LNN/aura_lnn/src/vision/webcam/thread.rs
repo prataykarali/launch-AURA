@@ -25,16 +25,18 @@ use crate::vision::webcam::state::{
     epoch_millis, GESTURE_FOR_DART, GESTURE_ONLY, GESTURE_PENDING, MOTION_STREAK, PREV_FRAME,
     RUNNING, WATCH_UNTIL_MS,
 };
+use crate::vision::webcam::vlm;
 
 const INFERENCE_INTERVAL: Duration = Duration::from_millis(1200);
 
 /// Model rotation phase: load ONE model at a time to avoid memory spikes.
-/// Cycles YOLO → Pose → Emotion → YOLO → ...
+/// Cycles YOLO → Pose → Emotion → VLM → YOLO → ...
 #[derive(Clone, Copy, PartialEq)]
 enum ModelPhase {
     Yolo,
     Pose,
     Emotion,
+    Vlm,
 }
 
 pub fn spawn_webcam_loop() -> thread::JoinHandle<()> {
@@ -143,7 +145,10 @@ pub fn run_webcam_loop() -> anyhow::Result<()> {
                     })) {
                         Ok(Ok(d)) => {
                             latest_detections = d;
-                            eprintln!("[VISION] YOLO phase: {} detections", latest_detections.len());
+                            eprintln!(
+                                "[VISION] YOLO phase: {} detections",
+                                latest_detections.len()
+                            );
                         }
                         Ok(Err(e)) => eprintln!("[VISION] YOLO inference error: {:?}", e),
                         Err(_) => {
@@ -157,7 +162,10 @@ pub fn run_webcam_loop() -> anyhow::Result<()> {
                     if pose_session.is_none() {
                         eprintln!("[VISION] Lazy-loading YOLO pose model...");
                         pose_session = load_optional_session(
-                            "YOLO pose", &get_pose_path(), POSE_URL, 1_000_000,
+                            "YOLO pose",
+                            &get_pose_path(),
+                            POSE_URL,
+                            1_000_000,
                         );
                     }
                     if let Some(ref mut pose) = pose_session {
@@ -166,7 +174,10 @@ pub fn run_webcam_loop() -> anyhow::Result<()> {
                         })) {
                             Ok(Ok(d)) => {
                                 latest_detections = d;
-                                eprintln!("[VISION] Pose phase: {} detections", latest_detections.len());
+                                eprintln!(
+                                    "[VISION] Pose phase: {} detections",
+                                    latest_detections.len()
+                                );
                             }
                             Ok(Err(e)) => eprintln!("[VISION] Pose inference skipped: {:?}", e),
                             Err(_) => eprintln!("[VISION] Pose inference PANIC — recovering"),
@@ -180,7 +191,10 @@ pub fn run_webcam_loop() -> anyhow::Result<()> {
                     if emotion_session.is_none() {
                         eprintln!("[VISION] Lazy-loading FER+ expression model...");
                         emotion_session = load_optional_session(
-                            "FER+ expression", &get_emotion_path(), EMOTION_URL, 1_000_000,
+                            "FER+ expression",
+                            &get_emotion_path(),
+                            EMOTION_URL,
+                            1_000_000,
                         );
                     }
                     if let Some(ref mut emotion) = emotion_session {
@@ -189,20 +203,57 @@ pub fn run_webcam_loop() -> anyhow::Result<()> {
                         }));
                         if let Ok(Ok(quick_dets)) = quick_result {
                             match std::panic::catch_unwind(AssertUnwindSafe(|| {
-                                infer_expression_detections(emotion, &rgb, cam_w, cam_h, &quick_dets)
+                                infer_expression_detections(
+                                    emotion,
+                                    &rgb,
+                                    cam_w,
+                                    cam_h,
+                                    &quick_dets,
+                                )
                             })) {
                                 Ok(Ok(d)) => {
                                     latest_detections = quick_dets;
                                     latest_detections.extend(d);
-                                    eprintln!("[VISION] Emotion phase: {} detections", latest_detections.len());
+                                    eprintln!(
+                                        "[VISION] Emotion phase: {} detections",
+                                        latest_detections.len()
+                                    );
                                 }
-                                Ok(Err(e)) => eprintln!("[VISION] Expression inference skipped: {:?}", e),
-                                Err(_) => eprintln!("[VISION] Emotion inference PANIC — recovering"),
+                                Ok(Err(e)) => {
+                                    eprintln!("[VISION] Expression inference skipped: {:?}", e)
+                                }
+                                Err(_) => {
+                                    eprintln!("[VISION] Emotion inference PANIC — recovering")
+                                }
                             }
                         }
                     }
                     emotion_session = None;
                     eprintln!("[VISION] Dropped emotion session (memory freed)");
+                    phase = ModelPhase::Vlm;
+                }
+                ModelPhase::Vlm => {
+                    // VLM: pass the raw RGB frame to the Liquid VLM for a
+                    // natural-language scene description. Runs every 4th cycle.
+                    match vlm::describe_scene(&rgb, cam_w as u32, cam_h as u32) {
+                        Some(description) => {
+                            eprintln!("[VLM] Scene: {}", description);
+                            // Push as a detection so it gets stored in memory.
+                            latest_detections.push(VisionDetection {
+                                label: format!("vlm_scene: {}", description),
+                                confidence: 0.90,
+                                bbox: None,
+                            });
+                            // Also set as the primary scene description
+                            // (replaces the YOLO text labels for proactive).
+                            set_latest_webcam_scene(format!("VLM sees: {}", description));
+                        }
+                        None => {
+                            eprintln!(
+                                "[VLM] No description generated (model unavailable or error)"
+                            );
+                        }
+                    }
                     phase = ModelPhase::Yolo;
                 }
             }

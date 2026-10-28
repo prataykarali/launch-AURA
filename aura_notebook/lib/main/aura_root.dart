@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_overlay_window/flutter_overlay_window.dart';
 
 import 'package:aura_notebook/bar/bar_multi_window_service.dart';
+import 'package:aura_notebook/mvp_config.dart';
 import 'package:aura_notebook/screens/loading_screen.dart';
 import 'package:aura_notebook/screens/option_screen.dart';
 import 'package:aura_notebook/services/android_overlay_service.dart';
@@ -43,8 +44,10 @@ class _AuraRootState extends State<AuraRoot> {
     // any tap that needs the engine (mic / text submit) is guarded by
     // AuraBarBrain.engineReady and shows a "warming up" hint until ready.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startBarWindow();
-      if (Platform.isAndroid && !_barStarted) {
+      if (MvpConfig.desktopBarWindow) {
+        _startBarWindow();
+      }
+      if (MvpConfig.overlayBar && Platform.isAndroid && !_barStarted) {
         _barStarted = true;
         unawaited(
           AndroidOverlayService.showBar(muted: AuraBarBrain.instance.isMuted),
@@ -136,15 +139,19 @@ class _AuraRootState extends State<AuraRoot> {
           setState(() {
             _loaded = true;
           });
+          if (!_barStarted) {
+            _startBarWindow();
+          }
           // Engine finished loading + warmup: mark it ready so the early bar's
           // guarded taps (mic / text submit) stop showing the "warming up"
           // hint and actually run inference. Route through setEngineReady() so
           // any prompt submitted while the engine was loading is flushed.
           AuraBarBrain.instance.setEngineReady();
-          if (Platform.environment['AURA_PROACTIVE_OFF'] != '1') {
+          if (MvpConfig.proactive &&
+              Platform.environment['AURA_PROACTIVE_OFF'] != '1') {
             ProactiveScheduler.instance.start();
           } else {
-            debugPrint('[AURA] Proactive scheduler OFF (AURA_PROACTIVE_OFF=1)');
+            debugPrint('[AURA] Proactive scheduler OFF (store MVP)');
           }
           // Wake-word (passive listening) disabled for now — push-to-talk via
           // the mic button still works (handleMicTap is independent of this).

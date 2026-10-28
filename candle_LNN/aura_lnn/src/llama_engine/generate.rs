@@ -43,8 +43,8 @@ impl LlamaEngine {
         // Build the user block using the model's chat template.
         // ChatML (LFM, Qwen):  <|im_start|>user\n{prompt}<|im_end|>\n<|im_start|>assistant\n
         // Llama-3:             <|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n
-        let chat_template = std::env::var("AURA_CHAT_TEMPLATE")
-            .unwrap_or_else(|_| "chatml".to_string());
+        let chat_template =
+            std::env::var("AURA_CHAT_TEMPLATE").unwrap_or_else(|_| "chatml".to_string());
 
         let mut context_to_decode = if chat_template == "llama3" {
             format!("<|start_header_id|>user<|end_header_id|>\n\n")
@@ -54,7 +54,7 @@ impl LlamaEngine {
 
         let has_examples = !persona_examples.is_empty();
         if has_examples {
-            context_to_decode.push_str("Examples of how AURA responds:\n");
+            context_to_decode.push_str("Examples of how ARIA responds:\n");
             for ex in &persona_examples {
                 context_to_decode.push_str(ex);
                 context_to_decode.push('\n');
@@ -64,7 +64,8 @@ impl LlamaEngine {
 
         context_to_decode.push_str(prompt);
         if chat_template == "llama3" {
-            context_to_decode.push_str("<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n");
+            context_to_decode
+                .push_str("<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n");
         } else {
             context_to_decode.push_str("<|im_end|>\n<|im_start|>assistant\n");
         }
@@ -112,7 +113,8 @@ impl LlamaEngine {
         let ttft = decode_start.elapsed();
         eprintln!(
             "[LLM] User prompt ({} tokens) decoded in {:?}",
-            user_tokens.len(), ttft
+            user_tokens.len(),
+            ttft
         );
         #[cfg(target_os = "android")]
         log::info!(
@@ -178,7 +180,9 @@ impl LlamaEngine {
         #[cfg(target_os = "android")]
         log::info!(
             "[LLM] generated {} tokens in {:.2?}, speed: {:.2} tokens/s",
-            generated, duration, tps
+            generated,
+            duration,
+            tps
         );
 
         self.n_past = n_past;

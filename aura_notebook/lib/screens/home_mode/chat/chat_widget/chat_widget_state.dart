@@ -47,6 +47,11 @@ class _AuraChatWidgetState extends State<AuraChatWidget> {
       return;
     }
 
+    if (text.trim().startsWith('/')) {
+      await _handleSlashCommand(text.trim());
+      return;
+    }
+
     _busy = true;
     _busyNotifier.value = true;
     HapticFeedback.lightImpact();
@@ -259,4 +264,137 @@ class _AuraChatWidgetState extends State<AuraChatWidget> {
       InputBar(onSend: _send, onStop: _stop, busy: _busyNotifier),
     ],
   );
+
+  Future<void> _handleSlashCommand(String text) async {
+    _busy = true;
+    _busyNotifier.value = true;
+    HapticFeedback.lightImpact();
+    setState(() => _messages.add(ChatMessage(text: text, isUser: true)));
+    _scheduleJump();
+
+    String result = '';
+    if (text.trim().startsWith('/see')) {
+      setState(
+        () => _messages.add(
+          const ChatMessage(
+            text: 'AURA is scanning screen and webcam...',
+            isUser: false,
+          ),
+        ),
+      );
+      _scheduleJump();
+
+      result = await _runOnDemandSee();
+
+      if (_messages.isNotEmpty &&
+          _messages.last.text == 'AURA is scanning screen and webcam...') {
+        setState(() {
+          _messages.removeLast();
+        });
+      }
+    } else if (text.trim().startsWith('/reminder')) {
+      result = await _runOnDemandReminder(text.trim());
+    } else {
+      result = 'Unknown slash command. Supported: /see, /reminder';
+    }
+
+    setState(() => _messages.add(ChatMessage(text: result, isUser: false)));
+    _scheduleJump();
+
+    final cleanSpeak = result.replaceAll(RegExp(r'[*_#`]'), '');
+    unawaited(AuraTTSService.instance.speak(cleanSpeak));
+
+    _busy = false;
+    _busyNotifier.value = false;
+  }
+
+  Future<String> _runOnDemandSee() async {
+    String? ocrText;
+    try {
+      await VisionService.instance.captureNow(reason: 'user_ask');
+      ocrText = VisionService.instance.lastScreenText;
+    } catch (e) {
+      debugPrint('Screen OCR failed: $e');
+    }
+
+    String? webcamScene;
+    if (Platform.isLinux) {
+      try {
+        await auraStartWebcamThread();
+        await Future.delayed(const Duration(milliseconds: 1800));
+        webcamScene = await auraGetLatestWebcamScene();
+        await auraStopWebcamThread();
+      } catch (e) {
+        debugPrint('Webcam YOLO failed: $e');
+      }
+    }
+
+    final buffer = StringBuffer();
+    if (ocrText != null && ocrText.isNotEmpty) {
+      buffer.writeln('🖥️ **On your screen:**');
+      final truncated = ocrText.length > 300
+          ? '${ocrText.substring(0, 300)}...'
+          : ocrText;
+      buffer.writeln(truncated);
+    } else {
+      buffer.writeln('🖥️ No text detected on your screen.');
+    }
+
+    buffer.writeln('');
+
+    if (Platform.isLinux) {
+      if (webcamScene != null &&
+          webcamScene.isNotEmpty &&
+          !webcamScene.contains('No visual scene summary')) {
+        buffer.writeln('📷 **From the webcam:**');
+        buffer.writeln(webcamScene);
+      } else {
+        buffer.writeln('📷 No objects detected by webcam.');
+      }
+    } else {
+      buffer.writeln('📷 Webcam is only supported on Linux.');
+    }
+
+    return buffer.toString().trim();
+  }
+
+  Future<String> _runOnDemandReminder(String text) async {
+    final cmd = text.trim();
+    if (cmd.length <= 10) {
+      return 'Format: /reminder [time] [text] (e.g., /reminder 5m drink water)';
+    }
+    final content = cmd.substring(10).trim();
+
+    final shorthandMatch = RegExp(r'^(\d+)(s|m|h)\s+(.+)$').firstMatch(content);
+    String finalRequest = '';
+    if (shorthandMatch != null) {
+      final amount = shorthandMatch.group(1);
+      final unitChar = shorthandMatch.group(2);
+      final reminderText = shorthandMatch.group(3);
+      final unit = unitChar == 's'
+          ? 'seconds'
+          : (unitChar == 'm' ? 'minutes' : 'hours');
+      finalRequest =
+          'Schedule request: remind me to $reminderText in $amount $unit';
+    } else {
+      if (content.toLowerCase().startsWith('in ') ||
+          content.toLowerCase().contains('at ')) {
+        finalRequest = 'Schedule request: $content';
+      } else {
+        finalRequest = 'Schedule request: remind me to $content';
+      }
+    }
+
+    try {
+      await auraAddMemoryNote(
+        title: 'Schedule',
+        content: finalRequest,
+        pinned: false,
+      );
+      unawaited(ProactiveScheduler.instance.forceScheduleCheck());
+      return '🔔 Reminder scheduled: "${finalRequest.replaceAll('Schedule request: ', '')}"';
+    } catch (e) {
+      return '⚠️ Failed to schedule reminder: $e';
+    }
+  }
 }

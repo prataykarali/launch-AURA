@@ -15,7 +15,10 @@ extension AuraBarBrainProactive on AuraBarBrain {
     }
     // Use a lock to prevent race conditions where TTS starts between
     // the check and the generation start.
-    if (_proactiveLock || _isProcessing || userIsTyping || AuraTTSService.instance.isPlaying) {
+    if (_proactiveLock ||
+        _isProcessing ||
+        userIsTyping ||
+        AuraTTSService.instance.isPlaying) {
       debugPrint('AuraBarBrain: proactive trigger deferred — busy');
       return;
     }
@@ -44,6 +47,13 @@ extension AuraBarBrainProactive on AuraBarBrain {
         : <String, dynamic>{};
     _currentResponse = '';
     _sentenceBuffer = '';
+
+    // Start the bandit RL engagement window. If the user responds within
+    // 30s, _recordEngagement(true) is called from processUserPrompt.
+    // If they don't, the timer fires _recordEngagement(false).
+    if (id != null && id > 0) {
+      _startEngagementWindow(id, type);
+    }
 
     _startThinkingAnimation();
 
@@ -84,10 +94,11 @@ extension AuraBarBrainProactive on AuraBarBrain {
   ) async {
     final buffer = StringBuffer();
 
-    // For clock-based greetings, use a clean template WITHOUT conversation
-    // context to prevent prior topics from contaminating the greeting.
-    if (type == 'clock' || label == 'morning_greeting' ||
-        label == 'afternoon_checkin' || label == 'evening_winddown') {
+    // Clock-based greetings: clean template, no context at all.
+    if (type == 'clock' ||
+        label == 'morning_greeting' ||
+        label == 'afternoon_checkin' ||
+        label == 'evening_winddown') {
       final greeting = switch (label) {
         'morning_greeting' => 'Good morning',
         'afternoon_checkin' => 'Good afternoon',
@@ -96,46 +107,69 @@ extension AuraBarBrainProactive on AuraBarBrain {
       };
       buffer.writeln('Say a brief, warm $greeting to the user.');
       buffer.writeln('Reply in 1-2 sentences. Be natural and friendly.');
-      buffer.writeln('Do NOT mention any previous conversations or context.');
+      buffer.writeln(
+        'Do NOT mention any previous conversations, stored facts, names, birthdays, or context.',
+      );
       return buffer.toString().trim();
     }
 
-    // For non-greeting triggers, include context but keep it compact.
-    buffer.writeln('AURA is being proactive. Context:');
-    buffer.writeln('  trigger_label=$label');
-    buffer.writeln('  trigger_type=$type');
+    // Schedule reminders: include only the reminder text.
+    if (label == 'schedule_reminder') {
+      final event = data['event'];
+      final summary = event is Map ? event['summary']?.toString() : null;
+      buffer.writeln('AURA has a reminder for the user.');
+      if (summary != null && summary.isNotEmpty) {
+        buffer.writeln('  reminder=$summary');
+      }
+      buffer.writeln(
+        'Deliver the reminder naturally and briefly. 1-2 sentences.',
+      );
+      return buffer.toString().trim();
+    }
 
+    // All other triggers (idle, bandit, natural context): conversational only.
+    buffer.writeln('AURA is being proactive. Say something brief and warm.');
+
+    // Idle triggers: include what the user was last doing (from vision).
+    if (label == 'idle_checkin' || type == 'idle') {
+      final idleMins = DateTime.now()
+          .difference(AuraBarBrain.instance.lastUserInteraction)
+          .inMinutes;
+      buffer.writeln('  The user has been idle for $idleMins minutes.');
+
+      // Include recent visual context from the vision store.
+      try {
+        final proactiveCtx = await auraGetProactiveContext();
+        if (proactiveCtx.isNotEmpty) {
+          buffer.writeln('  Recent context: $proactiveCtx');
+        }
+      } catch (_) {}
+    }
+
+    // Natural context triggers: include the observed event.
     final event = data['event'];
     if (event is Map) {
       final summary = event['summary']?.toString();
       if (summary != null && summary.isNotEmpty) {
-        buffer.writeln('  observed=$summary');
+        buffer.writeln('  Observed: $summary');
       }
     }
 
-    final sustainedSummary = data['sustained_summary']?.toString();
-    if (sustainedSummary != null && sustainedSummary.isNotEmpty) {
-      buffer.writeln('  guidance=$sustainedSummary');
-    }
-
-    // Only include memory context for non-greeting triggers, and limit it
-    // to avoid flooding the prompt with irrelevant prior conversation.
-    try {
-      final context = await auraGetProactiveContext();
-      if (context.isNotEmpty) {
-        // Limit memory context to 200 chars to prevent contamination.
-        final limited = context.length > 200
-            ? '${context.substring(0, 200)}...'
-            : context;
-        buffer.writeln('  memory_context=$limited');
-      }
-    } catch (e) {
-      debugPrint('AuraBarBrain: proactive context fetch failed: $e');
-    }
-
+    // Explicit anti-fact-regurgitation rules.
+    buffer.writeln('');
+    buffer.writeln('RULES:');
+    buffer.writeln('- Speak like a friend casually checking in.');
     buffer.writeln(
-      'Reply with a very brief, natural English message. If the context does not justify interrupting the user, reply exactly SILENT (no punctuation).',
+      '- Do NOT mention user names, birthdays, preferences, or any stored facts.',
     );
+    buffer.writeln(
+      '- Do NOT say "I remember" or reference previous conversations.',
+    );
+    buffer.writeln('- Keep it to 1-2 short sentences.');
+    buffer.writeln(
+      '- If there is no good reason to interrupt, reply exactly: SILENT',
+    );
+
     return buffer.toString().trim();
   }
 }

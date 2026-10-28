@@ -43,11 +43,11 @@ class BufferStatus {
   }
 
   factory BufferStatus.empty() => const BufferStatus(
-        interceptNeeded: false,
-        message: '',
-        turns: 0,
-        tokens: 0,
-      );
+    interceptNeeded: false,
+    message: '',
+    turns: 0,
+    tokens: 0,
+  );
 }
 
 /// Periodic polling service for context-buffer status.
@@ -102,9 +102,12 @@ class ContextBufferService {
       if (status.interceptNeeded && !_interceptActive) {
         // Transition → learning
         _interceptActive = true;
-        onStateChange(BarState.learning, status.message.isNotEmpty
-            ? status.message
-            : 'Please wait, AURA is learning about you...');
+        onStateChange(
+          BarState.learning,
+          status.message.isNotEmpty
+              ? status.message
+              : 'Please wait, AURA is learning about you...',
+        );
 
         // Notify Android overlay
         await AndroidOverlayService.updateState(
@@ -169,9 +172,7 @@ class ContextBufferService {
               ),
               const SizedBox(height: 12),
               Text(
-                message.isNotEmpty
-                    ? message
-                    : 'Consolidating your memories...',
+                message.isNotEmpty ? message : 'Consolidating your memories...',
                 style: const TextStyle(
                   color: Color(0xFF818CF8),
                   fontSize: 12,
@@ -235,7 +236,9 @@ class _PulsingOrbState extends State<_PulsingOrb>
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF818CF8).withOpacity(0.4 + 0.3 * _anim.value),
+              color: const Color(
+                0xFF818CF8,
+              ).withOpacity(0.4 + 0.3 * _anim.value),
               blurRadius: 32,
               spreadRadius: 8,
             ),

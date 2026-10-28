@@ -246,12 +246,12 @@ impl MemoryStore {
 
         let mut lines = Vec::with_capacity(pairs.len() + 1);
         lines.push(format!("Last {} conversations:", pairs.len()));
-        for (idx, (user, aura)) in pairs.iter().enumerate() {
+        for (idx, (user, aria)) in pairs.iter().enumerate() {
             lines.push(format!(
-                "{}. User: {} | AURA: {}",
+                "{}. User: {} | ARIA: {}",
                 idx + 1,
                 clip(user, 90),
-                clip(aura, 110)
+                clip(aria, 110)
             ));
         }
         let summary = lines.join("\n");

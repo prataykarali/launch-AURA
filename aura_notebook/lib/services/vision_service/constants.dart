@@ -3,8 +3,15 @@ part of 'vision_service.dart';
 // Short words that require word-boundary matching to avoid false positives.
 // Only words that are unambiguously vision-related in standalone form.
 const _kShortTriggerWords = <String>{
-  'camera', 'webcam', 'gesture', 'waving', 'screenshot', 'surroundings',
-  'yolo', 'detect', 'observe',
+  'camera',
+  'webcam',
+  'gesture',
+  'waving',
+  'screenshot',
+  'surroundings',
+  'yolo',
+  'detect',
+  'observe',
 };
 
 const List<String> _visionTriggerVocabulary = [
@@ -41,5 +48,5 @@ const List<String> _visionTriggerVocabulary = [
   'what do you see right now',
   'what do you see?',
   // Compound phrases that are safe for substring match
-  'i see you can',  // won't false-positive on "I see what you mean"
+  'i see you can', // won't false-positive on "I see what you mean"
 ];

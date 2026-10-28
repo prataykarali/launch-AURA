@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 class _Star {
   double x, y, radius, opacity, speed, twinklePhase;
   _Star(Random rng)
-      : x = rng.nextDouble(),
-        y = rng.nextDouble(),
-        radius = 0.4 + rng.nextDouble() * 1.4,
-        opacity = 0.2 + rng.nextDouble() * 0.7,
-        speed = 0.00005 + rng.nextDouble() * 0.00008,
-        twinklePhase = rng.nextDouble() * 2 * pi;
+    : x = rng.nextDouble(),
+      y = rng.nextDouble(),
+      radius = 0.4 + rng.nextDouble() * 1.4,
+      opacity = 0.2 + rng.nextDouble() * 0.7,
+      speed = 0.00005 + rng.nextDouble() * 0.00008,
+      twinklePhase = rng.nextDouble() * 2 * pi;
 }
 
 class PillStarfield extends StatefulWidget {
@@ -68,8 +68,8 @@ class _StarfieldPainter extends CustomPainter {
     final paint = Paint();
     for (final s in stars) {
       final x = ((s.x + s.speed * t * size.width) % 1.0) * size.width;
-      final twinkle =
-          (0.2 + sin(t * 2 * pi + s.twinklePhase) * 0.4 + 0.3).clamp(0.05, 1.0);
+      final twinkle = (0.2 + sin(t * 2 * pi + s.twinklePhase) * 0.4 + 0.3)
+          .clamp(0.05, 1.0);
       paint.color = Colors.white.withOpacity(twinkle);
       canvas.drawCircle(Offset(x, s.y * size.height), s.radius, paint);
     }
@@ -91,22 +91,26 @@ class NebulaLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (_, c) {
-      final w = c.maxWidth;
-      final h = c.maxHeight;
-      return Stack(children: [
-        Positioned(
-          left: w * 0.1 + sin(orb1Phase) * w * 0.05,
-          top: h * 0.05 + cos(orb1Phase) * h * 0.15,
-          child: _Orb(size: w * 0.3, color: colors.first.withOpacity(0.16)),
-        ),
-        Positioned(
-          right: w * 0.08 + sin(orb2Phase) * w * 0.04,
-          top: cos(orb2Phase) * h * 0.1,
-          child: _Orb(size: w * 0.25, color: colors.last.withOpacity(0.13)),
-        ),
-      ]);
-    });
+    return LayoutBuilder(
+      builder: (_, c) {
+        final w = c.maxWidth;
+        final h = c.maxHeight;
+        return Stack(
+          children: [
+            Positioned(
+              left: w * 0.1 + sin(orb1Phase) * w * 0.05,
+              top: h * 0.05 + cos(orb1Phase) * h * 0.15,
+              child: _Orb(size: w * 0.3, color: colors.first.withOpacity(0.16)),
+            ),
+            Positioned(
+              right: w * 0.08 + sin(orb2Phase) * w * 0.04,
+              top: cos(orb2Phase) * h * 0.1,
+              child: _Orb(size: w * 0.25, color: colors.last.withOpacity(0.13)),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -117,11 +121,11 @@ class _Orb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(colors: [color, Colors.transparent]),
-        ),
-      );
+    width: size,
+    height: size,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      gradient: RadialGradient(colors: [color, Colors.transparent]),
+    ),
+  );
 }

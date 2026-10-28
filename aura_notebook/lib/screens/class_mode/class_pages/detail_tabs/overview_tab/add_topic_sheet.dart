@@ -89,10 +89,7 @@ class _AddTopicSheetState extends State<AddTopicSheet> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: widget.data.accent,
-                  width: 1.5,
-                ),
+                borderSide: BorderSide(color: widget.data.accent, width: 1.5),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,

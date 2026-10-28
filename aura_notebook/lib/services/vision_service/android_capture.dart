@@ -4,7 +4,9 @@ Future<String?> _androidForegroundPackage(VisionService service) async {
   if (!Platform.isAndroid) return null;
   try {
     final hasAccess =
-        await VisionService._androidVisionChannel.invokeMethod<bool>('has_usage_access') ??
+        await VisionService._androidVisionChannel.invokeMethod<bool>(
+          'has_usage_access',
+        ) ??
         false;
     if (!hasAccess) {
       if (!service._usageAccessRequested) {
@@ -15,9 +17,8 @@ Future<String?> _androidForegroundPackage(VisionService service) async {
       }
       return null;
     }
-    final packageName = await VisionService._androidVisionChannel.invokeMethod<String>(
-      'foreground_app',
-    );
+    final packageName = await VisionService._androidVisionChannel
+        .invokeMethod<String>('foreground_app');
     final trimmed = packageName?.trim();
     return trimmed == null || trimmed.isEmpty ? null : trimmed;
   } catch (e) {

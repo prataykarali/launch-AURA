@@ -1,7 +1,29 @@
 part of 'main.dart';
 
 extension _LoadingScreenDownloadLogic on _LoadingScreenState {
-  Future<void> _download(String url, String destPath) async {
+  // Verify the SHA-256 checksum of a downloaded file against the expected
+  // hash. On mismatch, the file is deleted and an exception is thrown so a
+  // MITM-injected model can never be loaded. An empty expectedHash skips the
+  // check (used for assets whose hash is not pinned, e.g. the GGUF model).
+  Future<void> _verifyChecksum(String destPath, String expectedHash) async {
+    if (expectedHash.isEmpty) return;
+    final destFile = File(destPath);
+    final bytes = await destFile.readAsBytes();
+    final hash = sha256.convert(bytes).toString();
+    if (hash != expectedHash) {
+      if (destFile.existsSync()) await destFile.delete();
+      throw Exception(
+        'Downloaded file failed integrity check (hash mismatch). '
+        'Expected: $expectedHash, Got: $hash',
+      );
+    }
+  }
+
+  Future<void> _download(
+    String url,
+    String destPath,
+    String expectedHash,
+  ) async {
     await File(destPath).parent.create(recursive: true);
 
     // On Android, use the native download channel (aura/download) which goes
@@ -31,6 +53,7 @@ extension _LoadingScreenDownloadLogic on _LoadingScreenState {
       } finally {
         progressSub.cancel();
       }
+      await _verifyChecksum(destPath, expectedHash);
       return;
     }
 
@@ -112,6 +135,9 @@ extension _LoadingScreenDownloadLogic on _LoadingScreenState {
       await destFile.delete();
     }
     await partFile.rename(destPath);
+
+    // Verify SHA-256 checksum of the completed download.
+    await _verifyChecksum(destPath, expectedHash);
   }
 
   Future<bool> _assetExists(String assetPath) async {
@@ -197,7 +223,7 @@ extension _LoadingScreenDownloadLogic on _LoadingScreenState {
         modelFile.existsSync() && modelFile.lengthSync() > _kModelMinBytes;
     final tokOk = tokFile.existsSync() && tokFile.lengthSync() > 1024;
     final embedOk =
-        embedFile.existsSync() && embedFile.lengthSync() > 100 * 1024 * 1024;
+        embedFile.existsSync() && embedFile.lengthSync() > _kEmbedMinBytes;
     final embedTokOk =
         embedTokFile.existsSync() && embedTokFile.lengthSync() > 1024;
 
@@ -249,7 +275,7 @@ extension _LoadingScreenDownloadLogic on _LoadingScreenState {
     if (requireEmbed && !embedOk2) {
       _updateState(() => _downloadProgress = 0.0);
       try {
-        await _download(_kEmbedModelUrl, embedPath);
+        await _download(_kEmbedModelUrl, embedPath, _kEmbedModelSha256);
       } catch (e) {
         if (embedFile.existsSync()) embedFile.deleteSync();
         rethrow;
@@ -260,7 +286,7 @@ extension _LoadingScreenDownloadLogic on _LoadingScreenState {
     if (requireEmbed && !embedTokOk2) {
       _updateState(() => _downloadProgress = 0.0);
       try {
-        await _download(_kEmbedTokUrl, embedTokPath);
+        await _download(_kEmbedTokUrl, embedTokPath, _kEmbedTokSha256);
       } catch (e) {
         if (embedTokFile.existsSync()) embedTokFile.deleteSync();
         rethrow;

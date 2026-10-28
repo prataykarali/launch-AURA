@@ -81,6 +81,109 @@ class SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isConversationList =
+        summary.content.contains('Conversations:') ||
+        summary.content.contains('conversations:');
+
+    Widget contentWidget;
+    if (isConversationList) {
+      final lines = summary.content.split('\n');
+      final header = lines.first;
+      final conversations = lines.skip(1).toList();
+
+      contentWidget = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            header,
+            style: TextStyle(
+              color: Colors.indigo.shade800,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.1,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...conversations.map((line) {
+            final match = RegExp(
+              r'^(?:\d+\.\s+)?User:\s*(.*?)\s*\|\s*AURA:\s*(.*)$',
+            ).firstMatch(line);
+            if (match != null) {
+              final userText = match.group(1) ?? '';
+              final auraText = match.group(2) ?? '';
+              return Container(
+                margin: const EdgeInsets.only(bottom: 10, top: 4),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9F6F0),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.indigo.shade50.withOpacity(0.4),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('👤 ', style: TextStyle(fontSize: 11)),
+                        Expanded(
+                          child: Text(
+                            userText,
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Divider(height: 1, thickness: 0.5),
+                    const SizedBox(height: 6),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('✨ ', style: TextStyle(fontSize: 11)),
+                        Expanded(
+                          child: Text(
+                            auraText,
+                            style: TextStyle(
+                              color: Colors.indigo.shade900,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                line,
+                style: const TextStyle(color: Colors.black87, fontSize: 12.5),
+              ),
+            );
+          }),
+        ],
+      );
+    } else {
+      contentWidget = Text(
+        summary.content,
+        style: const TextStyle(
+          color: Colors.black87,
+          fontSize: 13,
+          height: 1.55,
+        ),
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -128,14 +231,7 @@ class SummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            summary.content,
-            style: const TextStyle(
-              color: Colors.black87,
-              fontSize: 13,
-              height: 1.55,
-            ),
-          ),
+          contentWidget,
         ],
       ),
     );

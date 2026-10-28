@@ -6,22 +6,19 @@ use super::plan::ReplyPlan;
 pub(super) fn category_plan(category: &'static str, is_mobile: bool) -> ReplyPlan {
     // continuation is now a FLAG: 0 = single pass, 1 = LOOP until EOS.
     // The model decides how many turns it needs — not a fixed count.
-    let (level, desktop_max, mobile_max, continuation, affect) = match category {
-        "greeting" => (0, 40, 28, 0, "calm"),
-        "acknowledgement" => (1, 60, 40, 0, "calm"),
-        "factual" => (3, 120, 80, 0, "focused"),
-        "open_ended" => (4, 128, 64, 1, "focused"),
-        "task_coding" => (5, 192, 64, 1, "focused"),
-        _ => (2, 96, 64, 0, "calm"),
+    let (level, desktop_max, mobile_max, continuation) = match category {
+        "greeting" => (0, 40, 28, 0),
+        "acknowledgement" => (1, 60, 40, 0),
+        "factual" => (3, 120, 80, 0),
+        "open_ended" => (4, 128, 64, 1),
+        "task_coding" => (5, 192, 64, 1),
+        _ => (2, 96, 64, 0),
     };
     ReplyPlan {
         max_tokens: if is_mobile { mobile_max } else { desktop_max },
         continuation,
         level,
         category,
-        affect,
-        anchor_x: 0.85,
-        anchor_y: 0.78,
     }
 }
 
@@ -40,13 +37,13 @@ pub(super) fn level_plan(level: u8, is_mobile: bool) -> ReplyPlan {
     // (desktop_max, mobile_max, continuation)
     // continuation: 0 = single pass, 1 = LOOP until model emits EOS.
     const TABLE: &[(i32, i32, u8)] = &[
-        (48, 32, 0), // 0: greeting / ack
-        (96, 48, 0), // 1: identity / preference
-        (160, 72, 0), // 2: simple Q / banter
+        (48, 32, 0),   // 0: greeting / ack
+        (96, 48, 0),   // 1: identity / preference
+        (160, 72, 0),  // 2: simple Q / banter
         (256, 112, 0), // 3: real question
-        (128, 64, 1), // 4: detailed Q — loop
-        (192, 64, 1), // 5: deep Q / list — loop
-        (160, 64, 1), // 6: explain / write — loop
+        (128, 64, 1),  // 4: detailed Q — loop
+        (192, 64, 1),  // 5: deep Q / list — loop
+        (160, 64, 1),  // 6: explain / write — loop
     ];
     let idx = (level as usize).min(TABLE.len() - 1);
     let (dmax, mmax, cont) = TABLE[idx];
@@ -62,8 +59,5 @@ pub(super) fn level_plan(level: u8, is_mobile: bool) -> ReplyPlan {
             4 => "open_ended",
             _ => "task_coding",
         },
-        affect: if level >= 3 { "focused" } else { "calm" },
-        anchor_x: 0.85,
-        anchor_y: 0.78,
     }
 }

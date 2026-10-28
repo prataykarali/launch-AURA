@@ -44,14 +44,32 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             let rest = &cleaned[idx + anchor.len()..];
             let clause_end = rest.find(['.', '!', '?', ',']).unwrap_or(rest.len());
             let mut thing = rest[..clause_end].trim().to_string();
-            for prefix in &["the ", "a ", "an ", "to ", "eating ", "drinking ", "going ",
-                           "playing ", "listening to ", "watching ", "reading ", "doing "] {
-                if let Some(s) = thing.strip_prefix(prefix) { thing = s.trim().to_string(); break; }
+            for prefix in &[
+                "the ",
+                "a ",
+                "an ",
+                "to ",
+                "eating ",
+                "drinking ",
+                "going ",
+                "playing ",
+                "listening to ",
+                "watching ",
+                "reading ",
+                "doing ",
+            ] {
+                if let Some(s) = thing.strip_prefix(prefix) {
+                    thing = s.trim().to_string();
+                    break;
+                }
             }
-            if thing.chars().any(|c| c.is_alphabetic()) && (3..=50).contains(&thing.chars().count()) {
+            if thing.chars().any(|c| c.is_alphabetic()) && (3..=50).contains(&thing.chars().count())
+            {
                 let orig = restore_case(&thing, original);
                 let f = format!("{}{}", fact_prefix, orig);
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
         }
     }
@@ -64,7 +82,9 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             let rest = &cleaned[idx + anchor.len()..];
             if let Some(is_idx) = rest.find(" is ") {
                 let category = rest[..is_idx].trim();
-                if category == "professor" || category == "teacher" { continue; }
+                if category == "professor" || category == "teacher" {
+                    continue;
+                }
                 let value_lower = rest[is_idx + 4..]
                     .find(['.', '!', '?', ','])
                     .map(|e| &rest[is_idx + 4..is_idx + 4 + e])
@@ -73,7 +93,9 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
                 if value_lower.chars().any(|c| c.is_alphabetic()) && value_lower.len() >= 2 {
                     let value = restore_case(value_lower, original);
                     let f = format!("User's favorite {} is {}", category, value);
-                    if is_valid_fact(&f) { facts.push(f); }
+                    if is_valid_fact(&f) {
+                        facts.push(f);
+                    }
                 }
             }
         }
@@ -89,10 +111,13 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             let rest = &cleaned[idx + anchor.len()..];
             let end = rest.find(['.', '!', '?', ',']).unwrap_or(rest.len());
             let thing = rest[..end].trim();
-            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count()) {
+            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count())
+            {
                 let orig = restore_case(thing, original);
                 let f = format!("{}{}", fact_prefix, orig);
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
         }
     }
@@ -109,10 +134,13 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             let rest = &cleaned[idx + anchor.len()..];
             let end = rest.find(['.', '!', '?', ',']).unwrap_or(rest.len());
             let thing = rest[..end].trim();
-            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count()) {
+            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count())
+            {
                 let orig = restore_case(thing, original);
                 let f = format!("{}{}", fact_prefix, orig);
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
         }
     }
@@ -128,10 +156,13 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             let rest = &cleaned[idx + anchor.len()..];
             let end = rest.find(['.', '!', '?', ',']).unwrap_or(rest.len());
             let thing = rest[..end].trim();
-            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count()) {
+            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count())
+            {
                 let orig = restore_case(thing, original);
                 let f = format!("{}{}", fact_prefix, orig);
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
         }
     }
@@ -144,9 +175,13 @@ fn restore_case(value_lower: &str, original: &str) -> String {
     if let Some(pos) = orig_lower.find(value_lower) {
         original[pos..pos + value_lower.len()].to_string()
     } else {
-        value_lower.split_whitespace().map(|w| {
-            let mut c = w.chars();
-            c.next().unwrap_or(' ').to_uppercase().collect::<String>() + c.as_str()
-        }).collect::<Vec<_>>().join(" ")
+        value_lower
+            .split_whitespace()
+            .map(|w| {
+                let mut c = w.chars();
+                c.next().unwrap_or(' ').to_uppercase().collect::<String>() + c.as_str()
+            })
+            .collect::<Vec<_>>()
+            .join(" ")
     }
 }

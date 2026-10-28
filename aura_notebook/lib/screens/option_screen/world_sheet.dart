@@ -2,20 +2,27 @@ part of 'option_screen.dart';
 
 class _WorldSheet extends StatefulWidget {
   final VoidCallback onAura, onClass, onInfo;
-  const _WorldSheet({required this.onAura, required this.onClass, required this.onInfo});
+  const _WorldSheet({
+    required this.onAura,
+    required this.onClass,
+    required this.onInfo,
+  });
 
   @override
   State<_WorldSheet> createState() => _WorldSheetState();
 }
 
-class _WorldSheetState extends State<_WorldSheet> with TickerProviderStateMixin {
+class _WorldSheetState extends State<_WorldSheet>
+    with TickerProviderStateMixin {
   late final AnimationController _staggerCtrl;
 
   @override
   void initState() {
     super.initState();
-    _staggerCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 500))
-      ..forward();
+    _staggerCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    )..forward();
   }
 
   @override
@@ -26,7 +33,11 @@ class _WorldSheetState extends State<_WorldSheet> with TickerProviderStateMixin 
 
   Animation<double> _itemAnim(int index) => CurvedAnimation(
     parent: _staggerCtrl,
-    curve: Interval(index * 0.15, 0.6 + index * 0.15, curve: Curves.easeOutCubic),
+    curve: Interval(
+      index * 0.15,
+      0.6 + index * 0.15,
+      curve: Curves.easeOutCubic,
+    ),
   );
 
   @override
@@ -42,7 +53,9 @@ class _WorldSheetState extends State<_WorldSheet> with TickerProviderStateMixin 
         child: SafeArea(
           top: false,
           child: SingleChildScrollView(
-            padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom + 24),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).padding.bottom + 24,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -63,12 +76,20 @@ class _WorldSheetState extends State<_WorldSheet> with TickerProviderStateMixin 
                     children: [
                       const Text(
                         'Choose Your World',
-                        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Where do you want to go?',
-                        style: TextStyle(color: Colors.white.withOpacity(0.38), fontSize: 13),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.38),
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
@@ -77,7 +98,10 @@ class _WorldSheetState extends State<_WorldSheet> with TickerProviderStateMixin 
                 FadeTransition(
                   opacity: _itemAnim(0),
                   child: SlideTransition(
-                    position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(_itemAnim(0)),
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.3),
+                      end: Offset.zero,
+                    ).animate(_itemAnim(0)),
                     child: _WorldCard(
                       assetPath: 'Assets/images/AURA_load.png',
                       title: 'AURA NOTEBOOK',
@@ -94,7 +118,10 @@ class _WorldSheetState extends State<_WorldSheet> with TickerProviderStateMixin 
                 FadeTransition(
                   opacity: _itemAnim(1),
                   child: SlideTransition(
-                    position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(_itemAnim(1)),
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.3),
+                      end: Offset.zero,
+                    ).animate(_itemAnim(1)),
                     child: _WorldCard(
                       assetPath: 'Assets/images/class_AURA.png',
                       title: 'CLASS SYNC',
@@ -111,17 +138,25 @@ class _WorldSheetState extends State<_WorldSheet> with TickerProviderStateMixin 
                 FadeTransition(
                   opacity: _itemAnim(2),
                   child: SlideTransition(
-                    position: Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(_itemAnim(2)),
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0.3),
+                      end: Offset.zero,
+                    ).animate(_itemAnim(2)),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: GestureDetector(
                         onTap: widget.onInfo,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFF161625),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.white.withOpacity(0.08)),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.08),
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -132,7 +167,11 @@ class _WorldSheetState extends State<_WorldSheet> with TickerProviderStateMixin 
                                   color: Colors.white.withOpacity(0.07),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Icon(Icons.info_outline_rounded, color: Colors.white54, size: 22),
+                                child: const Icon(
+                                  Icons.info_outline_rounded,
+                                  color: Colors.white54,
+                                  size: 22,
+                                ),
                               ),
                               const SizedBox(width: 14),
                               Expanded(
@@ -141,16 +180,27 @@ class _WorldSheetState extends State<_WorldSheet> with TickerProviderStateMixin 
                                   children: [
                                     const Text(
                                       'About AURA',
-                                      style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
                                     Text(
                                       'Version, credits & info',
-                                      style: TextStyle(color: Colors.white.withOpacity(0.35), fontSize: 12),
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.35),
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ],
                                 ),
                               ),
-                              Icon(Icons.arrow_forward_ios_rounded, size: 14, color: Colors.white.withOpacity(0.25)),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 14,
+                                color: Colors.white.withOpacity(0.25),
+                              ),
                             ],
                           ),
                         ),

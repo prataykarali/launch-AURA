@@ -1,0 +1,150 @@
+[
+  {
+    "id": 1,
+    "difficulty": "medium",
+    "category": "memory_plus_vision",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "I am preparing the MITACS demo tonight, and I want AURA to remember this work session."
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it. I will remember that you were preparing the MITACS demo tonight."
+      }
+    ],
+    "vision": [
+      { "label": "person", "confidence": 0.94 },
+      { "label": "laptop", "confidence": 0.92 },
+      { "label": "keyboard", "confidence": 0.88 }
+    ],
+    "verification": {
+      "query": "What visual objects were around me during the MITACS demo prep?",
+      "expected_keywords": ["laptop", "keyboard"],
+      "negative_keywords": ["don't know", "can't remember", "no memory"]
+    }
+  },
+  {
+    "id": 2,
+    "difficulty": "medium",
+    "category": "vision_activity_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "I was reading research notes for the AURA vision memory plan."
+      },
+      {
+        "speaker": "assistant",
+        "content": "That sounds useful. I will remember that you were reading research notes for the AURA vision memory plan."
+      }
+    ],
+    "vision": [
+      { "label": "person", "confidence": 0.91 },
+      { "label": "book", "confidence": 0.89 },
+      { "label": "cell phone", "confidence": 0.76 }
+    ],
+    "verification": {
+      "query": "What activity did vision memory infer while I was reading?",
+      "expected_keywords": ["studying", "reading"],
+      "negative_keywords": ["don't know", "can't remember", "no memory"]
+    }
+  },
+  {
+    "id": 3,
+    "difficulty": "hard",
+    "category": "memory_plus_vision",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My current project is the AURA bar brain debugging pass."
+      },
+      {
+        "speaker": "assistant",
+        "content": "I will remember that your current project is the AURA bar brain debugging pass."
+      }
+    ],
+    "vision": [
+      { "label": "person", "confidence": 0.93 },
+      { "label": "laptop", "confidence": 0.95 },
+      { "label": "mouse", "confidence": 0.71 }
+    ],
+    "verification": {
+      "query": "What was I working on, and what did the vision memory see?",
+      "expected_keywords": ["bar brain", "laptop"],
+      "negative_keywords": ["don't know", "can't remember", "no memory"]
+    }
+  },
+  {
+    "id": 4,
+    "difficulty": "medium",
+    "category": "vision_object_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "Remember that I prefer testing with short reproducible cases first."
+      },
+      {
+        "speaker": "assistant",
+        "content": "I will remember that you prefer testing with short reproducible cases first."
+      }
+    ],
+    "vision": [
+      { "label": "laptop", "confidence": 0.86 },
+      { "label": "tv", "confidence": 0.82 }
+    ],
+    "verification": {
+      "query": "Which screens or devices were visible in the vision memory?",
+      "expected_keywords": ["laptop", "tv"],
+      "negative_keywords": ["don't know", "can't remember", "no memory"]
+    }
+  },
+  {
+    "id": 5,
+    "difficulty": "hard",
+    "category": "vision_memory_synthesis",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "I felt focused while working through the memory evaluation failures."
+      },
+      {
+        "speaker": "assistant",
+        "content": "I will remember that you felt focused while working through the memory evaluation failures."
+      }
+    ],
+    "vision": [
+      { "label": "person", "confidence": 0.96 },
+      { "label": "laptop", "confidence": 0.90 },
+      { "label": "keyboard", "confidence": 0.84 }
+    ],
+    "verification": {
+      "query": "How was I feeling, and what activity did the vision memory imply?",
+      "expected_keywords": ["focused", "coding"],
+      "negative_keywords": ["don't know", "can't remember", "no memory"]
+    }
+  },
+  {
+    "id": 6,
+    "difficulty": "medium",
+    "category": "vision_object_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "Please remember that I was checking AURA's mobile behavior."
+      },
+      {
+        "speaker": "assistant",
+        "content": "I will remember that you were checking AURA's mobile behavior."
+      }
+    ],
+    "vision": [
+      { "label": "person", "confidence": 0.90 },
+      { "label": "cell phone", "confidence": 0.87 }
+    ],
+    "verification": {
+      "query": "What device did vision memory see while I checked mobile behavior?",
+      "expected_keywords": ["cell phone"],
+      "negative_keywords": ["don't know", "can't remember", "no memory"]
+    }
+  }
+]

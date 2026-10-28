@@ -14,9 +14,9 @@ impl MemoryStore {
             return Ok(());
         }
         // Normalize before storage so we never persist — and therefore never
-        // re-inject — the leaked "AURA:" speaker label. The chat model latches
+        // re-inject — leaked assistant speaker labels. The chat model latches
         // onto patterns it sees in its own prior turns, so a single stored
-        // "AURA:" row teaches it to prefix every reply with "AURA:". Trim
+        // "ARIA:" row teaches it to prefix every reply with "ARIA:". Trim
         // it once, at the source.
         let cleaned = cap_chars(
             &strip_speaker_prefix(content),

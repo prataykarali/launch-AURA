@@ -41,6 +41,8 @@ pub(crate) fn run_generation(
             max_tokens,
             perf,
             plan,
+            clean_prompt,
+            fallback_memories,
             sink,
         )
     }
@@ -61,30 +63,23 @@ fn generate_bar(
     // timeout and a 20s inter-token timeout. The Rust timeout was firing
     // "try a shorter question" before Flutter could handle it gracefully.
     let mut inner_response = String::new();
-    engine.generate_with_context(
-        generation_prompt,
-        persona_examples,
-        max_tokens,
-        |tok| {
-            inner_response.push_str(&tok);
-        },
-    )?;
+    engine.generate_with_context(generation_prompt, persona_examples, max_tokens, |tok| {
+        inner_response.push_str(&tok);
+    })?;
 
     inner_response = clean_model_output_prefix(&inner_response)
         .trim()
         .to_string();
 
-    if inner_response.is_empty() {
-        if let Some(fallback) =
-            grounded_fallback_for_weak_response(clean_prompt, &inner_response, fallback_memories)
-        {
-            eprintln!(
-                "[AURA_WORKER] Replaced weak brief response with grounded fallback: {:?}",
-                fallback
-            );
-            let _ = sink.add(fallback.clone());
-            return Ok(fallback);
-        }
+    if let Some(fallback) =
+        grounded_fallback_for_weak_response(clean_prompt, &inner_response, fallback_memories)
+    {
+        eprintln!(
+            "[AURA_WORKER] Replaced weak/echo/confused response with grounded fallback: {:?}",
+            fallback
+        );
+        let _ = sink.add(fallback.clone());
+        return Ok(fallback);
     }
 
     let _ = sink.add(inner_response.clone());
@@ -98,57 +93,48 @@ fn generate_full(
     max_tokens: i32,
     perf: &PerformanceProfile,
     plan: &ReplyPlan,
+    clean_prompt: &str,
+    fallback_memories: &[String],
     sink: &mut StreamSink<String>,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let mut full_response = String::new();
     let mut stripped_leading_label = false;
     let mut first_token_sent = false;
 
-    engine.generate_with_context(
-        generation_prompt,
-        persona_examples,
-        max_tokens,
-        |tok| {
-            if !first_token_sent && !tok.trim().is_empty() {
-                first_token_sent = true;
-            }
+    engine.generate_with_context(generation_prompt, persona_examples, max_tokens, |tok| {
+        if !first_token_sent && !tok.trim().is_empty() {
+            first_token_sent = true;
+        }
 
-            let tok_out = if !stripped_leading_label {
-                full_response.push_str(&tok);
-                if full_response.len() >= 5 {
-                    let out = clean_model_output_prefix(&full_response);
-                    full_response = out.clone();
-                    stripped_leading_label = true;
-                    Some(out)
-                } else {
-                    None
-                }
+        let tok_out = if !stripped_leading_label {
+            full_response.push_str(&tok);
+            if full_response.len() >= 5 {
+                let out = clean_model_output_prefix(&full_response);
+                full_response = out.clone();
+                stripped_leading_label = true;
+                Some(out)
             } else {
-                full_response.push_str(&tok);
-                Some(tok)
-            };
-
-            if let Some(out) = tok_out {
-                let _ = sink.add(out);
+                None
             }
-        },
-    )?;
+        } else {
+            full_response.push_str(&tok);
+            Some(tok)
+        };
+
+        if let Some(out) = tok_out {
+            let _ = sink.add(out);
+        }
+    })?;
 
     // ── Multi-turn LOOP ──────────────────────────────────────────────────────
-    // Instead of a fixed number of continuation passes, LOOP the inference:
-    // keep generating 48-token paragraphs until the model emits EOS (it
-    // DECIDES when the answer is complete) or we hit the safety ceiling.
-    // This gives stories/explanations exactly as many turns as they need.
     const CONTINUATION_PASS_TOKENS: i32 = 48;
-    const MAX_CONTINUATION_TOKENS: i32 = 768; // safety ceiling — ~16 paragraphs
+    const MAX_CONTINUATION_TOKENS: i32 = 192; // safety ceiling — ~4 paragraphs max
     const SENTENCE_COMPLETION_TOKENS: i32 = 32; // finish current sentence at ceiling
     let should_loop = perf.allow_continuation && plan.continuation > 0;
     if should_loop {
         let mut total_continuation = 0i32;
         let mut pass = 0u32;
-        while !CANCEL_FLAG.load(Ordering::Relaxed)
-            && total_continuation < MAX_CONTINUATION_TOKENS
-        {
+        while !CANCEL_FLAG.load(Ordering::Relaxed) && total_continuation < MAX_CONTINUATION_TOKENS {
             pass += 1;
             eprintln!(
                 "[AURA_WORKER] continuation loop {} (+{} tok, {} total)",
@@ -162,7 +148,6 @@ fn generate_full(
                 let _ = sink.add(tok);
             })?;
             total_continuation += generated as i32;
-            // Model stopped early (EOS / stop token) → it decided it's done.
             if generated < CONTINUATION_PASS_TOKENS {
                 eprintln!(
                     "[AURA_WORKER] continuation loop ended at pass {} (EOS) — {} total continuation tokens",
@@ -170,10 +155,6 @@ fn generate_full(
                 );
                 break;
             }
-            // If we've hit the ceiling, do a short sentence-completion pass
-            // so we don't cut off mid-sentence. Generate up to
-            // SENTENCE_COMPLETION_TOKENS more tokens, stopping at the next
-            // sentence-ending punctuation (. ! ? …).
             if total_continuation >= MAX_CONTINUATION_TOKENS {
                 eprintln!(
                     "[AURA_WORKER] hit ceiling ({} tok) — completing sentence",
@@ -186,6 +167,19 @@ fn generate_full(
                 break;
             }
         }
+    }
+
+    full_response = clean_model_output_prefix(&full_response).trim().to_string();
+
+    if let Some(fallback) =
+        grounded_fallback_for_weak_response(clean_prompt, &full_response, fallback_memories)
+    {
+        eprintln!(
+            "[AURA_WORKER] Replaced weak/echo/confused full response with grounded fallback: {:?}",
+            fallback
+        );
+        let _ = sink.add(format!("\r{}", fallback));
+        return Ok(fallback);
     }
 
     Ok(full_response)

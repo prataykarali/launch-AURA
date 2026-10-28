@@ -103,10 +103,10 @@ class _ClassScreenState extends State<ClassScreen>
     final summary = _classes
         .map((c) => '${c.name} (${c.subject}) — ${c.teacher}')
         .join('\n');
-    Clipboard.setData(ClipboardData(text: 'My ClassSync Classes:\n\n$summary'));
+    Clipboard.setData(ClipboardData(text: 'My Course Notes:\n\n$summary'));
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(_snack('Class list copied to clipboard!'));
+    ).showSnackBar(_snack('Course list copied to clipboard!'));
   }
 
   void _showMenu() {
@@ -128,7 +128,7 @@ class _ClassScreenState extends State<ClassScreen>
         },
         onAbout: () {
           Navigator.pop(context);
-          _showSnackMsg('AURA ClassSync v1.0');
+          _showSnackMsg('AURA Notes v1.0');
         },
       ),
     );
@@ -231,11 +231,9 @@ class _ClassScreenState extends State<ClassScreen>
         onMenu: _showMenu,
         onSearchChanged: (v) => setState(() => _searchQuery = v),
         onCloseOverlay: () => setState(() => _overlayOpen = false),
-        onClassTap: (data) => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => ClassDetailPage(data: data),
-          ),
-        ),
+        onClassTap: (data) => Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => ClassDetailPage(data: data))),
         onClassDelete: _confirmDelete,
       ),
       floatingActionButton: _overlayOpen

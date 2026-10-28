@@ -1,6 +1,6 @@
 pub fn model_path() -> String {
     std::env::var("AURA_MODEL_PATH").unwrap_or_else(|_| {
-        "/home/pratay-karali/launch-AURA/AURA-Proj/aura_notebook/assets/LFM2.5-1.2B-Instruct-Q4_K_M.gguf"
+        "/home/pratay-karali/launch-AURA/AURA-Proj/aura_notebook/assets/aura-aria-gguf/LFM2.5-VL-450M.Q4_K_M.gguf"
             .to_string()
     })
 }

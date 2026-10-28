@@ -2,7 +2,22 @@ part of 'vision_service.dart';
 
 Future<AuraVisionContext?> _captureTier1Context(VisionService service) async {
   final profile = service.deviceProfile;
-  if (!_canRunTier1For(profile)) return null;
+  if (!_canRunTier1For(profile)) {
+    // mobileMinimal: return a basic context so the brain knows the device
+    // is alive, even if we can't detect the foreground app.
+    if (profile == AuraVisionDeviceProfile.mobileMinimal) {
+      return AuraVisionContext(
+        activity: 'device_active',
+        detail: null,
+        stuck: false,
+        stuckDurationMins: 0,
+        sourceTier: 0,
+        deviceProfile: profile,
+        confidence: 0.3,
+      );
+    }
+    return null;
+  }
 
   if (Platform.isAndroid) {
     final packageName = await _androidForegroundPackage(service);
@@ -17,7 +32,8 @@ Future<AuraVisionContext?> _captureTier1Context(VisionService service) async {
     );
   }
 
-  final title = service._lastActiveWindow ?? await _readLinuxActiveWindowTitle();
+  final title =
+      service._lastActiveWindow ?? await _readLinuxActiveWindowTitle();
   final activity = _activityFromWindowTitle(title);
   final screenText = service._lastScreenText;
   final detail = screenText != null && screenText.trim().isNotEmpty
@@ -45,9 +61,7 @@ Future<AuraVisionContext?> _captureTier2DetailIfUseful(
   final base = service._latestContext;
   final activity =
       base?.activity ?? _activityFromWindowTitle(service._lastActiveWindow);
-  if (activity != 'browsing' &&
-      activity != 'video' &&
-      activity != 'unknown') {
+  if (activity != 'browsing' && activity != 'video' && activity != 'unknown') {
     return null;
   }
 

@@ -25,9 +25,7 @@ class _AiOverlay extends StatelessWidget {
                     surfaceTintColor: _classPrimary.withOpacity(0.12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
-                      side: BorderSide(
-                        color: Colors.white.withOpacity(0.12),
-                      ),
+                      side: BorderSide(color: Colors.white.withOpacity(0.12)),
                     ),
                     clipBehavior: Clip.antiAlias,
                     child: SizedBox(
@@ -79,7 +77,9 @@ class _AiOverlay extends StatelessWidget {
                                 IconButton.filledTonal(
                                   visualDensity: VisualDensity.compact,
                                   style: IconButton.styleFrom(
-                                    backgroundColor: Colors.white.withOpacity(0.08),
+                                    backgroundColor: Colors.white.withOpacity(
+                                      0.08,
+                                    ),
                                     foregroundColor: Colors.white70,
                                   ),
                                   icon: const Icon(

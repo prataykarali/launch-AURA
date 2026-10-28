@@ -43,7 +43,7 @@ pub(crate) fn extract_preferences(cleaned: &str) -> Vec<String> {
         ("i have a ", "has a"),
         ("i have an ", "has an"),
         ("i've got a ", "has a"),
-        // Family
+        // Family (with apostrophe)
         ("my mom's name is ", "has mom named"),
         ("my mum's name is ", "has mum named"),
         ("my dad's name is ", "has dad named"),
@@ -54,6 +54,31 @@ pub(crate) fn extract_preferences(cleaned: &str) -> Vec<String> {
         ("my friend's name is ", "has friend named"),
         ("my boyfriend's name is ", "has boyfriend named"),
         ("my girlfriend's name is ", "has girlfriend named"),
+        // Family (WITHOUT apostrophe — users often skip it)
+        ("my moms name is ", "has mom named"),
+        ("my dads name is ", "has dad named"),
+        ("my mothers name is ", "has mother named"),
+        ("my fathers name is ", "has father named"),
+        ("my sisters name is ", "has sister named"),
+        ("my brothers name is ", "has brother named"),
+        ("my friends name is ", "has friend named"),
+        ("my boyfriends name is ", "has boyfriend named"),
+        ("my girlfriends name is ", "has girlfriend named"),
+        // Extended family
+        ("my cousin's name is ", "has cousin named"),
+        ("my cousins name is ", "has cousin named"),
+        ("my partner's name is ", "has partner named"),
+        ("my partners name is ", "has partner named"),
+        ("my grandma's name is ", "has grandma named"),
+        ("my grandmas name is ", "has grandma named"),
+        ("my grandpa's name is ", "has grandpa named"),
+        ("my grandpas name is ", "has grandpa named"),
+        ("my aunt's name is ", "has aunt named"),
+        ("my aunts name is ", "has aunt named"),
+        ("my uncle's name is ", "has uncle named"),
+        ("my uncles name is ", "has uncle named"),
+        ("my best friend's name is ", "has best friend named"),
+        ("my best friends name is ", "has best friend named"),
     ];
 
     for (anchor, verb) in anchors {

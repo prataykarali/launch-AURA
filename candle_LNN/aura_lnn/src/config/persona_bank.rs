@@ -1,8 +1,8 @@
 use include_dir::{include_dir, Dir};
-use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::LazyLock;
 
 /// All persona data is embedded at compile time so it works identically on Linux
 /// desktop and Android (where the source tree is not available at runtime).
@@ -162,7 +162,7 @@ impl PersonaBank {
 
 /// Global lazy-loaded persona bank.  Loaded once on first access; the embedded
 /// files are already in the binary, so this is just parsing.
-pub static PERSONA_BANK: Lazy<PersonaBank> = Lazy::new(|| {
+pub static PERSONA_BANK: LazyLock<PersonaBank> = LazyLock::new(|| {
     let mut cases: Vec<PersonaCase> = Vec::new();
     let mut system_prompt = String::new();
     let mut memory_instruction = String::new();
@@ -228,7 +228,7 @@ mod tests {
             "identity category should be loaded"
         );
         assert!(
-            bank.system_prompt().contains("AURA"),
+            bank.system_prompt().contains("You are ARIA"),
             "system prompt should be loaded"
         );
         assert!(
@@ -245,7 +245,7 @@ mod tests {
             Some(CanonicalClass::Identity)
         );
         assert_eq!(
-            bank.classify_canonical("aura", false),
+            bank.classify_canonical("aria", false),
             Some(CanonicalClass::Identity)
         );
         assert_eq!(

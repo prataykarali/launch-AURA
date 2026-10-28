@@ -19,24 +19,28 @@ class home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth  = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: Container(
-        width:  screenWidth,
+        width: screenWidth,
         height: screenHeight,
         decoration: BoxDecoration(
           border: Border.all(
             color: const Color.from(
-                alpha: 1.0, red: 0.6, green: 0.13, blue: 0.4),
+              alpha: 1.0,
+              red: 0.6,
+              green: 0.13,
+              blue: 0.4,
+            ),
             width: 5.0,
           ),
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color.from(alpha: 1.0, red: 1.0,  green: 0.98, blue: 0.94),
+              Color.from(alpha: 1.0, red: 1.0, green: 0.98, blue: 0.94),
               Color.from(alpha: 1.0, red: 0.98, green: 0.92, blue: 0.84),
             ],
           ),
@@ -48,37 +52,37 @@ class home extends StatelessWidget {
               Stack(
                 children: [
                   image_wid(
-                    boxColor:  Colors.cyan,
-                    textIn:    'AURA NOTEBOOK',
+                    boxColor: Colors.cyan,
+                    textIn: 'AURA NOTEBOOK',
                     imagePath: 'Assets/images/balloon2.png',
                     boxHeight: screenHeight * 0.28,
-                    boxWidth:  screenWidth,
+                    boxWidth: screenWidth,
                   ),
                   // Notebook button — top-right
                   Positioned(
-                    top:   MediaQuery.of(context).padding.top + 8,
+                    top: MediaQuery.of(context).padding.top + 8,
                     right: 12,
                     child: GestureDetector(
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => NotebookPage()),
-                      ),
+                      onTap: () => Navigator.of(
+                        context,
+                      ).push(MaterialPageRoute(builder: (_) => NotebookPage())),
                       child: Container(
-                        width:  38,
+                        width: 38,
                         height: 38,
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.88),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color:      Colors.black.withOpacity(0.15),
+                              color: Colors.black.withOpacity(0.15),
                               blurRadius: 8,
-                              offset:     const Offset(0, 2),
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
                         child: const Icon(
                           Icons.auto_stories_rounded,
-                          size:  18,
+                          size: 18,
                           color: Colors.black87,
                         ),
                       ),
@@ -86,7 +90,7 @@ class home extends StatelessWidget {
                   ),
                   // Back button — top-left
                   Positioned(
-                    top:  MediaQuery.of(context).padding.top + 8,
+                    top: MediaQuery.of(context).padding.top + 8,
                     left: 12,
                     child: GestureDetector(
                       onTap: () => Navigator.of(context).pushReplacement(
@@ -98,22 +102,22 @@ class home extends StatelessWidget {
                         ),
                       ),
                       child: Container(
-                        width:  38,
+                        width: 38,
                         height: 38,
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.88),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color:      Colors.black.withOpacity(0.15),
+                              color: Colors.black.withOpacity(0.15),
                               blurRadius: 8,
-                              offset:     const Offset(0, 2),
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
                         child: const Icon(
                           Icons.arrow_back_ios_new_rounded,
-                          size:  16,
+                          size: 16,
                           color: Colors.black87,
                         ),
                       ),
@@ -122,9 +126,7 @@ class home extends StatelessWidget {
                 ],
               ),
               // ── Chat ──────────────────────────────────────────────────────
-              const Expanded(
-                child: AuraChatWidget(),
-              ),
+              const Expanded(child: AuraChatWidget()),
             ],
           ),
           max: 800,

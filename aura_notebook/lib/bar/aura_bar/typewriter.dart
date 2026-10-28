@@ -41,12 +41,15 @@ void _runTypewriter(
         charsToPop = 15;
       else if (state._typewriterQueue.length > 40)
         charsToPop = 8;
-      else if (state._typewriterQueue.length > 15) charsToPop = 3;
+      else if (state._typewriterQueue.length > 15)
+        charsToPop = 3;
 
       setState(() {
-        for (int i = 0;
-            i < charsToPop && state._typewriterQueue.isNotEmpty;
-            i++) {
+        for (
+          int i = 0;
+          i < charsToPop && state._typewriterQueue.isNotEmpty;
+          i++
+        ) {
           state._displayedMessage += state._typewriterQueue.removeAt(0);
         }
         final shownChars = state._displayedMessage.characters;

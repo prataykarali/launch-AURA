@@ -67,9 +67,13 @@ class _InfoBody extends StatelessWidget {
 
         _Section('DEVICE', [
           _InfoTile(
-            Platform.isAndroid ? Icons.phone_android_rounded : Icons.computer_rounded,
+            Platform.isAndroid
+                ? Icons.phone_android_rounded
+                : Icons.computer_rounded,
             'Platform',
-            Platform.isAndroid ? 'Android (overlay mode)' : 'Linux (desktop mode)',
+            Platform.isAndroid
+                ? 'Android (overlay mode)'
+                : 'Linux (desktop mode)',
           ),
           _InfoTile(
             Icons.smart_toy_outlined,

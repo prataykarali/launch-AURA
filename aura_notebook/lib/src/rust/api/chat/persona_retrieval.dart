@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `cosine_similarity`, `format_example`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `PersonaIndex`
-// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `init_persona_index`, `persona_index`
+// These functions are ignored (category: IgnoreBecauseExplicitAttribute): `init_persona_index`
 // These functions are ignored (category: IgnoreBecauseOwnerTyShouldIgnore): `build`, `match_memory_recall`, `retrieve_examples`
 
 /// Retrieve top-k examples from the global index, if it has been initialized.

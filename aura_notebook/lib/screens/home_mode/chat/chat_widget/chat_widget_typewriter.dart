@@ -8,8 +8,7 @@ String _sanitizeText(String text, String prompt) {
     final openIdx = cleaned.indexOf('<think>');
     final closeIdx = cleaned.indexOf('</think>');
     if (closeIdx != -1) {
-      cleaned =
-          cleaned.substring(0, openIdx) + cleaned.substring(closeIdx + 8);
+      cleaned = cleaned.substring(0, openIdx) + cleaned.substring(closeIdx + 8);
     } else {
       cleaned = cleaned.substring(0, openIdx);
     }
@@ -26,9 +25,7 @@ String _sanitizeText(String text, String prompt) {
     changed = false;
     final trimmedCleaned = cleaned.trimLeft();
     if (promptTrimmed.isNotEmpty &&
-        trimmedCleaned.toLowerCase().startsWith(
-          promptTrimmed.toLowerCase(),
-        )) {
+        trimmedCleaned.toLowerCase().startsWith(promptTrimmed.toLowerCase())) {
       final leadingWhitespace = cleaned.length - trimmedCleaned.length;
       final start = leadingWhitespace + promptTrimmed.length;
       if (cleaned.length > start) {

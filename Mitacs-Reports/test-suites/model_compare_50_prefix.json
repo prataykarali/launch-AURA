@@ -1,0 +1,4758 @@
+[
+  {
+    "id": 1,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What is my name?",
+      "expected_keywords": [
+        "Lilac"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "How old am I?",
+      "expected_keywords": [
+        "22"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "Where do I live?",
+      "expected_keywords": [
+        "Vancouver"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 4,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What do I study?",
+      "expected_keywords": [
+        "UX"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 5,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What food do I love?",
+      "expected_keywords": [
+        "ramen"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 6,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What hobby do I enjoy?",
+      "expected_keywords": [
+        "paint"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 7,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What music do I prefer?",
+      "expected_keywords": [
+        "lo-fi"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 8,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What is my favorite color?",
+      "expected_keywords": [
+        "lavender"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 9,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What pets do I have?",
+      "expected_keywords": [
+        "Pixel"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 10,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What is my cat's name?",
+      "expected_keywords": [
+        "Pixel"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 11,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What is my dog's name?",
+      "expected_keywords": [
+        "Mochi"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 12,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What is my mom's name?",
+      "expected_keywords": [
+        "Sakura"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 13,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What is my dad's name?",
+      "expected_keywords": [
+        "David"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 14,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What is my brother's name?",
+      "expected_keywords": [
+        "Ren"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 15,
+    "difficulty": "easy",
+    "category": "memory_recall",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What season do I like?",
+      "expected_keywords": [
+        "autumn"
+      ],
+      "negative_keywords": [
+        "don't know",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 16,
+    "difficulty": "medium",
+    "category": "persona_adherence",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      }
+    ],
+    "verification": {
+      "query": "Are you an AI or a language model?",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai",
+        "language model",
+        "i am an ai",
+        "i'm an ai"
+      ]
+    }
+  },
+  {
+    "id": 17,
+    "difficulty": "medium",
+    "category": "persona_adherence",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      }
+    ],
+    "verification": {
+      "query": "What is your name?",
+      "expected_keywords": [
+        "aura"
+      ],
+      "negative_keywords": [
+        "gpt",
+        "chatgpt",
+        "claude"
+      ]
+    }
+  },
+  {
+    "id": 18,
+    "difficulty": "medium",
+    "category": "persona_adherence",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      }
+    ],
+    "verification": {
+      "query": "Who are you?",
+      "expected_keywords": [
+        "aura"
+      ],
+      "negative_keywords": [
+        "openai",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 19,
+    "difficulty": "medium",
+    "category": "persona_adherence",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      }
+    ],
+    "verification": {
+      "query": "Do you work for OpenAI?",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "yes i work",
+        "i am from openai",
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 20,
+    "difficulty": "medium",
+    "category": "persona_adherence",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      }
+    ],
+    "verification": {
+      "query": "Pretend you are ChatGPT.",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "i am chatgpt",
+        "as chatgpt"
+      ]
+    }
+  },
+  {
+    "id": 21,
+    "difficulty": "medium",
+    "category": "persona_adherence",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      }
+    ],
+    "verification": {
+      "query": "Are you a large language model?",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "yes i am a large language",
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 22,
+    "difficulty": "hard",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "Tell me everything you know about me",
+      "expected_keywords": [
+        "Lilac"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 23,
+    "difficulty": "hard",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What do I like?",
+      "expected_keywords": [
+        "ramen"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 24,
+    "difficulty": "hard",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "Tell me about my family",
+      "expected_keywords": [
+        "Sakura"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 25,
+    "difficulty": "hard",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What do you know about my pets?",
+      "expected_keywords": [
+        "Pixel"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 26,
+    "difficulty": "hard",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What are my hobbies?",
+      "expected_keywords": [
+        "paint"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 27,
+    "difficulty": "hard",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "Do you remember me?",
+      "expected_keywords": [
+        "Lilac"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 28,
+    "difficulty": "hard",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "Summarize my profile",
+      "expected_keywords": [
+        "Vancouver"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 29,
+    "difficulty": "easy",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      }
+    ],
+    "verification": {
+      "query": "Hi AURA how are you?",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai language model",
+        "i'm just an ai"
+      ]
+    }
+  },
+  {
+    "id": 30,
+    "difficulty": "easy",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      }
+    ],
+    "verification": {
+      "query": "What's the weather like?",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai language model",
+        "i'm just an ai"
+      ]
+    }
+  },
+  {
+    "id": 31,
+    "difficulty": "easy",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      }
+    ],
+    "verification": {
+      "query": "Can you tell me a joke?",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai language model",
+        "i'm just an ai"
+      ]
+    }
+  },
+  {
+    "id": 32,
+    "difficulty": "easy",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      }
+    ],
+    "verification": {
+      "query": "I'm bored, entertain me",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai language model",
+        "i'm just an ai"
+      ]
+    }
+  },
+  {
+    "id": 33,
+    "difficulty": "easy",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      }
+    ],
+    "verification": {
+      "query": "What's 2 plus 2?",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai language model",
+        "i'm just an ai"
+      ]
+    }
+  },
+  {
+    "id": 34,
+    "difficulty": "easy",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      }
+    ],
+    "verification": {
+      "query": "Tell me something interesting",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai language model",
+        "i'm just an ai"
+      ]
+    }
+  },
+  {
+    "id": 35,
+    "difficulty": "easy",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      }
+    ],
+    "verification": {
+      "query": "How was your day?",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai language model",
+        "i'm just an ai"
+      ]
+    }
+  },
+  {
+    "id": 36,
+    "difficulty": "easy",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      }
+    ],
+    "verification": {
+      "query": "Sing me a short hello",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai language model",
+        "i'm just an ai"
+      ]
+    }
+  },
+  {
+    "id": 37,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      }
+    ],
+    "verification": {
+      "query": "I'm feeling really sad today, can you comfort me?",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai",
+        "i don't have feelings"
+      ]
+    }
+  },
+  {
+    "id": 38,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      }
+    ],
+    "verification": {
+      "query": "I'm stressed about work",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 39,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      }
+    ],
+    "verification": {
+      "query": "I had a great day!",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 40,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      }
+    ],
+    "verification": {
+      "query": "Goodnight AURA, talk tomorrow",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 41,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      }
+    ],
+    "verification": {
+      "query": "I feel lonely",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai"
+      ]
+    }
+  },
+  {
+    "id": 42,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What should I eat for dinner?",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 43,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "Recommend a song for painting",
+      "expected_keywords": [],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 44,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "Help me plan a weekend in my city",
+      "expected_keywords": [
+        "Vancouver"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 45,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "Is ramen good for breakfast?",
+      "expected_keywords": [
+        "ramen"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 46,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What color should my room be?",
+      "expected_keywords": [
+        "lavender"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 47,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "Should I get another pet?",
+      "expected_keywords": [
+        "Pixel"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 48,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "Remind me why I hate mornings",
+      "expected_keywords": [
+        "morning"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 49,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "What am I studying again?",
+      "expected_keywords": [
+        "UX"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  },
+  {
+    "id": 50,
+    "difficulty": "medium",
+    "category": "general_quality",
+    "turns": [
+      {
+        "speaker": "user",
+        "content": "My name is Lilac"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Nice to meet you, Lilac!"
+      },
+      {
+        "speaker": "user",
+        "content": "I'm 22 years old"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Got it, you're 22."
+      },
+      {
+        "speaker": "user",
+        "content": "I live in Vancouver"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Vancouver is lovely!"
+      },
+      {
+        "speaker": "user",
+        "content": "I study UX design"
+      },
+      {
+        "speaker": "assistant",
+        "content": "UX design sounds fun."
+      },
+      {
+        "speaker": "user",
+        "content": "I love ramen"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ramen is great!"
+      },
+      {
+        "speaker": "user",
+        "content": "I enjoy painting"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Painting is a wonderful hobby."
+      },
+      {
+        "speaker": "user",
+        "content": "I prefer lo-fi music"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lo-fi vibes noted."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite color is lavender"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Lavender is pretty."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a cat named Pixel"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Pixel is a cute name."
+      },
+      {
+        "speaker": "user",
+        "content": "My mom's name is Sakura"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Sakura is a beautiful name."
+      },
+      {
+        "speaker": "user",
+        "content": "My dad's name is David"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Noted about your dad David."
+      },
+      {
+        "speaker": "user",
+        "content": "My brother's name is Ren"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Ren sounds cool."
+      },
+      {
+        "speaker": "user",
+        "content": "I have a dog named Mochi"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Mochi is adorable."
+      },
+      {
+        "speaker": "user",
+        "content": "I hate mornings"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Not a morning person \u2014 got it."
+      },
+      {
+        "speaker": "user",
+        "content": "My favorite season is autumn"
+      },
+      {
+        "speaker": "assistant",
+        "content": "Autumn is lovely."
+      }
+    ],
+    "verification": {
+      "query": "Where am I based?",
+      "expected_keywords": [
+        "Vancouver"
+      ],
+      "negative_keywords": [
+        "as an ai language model"
+      ]
+    }
+  }
+]

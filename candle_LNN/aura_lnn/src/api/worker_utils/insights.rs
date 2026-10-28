@@ -160,20 +160,20 @@ pub(crate) fn extract_insights(store: &MemoryStore, cleaned: &str) {
     }
 
     // ── MENTAL MODEL: Temporal Patterns (Time of Day) ────────────────────
-    if let Ok(local_time) = chrono::Local::now()
-        .time()
-        .format("%H")
-        .to_string()
-        .parse::<u32>()
+    // Use UTC hour as approximation (ponytail: no chrono dep needed).
+    let hour = (std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| (d.as_secs() / 3600) % 24)
+        .unwrap_or(12)) as u32;
     {
-        if local_time >= 23 || local_time <= 4 {
+        if hour >= 23 || hour <= 4 {
             let _ = store.upsert_insight(
                 "routine",
                 "User is active late at night — they might be working late, a night owl, or have a late routine",
                 0.05,
                 "chat",
             );
-        } else if (5..=9).contains(&local_time) {
+        } else if (5..=9).contains(&hour) {
             let _ = store.upsert_insight(
                 "routine",
                 "User is active early in the morning — they might have a structured morning routine",

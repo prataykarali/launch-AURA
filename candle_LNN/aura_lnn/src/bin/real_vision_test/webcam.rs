@@ -9,7 +9,10 @@ pub fn wait_for_detections(timeout_secs: u64) -> Vec<String> {
     while start.elapsed().as_secs() < timeout_secs {
         let dets = aura_lnn::vision::store::get_latest_webcam_detections();
         if !dets.is_empty() {
-            return dets.iter().map(|d| format!("{} ({:.2})", d.label, d.confidence)).collect();
+            return dets
+                .iter()
+                .map(|d| format!("{} ({:.2})", d.label, d.confidence))
+                .collect();
         }
         std::thread::sleep(Duration::from_millis(500));
     }
@@ -24,5 +27,9 @@ pub fn get_scene() -> String {
 /// Check for pending gesture (wave/open_palm from pose model).
 pub fn get_gesture() -> Option<String> {
     let g = aura_lnn::vision::webcam::take_pending_gesture();
-    if g.is_empty() { None } else { Some(g) }
+    if g.is_empty() {
+        None
+    } else {
+        Some(g)
+    }
 }

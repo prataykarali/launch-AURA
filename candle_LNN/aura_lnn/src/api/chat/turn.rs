@@ -1,7 +1,7 @@
 use std::sync::atomic::{AtomicI64, Ordering};
 use std::sync::Arc;
 
-use crate::api::chat::persona_retrieval::match_memory_recall;
+// match_memory_recall removed — fast path disabled, always uses LLM
 use crate::api::worker_utils::process_memory_with_schedule_embedding;
 use crate::config::constants::THINKING_SENTINEL;
 use crate::frb_generated::StreamSink;
@@ -12,10 +12,9 @@ use crate::memory::{extract_schedule_note_hint, plan_reply};
 mod classify;
 mod generate;
 mod memory;
-mod prefix;
+pub mod prefix;
 
 static LAST_TURN_TS: AtomicI64 = AtomicI64::new(0);
-const NEW_CHAT_GAP_SECS: i64 = 300;
 
 pub(crate) fn process_chat(
     engine: &mut LlamaEngine,
@@ -28,6 +27,12 @@ pub(crate) fn process_chat(
     CANCEL_FLAG.store(false, Ordering::Relaxed);
     let _ = sink.add(THINKING_SENTINEL.to_string());
     let (is_internal, is_bar, clean_prompt) = classify::prepare_prompt(&prompt);
+
+    // Ensure notes never leak into default chat RAG (explicit query only).
+    // Skip the live user turn from retrieval so it is not treated as memory.
+    if let Some(store) = memory_store {
+        let _ = store.insert_turn("user", &clean_prompt);
+    }
 
     if let Some(store) = memory_store {
         if !is_internal {
@@ -42,37 +47,14 @@ pub(crate) fn process_chat(
 
     let perf = engine.performance_profile();
     let mut memories: Vec<String> = Vec::new();
-    let mut query_embedding: Option<Vec<f32>> = None;
 
     if let Some(store) = memory_store {
-        let (mem, qemb) = memory::gather_memories(engine, store.as_ref(), &clean_prompt);
+        let (mem, _qemb) = memory::gather_memories(engine, store.as_ref(), &clean_prompt);
         memories = mem;
-        query_embedding = qemb;
     }
 
-    // Memory-recall fast path: skip LLM for recall queries
-    if !is_internal && !is_bar {
-        if let Some(ref qemb) = query_embedding {
-            if let Some(_response_template) = match_memory_recall(qemb, 0.65) {
-                let mut reply = String::new();
-                if let Some(tail) = format_memory_appendage_for_query(&clean_prompt, &memories) {
-                    reply = format!("Yes, I remember you.{}", tail);
-                } else {
-                    reply = "I don't know much about you yet. Tell me about yourself and I'll remember.".to_string();
-                }
-                let _ = sink.add(reply.clone());
-                if let Some(store) = memory_store {
-                    let _ = store.insert_turn("assistant", &reply);
-                    engine.store_embed(
-                        format!("User: {}\nAURA: {}", clean_prompt, reply),
-                        Arc::clone(store),
-                    );
-                }
-                drop(sink);
-                return;
-            }
-        }
-    }
+    // Memory-recall fast path: disabled by design to always feed the main LLM.
+    // Memory prefix injection [MEMORY: ...] already gives the LLM the facts it needs.
 
     if class.is_vision_query {
         if let Some(store) = memory_store {
@@ -100,57 +82,67 @@ pub(crate) fn process_chat(
 
     let generation_prompt = if is_bar {
         format!(
-            "{}{}[Internal: The user said: \"{}\". Reply to THAT message as AURA — warm, brief, natural.]\n\n{}",
+            "{}{}[Internal: The user said: \"{}\". Reply to THAT message as ARIA — warm, brief, natural.]\n\n{}",
             memory_prefix.as_deref().unwrap_or(""),
             conversation_recap.as_deref().unwrap_or(""),
             clean_prompt, clean_prompt
         )
     } else {
-        format!("{}{}{}", memory_prefix.as_deref().unwrap_or(""), conversation_recap.as_deref().unwrap_or(""), clean_prompt)
+        format!(
+            "{}{}{}",
+            memory_prefix.as_deref().unwrap_or(""),
+            conversation_recap.as_deref().unwrap_or(""),
+            clean_prompt
+        )
     };
 
-    // Pre-fill: for name queries, seed the assistant response to steer recall
-    let prefill = build_recall_prefill(&clean_prompt, &memories);
-    let final_prompt = if let Some(ref pf) = prefill {
-        format!("{}\n{}", generation_prompt, pf)
+    let final_prompt = generation_prompt;
+
+    let plan = plan_reply(
+        &clean_prompt,
+        cfg!(any(target_os = "android", target_os = "ios")),
+    );
+    let planned_tokens = if is_bar {
+        plan.max_tokens.min(220)
     } else {
-        generation_prompt
+        plan.max_tokens
     };
-
-    let plan = plan_reply(&clean_prompt, cfg!(any(target_os = "android", target_os = "ios")));
-    let planned_tokens = if is_bar { plan.max_tokens.min(220) } else { plan.max_tokens };
     let max_tokens = perf.clamp_reply_tokens(planned_tokens);
 
     let mut sink = sink;
-    let mut full_response = match generate::run_generation(
-        engine, &final_prompt, vec![], max_tokens, is_bar,
-        &perf, &plan, &clean_prompt, &fallback_memories, &mut sink,
-    ) {
-        Ok(response) => response,
-        Err(e) => { eprintln!("[AURA_WORKER_ERR] generate failed: {:?}", e); String::new() }
-    };
-
-    // Last-conversation recall for new chat sessions
-    if !is_internal {
-        let now = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH)
-            .unwrap_or_default().as_secs() as i64;
-        let last = LAST_TURN_TS.load(Ordering::Relaxed);
-        let is_new_chat = last != 0 && (now - last) > NEW_CHAT_GAP_SECS;
-        if is_new_chat {
-            if let Some(store) = memory_store {
-                if let Ok(turns) = store.recent_turn_strings_filtered(1) {
-                    if let Some(turn) = turns.first() {
-                        let user_msg = extract_user_from_turn(turn);
-                        if !user_msg.is_empty() && user_msg.split_whitespace().count() > 4 {
-                            let short: String = user_msg.chars().take(80).collect();
-                            let tail = format!(" I remember we were talking about {}.", short.trim());
-                            let _ = sink.add(tail.clone());
-                            full_response.push_str(&tail);
-                        }
-                    }
-                }
+    let mut full_response = if let Some(grounded) =
+        super::reply::grounded_identity_if_clear(&clean_prompt, &fallback_memories)
+    {
+        eprintln!("[AURA_WORKER] Grounded identity reply (skipped LLM)");
+        let _ = sink.add(grounded.clone());
+        grounded
+    } else {
+        match generate::run_generation(
+            engine,
+            &final_prompt,
+            vec![],
+            max_tokens,
+            is_bar,
+            &perf,
+            &plan,
+            &clean_prompt,
+            &fallback_memories,
+            &mut sink,
+        ) {
+            Ok(response) => response,
+            Err(e) => {
+                eprintln!("[AURA_WORKER_ERR] generate failed: {:?}", e);
+                String::new()
             }
         }
+    };
+
+    // Last-conversation recall for new chat sessions disabled by design.
+    if !is_internal {
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs() as i64;
         LAST_TURN_TS.store(now, Ordering::Relaxed);
     }
 
@@ -167,19 +159,19 @@ pub(crate) fn process_chat(
             let schedule_embedding = extract_schedule_note_hint(&clean_prompt)
                 .and_then(|note| engine.embedder().and_then(|e| e.embed_passage(&note).ok()));
             let new_facts = process_memory_with_schedule_embedding(
-                store, &clean_prompt, &full_response, schedule_embedding.as_deref(),
+                store,
+                &clean_prompt,
+                &full_response,
+                schedule_embedding.as_deref(),
             );
             // Store clean extracted facts as separate vectors (high priority)
             for fact in &new_facts {
                 engine.store_embed(fact.clone(), Arc::clone(store));
             }
             // Store user-only message (not full turn) so embedder retrieves
-            // clean user statements, not messy "User: X\nAURA: Y" turns
+            // clean user statements, not messy "User: X\nARIA: Y" turns
             if new_facts.is_empty() {
-                engine.store_embed(
-                    format!("User: {}", clean_prompt),
-                    Arc::clone(store),
-                );
+                engine.store_embed(format!("User: {}", clean_prompt), Arc::clone(store));
             }
         }
     }
@@ -190,17 +182,22 @@ pub(crate) fn process_chat(
 
 pub(crate) fn extract_user_from_turn(turn: &str) -> String {
     let lower = turn.to_lowercase();
-    if !lower.starts_with("user:") { return turn.trim().to_string(); }
+    if !lower.starts_with("user:") {
+        return turn.trim().to_string();
+    }
     let after = turn[5..].trim();
-    if let Some(idx) = after.to_lowercase().find("\naura:") {
+    let after_lower = after.to_lowercase();
+    let cut = ["\naria:", "\naura:", "\nassistant:"]
+        .iter()
+        .filter_map(|m| after_lower.find(m))
+        .min();
+    if let Some(idx) = cut {
         after[..idx].trim().to_string()
     } else {
         after.to_string()
     }
 }
 
-pub use prefix::build_memory_prefix;
 pub use prefix::build_conversation_recap;
+pub use prefix::build_memory_prefix;
 pub use prefix::build_recall_prefill;
-pub(crate) use prefix::format_memory_appendage;
-pub(crate) use prefix::format_memory_appendage_for_query;

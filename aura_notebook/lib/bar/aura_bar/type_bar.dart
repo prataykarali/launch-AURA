@@ -28,12 +28,8 @@ Widget _buildTypeBar(_AuraBarState state) {
             cursorWidth: 2,
             cursorHeight: 18,
             buildCounter:
-                (
-                  _, {
-                  required currentLength,
-                  required isFocused,
-                  maxLength,
-                }) => const SizedBox.shrink(),
+                (_, {required currentLength, required isFocused, maxLength}) =>
+                    const SizedBox.shrink(),
             decoration: InputDecoration(
               isDense: true,
               contentPadding: EdgeInsets.zero,

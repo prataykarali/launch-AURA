@@ -107,6 +107,31 @@ impl MemoryStore {
                     timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
                 );
 
+                -- Archipelago-style Graph RAG Tables
+                CREATE TABLE IF NOT EXISTS nodes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    kind TEXT NOT NULL,
+                    summary TEXT,
+                    attrs TEXT,
+                    source TEXT DEFAULT 'chat',
+                    updated_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+                    embedding BLOB
+                );
+
+                CREATE TABLE IF NOT EXISTS edges (
+                    src INTEGER NOT NULL,
+                    rel TEXT NOT NULL,
+                    dst INTEGER NOT NULL,
+                    valid INTEGER DEFAULT 1
+                );
+
+                CREATE TABLE IF NOT EXISTS memory_wipe_log (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    wiped_at INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+                    reason TEXT
+                );
+
                 CREATE INDEX IF NOT EXISTS idx_turns_timestamp ON turns(timestamp);
                 CREATE INDEX IF NOT EXISTS idx_summaries_timestamp ON summaries(timestamp);
                 CREATE INDEX IF NOT EXISTS idx_facts_timestamp ON facts(timestamp);
@@ -114,6 +139,10 @@ impl MemoryStore {
                 CREATE INDEX IF NOT EXISTS idx_memory_notes_deleted_pinned
                     ON memory_notes(deleted, pinned, timestamp);
                 CREATE INDEX IF NOT EXISTS idx_proactive_log_timestamp ON proactive_log(timestamp);
+                CREATE INDEX IF NOT EXISTS idx_nodes_name_kind ON nodes(name, kind);
+                CREATE INDEX IF NOT EXISTS idx_nodes_kind ON nodes(kind);
+                CREATE INDEX IF NOT EXISTS idx_edges_src ON edges(src);
+                CREATE INDEX IF NOT EXISTS idx_edges_dst ON edges(dst);
                 ",
             )?;
 
@@ -146,10 +175,10 @@ impl MemoryStore {
                     (2, "Did you learn anything interesting today?"),
                     (3, "I'm here if you need to brainstorm anything."),
                     (4, "Ready for our next project?"),
-                    (5, "I've been thinking about our last conversation..."),
+                    (5, "Just checking in — how are you doing?"),
                     (6, "You seem busy today, anything I can help with?"),
-                    (7, "By the way, I found something you might like."),
-                    (8, "Shall we continue where we left off?"),
+                    (7, "Hey, wanted to say hi."),
+                    (8, "Anything on your mind?"),
                 ];
                 // Wrap seed in a transaction so it's atomic.
                 conn.execute_batch("BEGIN;")?;
@@ -273,8 +302,7 @@ impl MemoryStore {
                  WHERE content LIKE '%[Internal:%'
                     OR content LIKE '%RuntimeError%'
                     OR content LIKE '%ffmpeg version%'
-                    OR content LIKE '%Traceback%'
-                    OR lower(content) LIKE '%orion%'",
+                    OR content LIKE '%Traceback%'",
             )?;
             let ids: Vec<i64> = stmt
                 .query_map([], |row| row.get::<_, i64>(0))?

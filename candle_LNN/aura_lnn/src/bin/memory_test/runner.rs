@@ -23,7 +23,7 @@ pub(crate) fn evaluate_case(
             process_memory(store, &last_user_content, &turn.content);
 
             // Synchronously embed and insert into vec_memory
-            let turn_text = format!("User: {}\nAURA: {}", last_user_content, turn.content);
+            let turn_text = format!("User: {}\nARIA: {}", last_user_content, turn.content);
             if let Some(emb_engine) = engine.embedder() {
                 if let Ok(emb) = emb_engine.embed_passage(&turn_text) {
                     let _ = store.insert_vec_memory(&turn_text, &emb);

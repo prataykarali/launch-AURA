@@ -62,11 +62,14 @@ extension AuraBarBrainMic on AuraBarBrain {
       await AuraSTTService.instance.startListening(
         onResult: (text, isFinal) {
           _partialTranscriptTimer?.cancel();
-          _partialTranscriptTimer = Timer(const Duration(milliseconds: 1200), () {
-            if (text.trim().isNotEmpty) {
-              unawaited(_stopListeningAndProcess(finalText: text));
-            }
-          });
+          _partialTranscriptTimer = Timer(
+            const Duration(milliseconds: 1200),
+            () {
+              if (text.trim().isNotEmpty) {
+                unawaited(_stopListeningAndProcess(finalText: text));
+              }
+            },
+          );
 
           if (text.trim().isNotEmpty) {
             _streamUpdate(BarState.listening, text);

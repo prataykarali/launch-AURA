@@ -2,15 +2,15 @@ part of 'ai_quiz_tab.dart';
 
 class _AiQuizTabState extends State<AiQuizTab> {
   // ── State ──────────────────────────────────────────────────────────────────
-  List<_McqQuestion> _questions  = [];
-  bool               _generating = false;
-  bool               _quizActive = false;
-  String             _rawStream  = '';
-  int                _current    = 0;
-  int                _score      = 0;
-  bool               _quizDone   = false;
-  int?               _selectedAnswer;
-  bool               _answered   = false;
+  List<_McqQuestion> _questions = [];
+  bool _generating = false;
+  bool _quizActive = false;
+  String _rawStream = '';
+  int _current = 0;
+  int _score = 0;
+  bool _quizDone = false;
+  int? _selectedAnswer;
+  bool _answered = false;
 
   final _streamNotifier = ValueNotifier<String>('');
 
@@ -21,7 +21,9 @@ class _AiQuizTabState extends State<AiQuizTab> {
 
   void _startTypewriter() {
     _typewriterTimer?.cancel();
-    _typewriterTimer = Timer.periodic(const Duration(milliseconds: 15), (timer) {
+    _typewriterTimer = Timer.periodic(const Duration(milliseconds: 15), (
+      timer,
+    ) {
       if (!mounted) {
         timer.cancel();
         return;
@@ -65,7 +67,9 @@ class _AiQuizTabState extends State<AiQuizTab> {
         _quizActive = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to generate quiz. Please try again.')),
+        const SnackBar(
+          content: Text('Failed to generate quiz. Please try again.'),
+        ),
       );
     }
   }
@@ -130,8 +134,11 @@ class _AiQuizTabState extends State<AiQuizTab> {
     final blocks = raw.split(RegExp(r'Q\s*:\s*', caseSensitive: false));
     for (final block in blocks) {
       if (block.trim().isEmpty) continue;
-      final lines = block.split('\n')
-          .map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
+      final lines = block
+          .split('\n')
+          .map((l) => l.trim())
+          .where((l) => l.isNotEmpty)
+          .toList();
       if (lines.isEmpty) continue;
 
       final qText = lines[0];
@@ -152,11 +159,13 @@ class _AiQuizTabState extends State<AiQuizTab> {
 
       if (a != null && b != null && c != null && d != null && ans != null) {
         final correctIdx = {'A': 0, 'B': 1, 'C': 2, 'D': 3}[ans] ?? 0;
-        questions.add(_McqQuestion(
-          question: qText,
-          options:  [a, b, c, d],
-          correct:  correctIdx,
-        ));
+        questions.add(
+          _McqQuestion(
+            question: qText,
+            options: [a, b, c, d],
+            correct: correctIdx,
+          ),
+        );
       }
       if (questions.length == 5) break;
     }
@@ -168,14 +177,17 @@ class _AiQuizTabState extends State<AiQuizTab> {
     HapticFeedback.selectionClick();
     final correct = _questions[_current].correct == idx;
     if (correct) _score++;
-    setState(() { _selectedAnswer = idx; _answered = true; });
+    setState(() {
+      _selectedAnswer = idx;
+      _answered = true;
+    });
   }
 
   void _next() {
     if (_current < _questions.length - 1) {
       setState(() {
         _current++;
-        _answered       = false;
+        _answered = false;
         _selectedAnswer = null;
       });
     } else {
@@ -183,13 +195,18 @@ class _AiQuizTabState extends State<AiQuizTab> {
       final xp = _score * 20; // 20 XP per correct answer
       widget.onXpEarned(xp);
       HapticFeedback.heavyImpact();
-      setState(() { _quizDone = true; });
+      setState(() {
+        _quizDone = true;
+      });
     }
   }
 
   void _restart() => setState(() {
-    _quizActive = false; _quizDone = false;
-    _questions  = []; _current = 0; _score = 0;
+    _quizActive = false;
+    _quizDone = false;
+    _questions = [];
+    _current = 0;
+    _score = 0;
   });
 
   @override
@@ -205,8 +222,8 @@ class _AiQuizTabState extends State<AiQuizTab> {
     final d = widget.data;
 
     if (!_quizActive && !_generating) return _buildIntro(d);
-    if (_generating)               return _buildGenerating(d);
-    if (_quizDone)                 return _buildResults(d);
+    if (_generating) return _buildGenerating(d);
+    if (_quizDone) return _buildResults(d);
     return _buildQuestion(d);
   }
 }

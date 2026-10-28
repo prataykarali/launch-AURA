@@ -15,7 +15,10 @@ pub(crate) fn process_memory_inner(
     schedule_embedding: Option<&[f32]>,
 ) -> Vec<String> {
     let p_trimmed = prompt.trim();
-    if p_trimmed.starts_with("[Internal:") || p_trimmed.starts_with("[MEMORY:") {
+    if p_trimmed.starts_with("[Internal:")
+        || p_trimmed.starts_with("[MEMORY:")
+        || p_trimmed.starts_with("[KNOW:")
+    {
         return Vec::new();
     }
 
@@ -38,8 +41,14 @@ pub(crate) fn process_memory_inner(
     }
 
     // Schedule note extraction
+    // Store as NON-pinned so schedule reminders don't leak into regular chat
+    // context. The proactive scheduler reads these via get_proactive_context()
+    // which queries memory_notes directly — pinning is unnecessary and causes
+    // the reminder text to bleed into normal chat responses (Issue #18).
     if let Some(note) = extract_schedule_note(prompt) {
-        if let Err(e) = store.insert_memory_note("Schedule", &note, true, false, schedule_embedding) {
+        if let Err(e) =
+            store.insert_memory_note("Schedule", &note, false, false, schedule_embedding)
+        {
             eprintln!("[MEMORY] insert schedule note failed: {}", e);
         }
     }
@@ -51,7 +60,33 @@ pub(crate) fn process_memory_inner(
             if let Err(e) = store.insert_fact(fact) {
                 eprintln!("[MEMORY] insert fact failed: {}", e);
             } else {
+                #[cfg(debug_assertions)]
                 eprintln!("[MEMORY] Extracted fact: {}", fact);
+            }
+
+            // Dual-write: Archipelago Graph RAG (nodes + directed edges)
+            if let Some(akf) = rules::parse_fact_to_akf(fact) {
+                let user_res = store.upsert_node(
+                    &akf.subject_name,
+                    &akf.subject_kind,
+                    Some("User profile anchor"),
+                    None,
+                    "rule",
+                    None,
+                );
+                let obj_res = store.upsert_node(
+                    &akf.object_name,
+                    &akf.object_kind,
+                    Some(&akf.summary),
+                    None,
+                    "rule",
+                    None,
+                );
+                if let (Ok(user_id), Ok(obj_id)) = (user_res, obj_res) {
+                    if let Err(e) = store.insert_edge(user_id, &akf.rel, obj_id) {
+                        eprintln!("[MEMORY] insert graph edge failed: {}", e);
+                    }
+                }
             }
         }
     }
@@ -89,8 +124,13 @@ fn extract_schedule_note(prompt: &str) -> Option<String> {
     let cleaned = prompt.split_whitespace().collect::<Vec<_>>().join(" ");
     let lower = cleaned.to_lowercase();
     let scheduling_words = [
-        "remind me", "wake me", "wake up", "set a reminder",
-        "schedule", "don't let me forget", "dont let me forget",
+        "remind me",
+        "wake me",
+        "wake up",
+        "set a reminder",
+        "schedule",
+        "don't let me forget",
+        "dont let me forget",
     ];
     if !scheduling_words.iter().any(|w| lower.contains(w)) {
         return None;
@@ -108,16 +148,30 @@ fn extract_schedule_note(prompt: &str) -> Option<String> {
 fn apply_correction<'a>(cleaned: &str, original: &'a str) -> (String, &'a str, bool) {
     let lower = cleaned;
     let correction_phrases = [
-        "just kidding", "wait no", "wait, no", "actually",
-        "no wait", "sorry, i meant", "sorry i meant",
-        "i mean", "scratch that", "never mind", "nevermind", "correction:",
+        "just kidding",
+        "wait no",
+        "wait, no",
+        "actually",
+        "no wait",
+        "sorry, i meant",
+        "sorry i meant",
+        "i mean",
+        "scratch that",
+        "never mind",
+        "nevermind",
+        "correction:",
     ];
 
     for phrase in &correction_phrases {
         if let Some(pos) = lower.find(phrase) {
-            let after = &lower[pos + phrase.len()..].trim_start_matches(|c: char| c == ',' || c == ' ' || c == '.');
+            let after = &lower[pos + phrase.len()..]
+                .trim_start_matches(|c: char| c == ',' || c == ' ' || c == '.');
             if after.len() >= 3 {
-                eprintln!("[MEMORY] Correction detected: '{}' → using only '{}'", phrase, after);
+                #[cfg(debug_assertions)]
+                eprintln!(
+                    "[MEMORY] Correction detected: '{}' → using only '{}'",
+                    phrase, after
+                );
                 let orig_lower = original.to_lowercase();
                 if let Some(orig_pos) = orig_lower.find(phrase) {
                     let orig_after = &original[orig_pos + phrase.len()..]

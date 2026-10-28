@@ -246,4 +246,114 @@ impl MemoryStore {
         }
         Ok(out)
     }
+
+    /// Two-pass Archipelago Graph RAG retrieval:
+    /// Pass 1: Vector similarity over graph nodes with 0.62 cosine firewall (or identity/name query match).
+    /// Pass 2: 1-2 hop edge traversal from matched anchor nodes to collect related entity context.
+    pub fn search_graph_rag(
+        &self,
+        query: &str,
+        query_embedding: Option<&[f32]>,
+        limit: usize,
+    ) -> Result<Vec<String>> {
+        let mut matched_anchors: Vec<crate::memory::store::nodes::GraphNode> = Vec::new();
+        let mut seen_node_ids: HashSet<i64> = HashSet::new();
+
+        let q_lower = query.trim().to_lowercase();
+        let wants_notes = q_lower.contains("note")
+            || q_lower.contains("notebook")
+            || q_lower.contains("my notes");
+
+        // 1. Vector search over graph nodes if embedding provided
+        if let Some(qemb) = query_embedding {
+            // Strict 0.62 cosine firewall to prevent casual chat fact dumping
+            if let Ok(results) = self.search_nodes_cosine(qemb, 0.62, limit) {
+                for (node, _) in results {
+                    if !wants_notes && node.kind.eq_ignore_ascii_case("note") {
+                        continue;
+                    }
+                    if seen_node_ids.insert(node.id) {
+                        matched_anchors.push(node);
+                    }
+                }
+            }
+        }
+
+        // 2. Keyword/Identity fallback for explicit recall queries (e.g. "what is my name", "who am i", "my cat")
+        let is_identity_query = q_lower.contains("my name")
+            || q_lower.contains("who am i")
+            || q_lower.contains("who i am")
+            || q_lower.contains("remember me")
+            || q_lower.contains("my cat")
+            || q_lower.contains("my dog")
+            || q_lower.contains("my pet")
+            || q_lower.contains("where do i live")
+            || q_lower.contains("my birthday");
+
+        if matched_anchors.is_empty() && is_identity_query {
+            let conn = self.pool.acquire()?;
+            // Do not dump every person node — only the user's name fact, pets, or a name hit.
+            let mut stmt = conn.prepare(
+                "SELECT id, name, kind, summary, attrs, source, updated_at FROM nodes \
+                 WHERE kind != 'note' AND ( \
+                    (LOWER(?) LIKE '%' || LOWER(name) || '%' AND LENGTH(name) >= 3 AND LOWER(name) != 'user') \
+                    OR (kind = 'person' AND LOWER(COALESCE(summary, '')) LIKE '%user''s name is%') \
+                    OR (kind = 'pet' AND (LOWER(?) LIKE '%cat%' OR LOWER(?) LIKE '%dog%' OR LOWER(?) LIKE '%pet%')) \
+                    OR (kind = 'place' AND LOWER(?) LIKE '%live%') \
+                 ) ORDER BY updated_at DESC LIMIT ?",
+            )?;
+            let rows = stmt.query_map(
+                rusqlite::params![q_lower, q_lower, q_lower, q_lower, q_lower, limit as i64],
+                |r| {
+                    Ok(crate::memory::store::nodes::GraphNode {
+                        id: r.get(0)?,
+                        name: r.get(1)?,
+                        kind: r.get(2)?,
+                        summary: r.get(3)?,
+                        attrs: r.get(4)?,
+                        source: r.get(5)?,
+                        updated_at: r.get(6)?,
+                    })
+                },
+            )?;
+            for r in rows.flatten() {
+                if seen_node_ids.insert(r.id) {
+                    matched_anchors.push(r);
+                }
+            }
+        }
+
+        // 3. 1-2 Hop Subgraph Traversal on matched anchor nodes
+        let mut fact_strings: Vec<String> = Vec::new();
+        for anchor in matched_anchors {
+            if anchor.name.to_lowercase() == "user" {
+                continue;
+            }
+            let anchor_id = anchor.id;
+            let summary_str = anchor.summary.as_deref().unwrap_or(&anchor.name);
+            let entry = format!("{}: {}", anchor.kind, summary_str);
+            if !fact_strings.contains(&entry) {
+                fact_strings.push(entry);
+            }
+
+            // Traverse 1-2 hops
+            if let Ok(Some(traversal)) = self.traverse_subgraph(anchor_id, 2) {
+                for (rel, neighbor) in traversal.neighbors {
+                    if neighbor.name.to_lowercase() != "user" {
+                        let n_summary = neighbor.summary.as_deref().unwrap_or(&neighbor.name);
+                        let sub_entry = format!("{} ({} {})", neighbor.kind, rel.to_lowercase(), n_summary);
+                        if !fact_strings.contains(&sub_entry) {
+                            fact_strings.push(sub_entry);
+                        }
+                    }
+                }
+            }
+
+            if fact_strings.len() >= limit {
+                break;
+            }
+        }
+
+        Ok(fact_strings)
+    }
 }

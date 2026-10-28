@@ -25,10 +25,13 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             let rest = &cleaned[idx + anchor.len()..];
             let end = rest.find(['.', '!', '?', ',']).unwrap_or(rest.len());
             let thing = rest[..end].trim();
-            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count()) {
+            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count())
+            {
                 let orig = restore_case(thing, original);
                 let f = format!("{}{}", fact_prefix, orig);
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
         }
     }
@@ -41,9 +44,13 @@ fn restore_case(value_lower: &str, original: &str) -> String {
     if let Some(pos) = orig_lower.find(value_lower) {
         original[pos..pos + value_lower.len()].to_string()
     } else {
-        value_lower.split_whitespace().map(|w| {
-            let mut c = w.chars();
-            c.next().unwrap_or(' ').to_uppercase().collect::<String>() + c.as_str()
-        }).collect::<Vec<_>>().join(" ")
+        value_lower
+            .split_whitespace()
+            .map(|w| {
+                let mut c = w.chars();
+                c.next().unwrap_or(' ').to_uppercase().collect::<String>() + c.as_str()
+            })
+            .collect::<Vec<_>>()
+            .join(" ")
     }
 }

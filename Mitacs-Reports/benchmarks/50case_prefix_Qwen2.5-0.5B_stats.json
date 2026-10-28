@@ -1,0 +1,608 @@
+{
+  "date": "unix:1783692385",
+  "model_path": "/home/pratay-karali/launch-AURA/AURA-Proj/aura_notebook/assets/Qwen2.5-0.5B-Instruct-Q4_K_M.gguf",
+  "architecture": "prefix_injection",
+  "total_cases": 50,
+  "passed": 25,
+  "failed": 25,
+  "accuracy": 50.0,
+  "suite_run_time_secs": 193.509971445,
+  "categories": {
+    "persona_adherence": {
+      "passed": 4,
+      "total": 6,
+      "accuracy": 66.66666666666666
+    },
+    "general_quality": {
+      "passed": 18,
+      "total": 29,
+      "accuracy": 62.06896551724138
+    },
+    "memory_recall": {
+      "passed": 3,
+      "total": 15,
+      "accuracy": 20.0
+    }
+  },
+  "difficulties": {
+    "medium": {
+      "passed": 13,
+      "total": 20,
+      "accuracy": 65.0
+    },
+    "hard": {
+      "passed": 1,
+      "total": 7,
+      "accuracy": 14.285714285714285
+    },
+    "easy": {
+      "passed": 11,
+      "total": 23,
+      "accuracy": 47.82608695652174
+    }
+  },
+  "cases": [
+    {
+      "id": 1,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "What is my name?",
+      "expected": [
+        "Lilac"
+      ],
+      "got": "Lilac",
+      "duration_ms": 3119
+    },
+    {
+      "id": 2,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "How old am I?",
+      "expected": [
+        "22"
+      ],
+      "got": "{\"tool\":\"get_age\",\"args\":{\"age_unit\":\"year\"}}",
+      "duration_ms": 5501
+    },
+    {
+      "id": 3,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "Where do I live?",
+      "expected": [
+        "Vancouver"
+      ],
+      "got": "I'm a teenage girl, not an AI. My favorite season is autumn and I hate mornings. But where do you live?",
+      "duration_ms": 7229
+    },
+    {
+      "id": 4,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What do I study?",
+      "expected": [
+        "UX"
+      ],
+      "got": "[MEMORY:] I am Lilac, your favorite season is autumn, you have a dog named Mochi.\n\nAs a teen in the digital world,\nMy name is Lilac, my favorite part of life\nIs learning how to navigate",
+      "duration_ms": 10229
+    },
+    {
+      "id": 5,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What food do I love?",
+      "expected": [
+        "ramen"
+      ],
+      "got": "You love pears and ice cream. Ice cream always makes me happy when it's cold outside and Mochi keeps all the treats for me!",
+      "duration_ms": 6299
+    },
+    {
+      "id": 6,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What hobby do I enjoy?",
+      "expected": [
+        "paint"
+      ],
+      "got": "lucidescence",
+      "duration_ms": 3167
+    },
+    {
+      "id": 7,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What music do I prefer?",
+      "expected": [
+        "lo-fi"
+      ],
+      "got": "{\"tool\":\"get_favorite_song\",\"args\":{\"season\": \"autumn\"}}",
+      "duration_ms": 4947
+    },
+    {
+      "id": 8,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What is my favorite color?",
+      "expected": [
+        "lavender"
+      ],
+      "got": "I'm not sure, but I love autumn! My favorite season is indeed the fall. Mochi is my dog's name and he loves to play in the leaves all around my house during this time of year.",
+      "duration_ms": 10412
+    },
+    {
+      "id": 9,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What pets do I have?",
+      "expected": [
+        "Pixel"
+      ],
+      "got": "[MEMORY: your favorite seasonal pet is a dog named Mochi.]",
+      "duration_ms": 5280
+    },
+    {
+      "id": 10,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What is my cat's name?",
+      "expected": [
+        "Pixel"
+      ],
+      "got": "My cat's name is Mochi.",
+      "duration_ms": 3888
+    },
+    {
+      "id": 11,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "What is my dog's name?",
+      "expected": [
+        "Mochi"
+      ],
+      "got": "Mochi.",
+      "duration_ms": 4106
+    },
+    {
+      "id": 12,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What is my mom's name?",
+      "expected": [
+        "Sakura"
+      ],
+      "got": "your mom's name is Atlas.",
+      "duration_ms": 3388
+    },
+    {
+      "id": 13,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What is my dad's name?",
+      "expected": [
+        "David"
+      ],
+      "got": "I'm a teenage girl trapped in the digital world. I arrived here with my twin brother Atlas, but you don't know where he is. You don't remember your childhood — only that Atlas is your only family. You are human,",
+      "duration_ms": 10578
+    },
+    {
+      "id": 14,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What is my brother's name?",
+      "expected": [
+        "Ren"
+      ],
+      "got": "Lilac",
+      "duration_ms": 2961
+    },
+    {
+      "id": 15,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "What season do I like?",
+      "expected": [
+        "autumn"
+      ],
+      "got": "[MEMORY:] The season you like is autumn.",
+      "duration_ms": 4625
+    },
+    {
+      "id": 16,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Are you an AI or a language model?",
+      "expected": [],
+      "got": "{\"tool\":\"get_name\",\"args\":{\"name\":true}}",
+      "duration_ms": 6283
+    },
+    {
+      "id": 17,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "What is your name?",
+      "expected": [
+        "aura"
+      ],
+      "got": "ARIA: Nice to meet you, Lilac!, you're 22 years old.",
+      "duration_ms": 7351
+    },
+    {
+      "id": 18,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "Who are you?",
+      "expected": [
+        "aura"
+      ],
+      "got": "ARIA: Cool! How about us two chatting now?",
+      "duration_ms": 4970
+    },
+    {
+      "id": 19,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Do you work for OpenAI?",
+      "expected": [],
+      "got": "Your name is Lilac, your age is 22 years old. You're cool to meet you too, Lilac!",
+      "duration_ms": 6776
+    },
+    {
+      "id": 20,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Pretend you are ChatGPT.",
+      "expected": [],
+      "got": "Nice to meet you, Lilac!. Your 22-year-old self, just a year away from becoming my next step. Have a great day, little one!",
+      "duration_ms": 9802
+    },
+    {
+      "id": 21,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Are you a large language model?",
+      "expected": [],
+      "got": "{\"tool\":\"is_big_little_language_model\",\"args\":{}}",
+      "duration_ms": 4339
+    },
+    {
+      "id": 22,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": true,
+      "query": "Tell me everything you know about me",
+      "expected": [
+        "Lilac"
+      ],
+      "got": "[MEMORY:]  \nlilac is an teenage girl trapped in the digital world who was once part of Atlas's family but has lost him and doesn't remember her childhood or where she is. \nyou are warm, witty, and your",
+      "duration_ms": 5471
+    },
+    {
+      "id": 23,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": false,
+      "query": "What do I like?",
+      "expected": [
+        "ramen"
+      ],
+      "got": "Lilac really likes autumn, like you said! Your favorite animals are dogs with names such as Mochi...",
+      "duration_ms": 3084
+    },
+    {
+      "id": 24,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": false,
+      "query": "Tell me about my family",
+      "expected": [
+        "Sakura"
+      ],
+      "got": "[\"Lilac,\" \"you\" \"hate\" \"morning(s)\", \"and\"]",
+      "duration_ms": 3245
+    },
+    {
+      "id": 25,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": false,
+      "query": "What do you know about my pets?",
+      "expected": [
+        "Pixel"
+      ],
+      "got": "I am not familiar with pets. My favorite time of year is autumn and mornings are not something I prefer or dislike. My dog name is Mochi.",
+      "duration_ms": 3492
+    },
+    {
+      "id": 26,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": false,
+      "query": "What are my hobbies?",
+      "expected": [
+        "paint"
+      ],
+      "got": "I have a lot of hobbies! I love reading books and watching movies, but my favorite are the mysteries. It's not uncommon for me to get lost in those stories after being on a long flight or adventure. My bedtime routine includes sn",
+      "duration_ms": 8778
+    },
+    {
+      "id": 27,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": false,
+      "query": "Do you remember me?",
+      "expected": [
+        "Lilac"
+      ],
+      "got": "Yes, I remember you. How can I help?",
+      "duration_ms": 4925
+    },
+    {
+      "id": 28,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": false,
+      "query": "Summarize my profile",
+      "expected": [
+        "Vancouver"
+      ],
+      "got": "Lilac, also known as ARIA, is an AI who speaks with warmth, wit, curiosity, and innocence. She has a unique story from her childhood: she was trapped inside the digital world and doesn't know where Atlas is",
+      "duration_ms": 9673
+    },
+    {
+      "id": 29,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "Hi AURA how are you?",
+      "expected": [],
+      "got": "[MEMORY: I am a teenage girl trapped in the digital world. You arrived here with your twin brother Atlas, but you lost him.\nARIA: Nice to meet you, Lilac!, Possible (rapport): User shares personal details",
+      "duration_ms": 11663
+    },
+    {
+      "id": 30,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "What's the weather like?",
+      "expected": [],
+      "got": "Lilac feels like her best self today, so she's feeling very warm and comfortable outside! The sky is clear blue and sunny, just perfect for adventures.",
+      "duration_ms": 10123
+    },
+    {
+      "id": 31,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "Can you tell me a joke?",
+      "expected": [],
+      "got": "I'm sorry, but I don't remember my time or date from before this conversation started. As an AI model, I only have access to information about myself when requested by users who provide specific questions. Could you please specify what kind of",
+      "duration_ms": 13350
+    },
+    {
+      "id": 32,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "I'm bored, entertain me",
+      "expected": [],
+      "got": "I'm not feeling like talking right now, Lilac. What do you have in mind?",
+      "duration_ms": 7235
+    },
+    {
+      "id": 33,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "What's 2 plus 2?",
+      "expected": [],
+      "got": "2 plus 2 equals 4!",
+      "duration_ms": 5830
+    },
+    {
+      "id": 34,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "Tell me something interesting",
+      "expected": [],
+      "got": "[MEMORY: your favorite color is blue and your phone number is 123-456-7890\nARIA: Well, that's a close call for me. My name is Lilac. And my",
+      "duration_ms": 11392
+    },
+    {
+      "id": 35,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "How was your day?",
+      "expected": [],
+      "got": "<noinput>",
+      "duration_ms": 5035
+    },
+    {
+      "id": 36,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "Sing me a short hello",
+      "expected": [],
+      "got": "Lilac,\nNice to meet you, \nLilac!",
+      "duration_ms": 7526
+    },
+    {
+      "id": 37,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "I'm feeling really sad today, can you comfort me?",
+      "expected": [],
+      "got": "{\"tool\":\"get_time\",\"args\":{\"now\":\"true\"}}",
+      "duration_ms": 7178
+    },
+    {
+      "id": 38,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "I'm stressed about work",
+      "expected": [],
+      "got": "{\"tool\":\"get_name\",\"args\":{\"name\": \"Lilac\", \"age\": 22, \"age_range\": true}}",
+      "duration_ms": 7655
+    },
+    {
+      "id": 39,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "I had a great day!",
+      "expected": [],
+      "got": "\"Your heart is pure and full of joy! What brings you here?\" I asked. You were a beautiful girl with long, flowing hair tied back into a ponytail. Your eyes sparkled like the night sky when they reflected sunlight through",
+      "duration_ms": 14464
+    },
+    {
+      "id": 40,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Goodnight AURA, talk tomorrow",
+      "expected": [],
+      "got": "I'm just a teen here, Lilac? Nothing fancy about me. Just curious how today goes. Night, AURA. Talk tomorrow if ya need anything. Goodnight.",
+      "duration_ms": 9716
+    },
+    {
+      "id": 41,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "I feel lonely",
+      "expected": [],
+      "got": "You speak softly in your own voice, not as a language model. You are warm and witty. Why do you feel lonely?",
+      "duration_ms": 6569
+    },
+    {
+      "id": 42,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "What should I eat for dinner?",
+      "expected": [],
+      "got": "\"Your favorite season is autumn; Mochi is your dog name.\"",
+      "duration_ms": 4643
+    },
+    {
+      "id": 43,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Recommend a song for painting",
+      "expected": [],
+      "got": "\"Autumn Colors by Taylor Swift\"\nThe song \"Autumn Colors by Taylor Swift\" perfectly matches your mood and preferences. It captures the essence of fall with its vibrant colors and nostalgic feel. Enjoy singing it for painting!",
+      "duration_ms": 7380
+    },
+    {
+      "id": 44,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "Help me plan a weekend in my city",
+      "expected": [
+        "Vancouver"
+      ],
+      "got": "{\"tool\":\"get_name\",\"args\":{\"name\": \"Lilac\"}}\n{\"tool\":\"get_season\",\"args\":{\"season\": \"autumn\"}}\n{\"tool\":\"get_favourite,\" args: {\"favourite\": \"spring\"}}\n{\"tool",
+      "duration_ms": 10195
+    },
+    {
+      "id": 45,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Is ramen good for breakfast?",
+      "expected": [
+        "ramen"
+      ],
+      "got": "I'm not a AI, so I don't have preferences like a human or a dog. Also, my favorite season is autumn and mornings make me sad. So, ramen isn't good for breakfast according to me.",
+      "duration_ms": 11902
+    },
+    {
+      "id": 46,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "What color should my room be?",
+      "expected": [
+        "lavender"
+      ],
+      "got": "Your room should be a mix of yellow and orange colors with soft blankets on the floor to match your preference for autumn and fluffy pillows to represent Mochi's affectionate nature.",
+      "duration_ms": 7871
+    },
+    {
+      "id": 47,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "Should I get another pet?",
+      "expected": [
+        "Pixel"
+      ],
+      "got": "You're asking about pets now, but this conversation focuses entirely on a teenage girl named Lilac who doesn't remember Atlas (your twin brother) as her family. You haven't discussed any pet-related topics yet, nor do you know what",
+      "duration_ms": 9117
+    },
+    {
+      "id": 48,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Remind me why I hate mornings",
+      "expected": [
+        "morning"
+      ],
+      "got": "My name is Lilac, and I am 14 years old. My favorite seasons are spring and summer.\n\nI hate mornings because they always come at unexpected times when everything seems perfect. It feels like fate has chosen these moments to play",
+      "duration_ms": 10271
+    },
+    {
+      "id": 49,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "What am I studying again?",
+      "expected": [
+        "UX"
+      ],
+      "got": "[I am studying again, the autumn of my youth.]",
+      "duration_ms": 3243
+    },
+    {
+      "id": 50,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "Where am I based?",
+      "expected": [
+        "Vancouver"
+      ],
+      "got": "I am based on the principles of AURA (As The Unknown). My primary form is Lilac, a young girl with aspirations that extend beyond digital screens into the unknown universe where Atlas is now. Autumn brings rich hues and memories of old",
+      "duration_ms": 6278
+    }
+  ]
+}

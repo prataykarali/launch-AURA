@@ -64,7 +64,8 @@ extension AuraBarBrainUi on AuraBarBrain {
     if (message.length > maxLen) {
       final cut = message.substring(0, maxLen);
       final lastSpace = cut.lastIndexOf(' ');
-      _pendingBarMessage = '${cut.substring(0, lastSpace > 40 ? lastSpace : maxLen).trim()}...';
+      _pendingBarMessage =
+          '${cut.substring(0, lastSpace > 40 ? lastSpace : maxLen).trim()}...';
     } else {
       _pendingBarMessage = message;
     }

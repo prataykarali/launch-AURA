@@ -11,14 +11,10 @@ part 'attendance_tab_widgets.dart';
 // so it always shows exactly the same students as the Roster tab.
 // ─────────────────────────────────────────────────────────────────────────────
 class AttendanceTab extends StatefulWidget {
-  final ClassData          data;
-  final List<StudentModel> students;   // ← shared list from ClassDetailPage
+  final ClassData data;
+  final List<StudentModel> students; // ← shared list from ClassDetailPage
 
-  const AttendanceTab({
-    super.key,
-    required this.data,
-    required this.students,
-  });
+  const AttendanceTab({super.key, required this.data, required this.students});
 
   @override
   State<AttendanceTab> createState() => _AttendanceTabState();

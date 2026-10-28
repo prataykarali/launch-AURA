@@ -5,10 +5,11 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   desktop_multi_window
+  media_kit_libs_windows_video
+  media_kit_video
   permission_handler_windows
   screen_retriever_windows
   speech_to_text_windows
-  sqlite3_flutter_libs
   window_manager
 )
 

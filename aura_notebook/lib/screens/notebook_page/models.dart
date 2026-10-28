@@ -44,11 +44,7 @@ class Fact {
   final String value;
   final DateTime updatedAt;
 
-  const Fact({
-    required this.key,
-    required this.value,
-    required this.updatedAt,
-  });
+  const Fact({required this.key, required this.value, required this.updatedAt});
 
   factory Fact.fromJson(Map<String, dynamic> j) => Fact(
     key: j['key'] as String? ?? '',

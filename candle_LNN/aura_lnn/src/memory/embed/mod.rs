@@ -88,8 +88,6 @@ impl Embedder for NoOpEmbedder {
 mod model;
 mod plan;
 mod plan_budgets;
-mod scheduler;
 
 pub use model::BgeTextEmbedder;
 pub use plan::{plan_reply, ReplyPlan};
-pub use scheduler::RLScheduler;

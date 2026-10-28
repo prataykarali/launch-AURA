@@ -44,12 +44,13 @@ extension _LoadingScreenDesktopLogic on _LoadingScreenState {
       await Directory(dir).create(recursive: true);
       modelPath = '$dir/$_kModelFilename';
     }
-    if (!_isExpectedChatModel(modelPath) &&
+    if (_kModelUrl.isNotEmpty &&
+        !_isExpectedChatModel(modelPath) &&
         modelPath.endsWith('/$_kModelFilename')) {
       _setStep(_Step.download);
       _updateState(() => _downloadProgress = 0.0);
       try {
-        await _download(_kModelUrl, modelPath);
+        await _download(_kModelUrl, modelPath, '');
       } catch (e) {
         if (File(modelPath).existsSync()) await File(modelPath).delete();
         final hint = await _storageHint(modelPath);

@@ -17,7 +17,7 @@ pub fn evaluate_case(case: &TestCase, store: &MemoryStore, engine: &mut LlamaEng
             let _ = store.insert_turn("assistant", &turn.content);
             aura_lnn::api::worker_utils::process_memory(store, &last_user_content, &turn.content);
 
-            let turn_text = format!("User: {}\nAURA: {}", last_user_content, turn.content);
+            let turn_text = format!("User: {}\nARIA: {}", last_user_content, turn.content);
             if let Some(emb_engine) = engine.embedder() {
                 if let Ok(emb) = emb_engine.embed_passage(&turn_text) {
                     let _ = store.insert_vec_memory(&turn_text, &emb);

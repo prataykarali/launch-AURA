@@ -8,11 +8,14 @@ import 'package:window_manager/window_manager.dart';
 import 'package:aura_notebook/bar/bar_multi_window_service.dart';
 import 'package:aura_notebook/bar/bar_window_app.dart';
 import 'package:aura_notebook/main/aura_app.dart';
+import 'package:aura_notebook/mvp_config.dart';
 import 'package:aura_notebook/services/stt_service.dart';
 import 'package:aura_notebook/src/rust/frb_generated.dart';
+import 'package:media_kit/media_kit.dart';
 
 Future<void> runAura(List<String> rawArgs) async {
   WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
   AuraSTTService.isMainApp = true;
 
   final isDesktop = Platform.isLinux || Platform.isWindows || Platform.isMacOS;
@@ -51,8 +54,11 @@ Future<void> runAura(List<String> rawArgs) async {
   if (isDesktop) {
     await windowManager.setTitle('AURA');
     await windowManager.setPreventClose(true);
-    await windowManager
-        .hide(); // Hide main app window so it doesn't pop up on start
+    if (MvpConfig.hideMainWindowOnLaunch) {
+      await windowManager.hide();
+    } else {
+      await windowManager.show();
+    }
   }
   runApp(const AuraApp());
 }

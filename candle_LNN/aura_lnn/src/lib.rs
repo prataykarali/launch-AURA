@@ -8,6 +8,7 @@ pub mod llama_engine;
 pub mod memory;
 pub(crate) mod memory_health;
 pub mod performance_profile;
+pub mod plugins;
 pub mod vision;
 
 mod frb_generated;

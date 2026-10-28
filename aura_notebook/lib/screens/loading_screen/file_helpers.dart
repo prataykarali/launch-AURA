@@ -50,7 +50,12 @@ bool get _kUseAssetDirectly =>
 /// [_kModelMinBytes], else null (caller will then have to download — desktop
 /// dev convenience). Mirrors AuraTTSService._ancestorAssetDirs / _probePiperCli.
 Future<String?> _resolveDesktopModelPath(String assetBase) async {
-  return _resolveDesktopFile(_kModelFilename, assetBase, _kModelMinBytes);
+  return await _resolveDesktopFile(
+        _kModelFilename,
+        assetBase,
+        _kModelMinBytes,
+      ) ??
+      _resolveDesktopFile(_kLegacyModelFilename, assetBase, 600 * 1024 * 1024);
 }
 
 /// Generic desktop file resolver. Checks bundle, cwd, ancestor dirs, and the
@@ -99,7 +104,8 @@ List<String> _ancestorCandidatesFor(String start, String filename) {
 
 bool _isExpectedChatModel(String path) {
   final file = File(path);
-  return path.endsWith('/$_kModelFilename') &&
+  return (path.endsWith('/$_kModelFilename') ||
+          path.endsWith('/$_kLegacyModelFilename')) &&
       file.existsSync() &&
       file.lengthSync() >= _kModelMinBytes;
 }
@@ -118,6 +124,8 @@ Future<void> _removeStaleModelFiles(
     await for (final entity in root.list(followLinks: false)) {
       if (entity is! File) continue;
       final name = entity.uri.pathSegments.last;
+      // Keep mmproj / projector weights — VLM needs them next to the chat GGUF.
+      if (name.contains('mmproj') || name.contains('mm-proj')) continue;
       final isModel =
           name.endsWith('.gguf') ||
           _kOldModelSuffixes.any((suffix) => name.endsWith(suffix));

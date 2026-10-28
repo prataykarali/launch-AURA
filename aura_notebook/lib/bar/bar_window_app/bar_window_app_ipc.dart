@@ -7,12 +7,20 @@ import 'package:flutter/services.dart';
 
 import 'bar_window_app_host.dart';
 
+class _QueuedMessage {
+  final String method;
+  final dynamic arguments;
+  _QueuedMessage(this.method, this.arguments);
+}
+
 class BarWindowAppIpc {
   final BarWindowAppHost _host;
 
   BarWindowAppIpc(this._host);
 
-  static const MethodChannel _barWindowChannel = MethodChannel('aura/bar_window');
+  static const MethodChannel _barWindowChannel = MethodChannel(
+    'aura/bar_window',
+  );
 
   /// Cached main window ID — discovered once via WindowController.getAll().
   /// On Linux, desktop_multi_window assigns a random UUID to each window
@@ -21,6 +29,14 @@ class BarWindowAppIpc {
   /// CHANNEL_UNREGISTERED, making ALL bar buttons (mic, speaker, volume,
   /// text submit) silently unresponsive while the engine itself worked fine.
   String? _mainWindowId;
+
+  /// Message queue for failed IPC calls. When the main window is busy
+  /// (e.g. during LLM generation), messages are buffered here and retried.
+  /// This fixes the issue where bar drops messages after 2-3 inputs.
+  final List<_QueuedMessage> _messageQueue = [];
+  static const int _maxQueueSize = 30;
+  Timer? _queueDrainTimer;
+  bool _isDraining = false;
 
   // ── Drag state with threshold ──────────────────────────────────────────
   // We track the pointer position ourselves instead of relying on Flutter's
@@ -60,19 +76,78 @@ class BarWindowAppIpc {
   /// ("Just waking up…") and never processed. Routing via IPC mirrors how the
   /// Android overlay already works (see main.dart handlers: mic_tap /
   /// speaker_tap / volume_tap / submit_text).
+  ///
+  /// RETRY + QUEUE: If the IPC call fails, retry up to 5 times with exponential
+  /// backoff. If all retries fail, buffer the message and drain later. This
+  /// fixes the issue where the bar drops messages after 2-3 inputs (Issue #1).
   Future<void> invokeMain(String method, [dynamic arguments]) async {
-    try {
-      _mainWindowId ??= await _discoverMainWindowId();
-      if (_mainWindowId == null) {
-        debugPrint('BarWindow: IPC "$method" skipped — main window not found');
+    for (var attempt = 0; attempt < 5; attempt++) {
+      try {
+        if (_mainWindowId == null) {
+          _mainWindowId = await _discoverMainWindowId();
+        }
+        if (_mainWindowId == null) {
+          debugPrint(
+            'BarWindow: IPC "$method" skipped — main window not found',
+          );
+          _enqueueMessage(method, arguments);
+          return;
+        }
+        await WindowController.fromWindowId(
+          _mainWindowId!,
+        ).invokeMethod(method, arguments);
+        // Success — trigger drain of any queued messages.
+        _startQueueDrain();
         return;
+      } catch (e) {
+        _mainWindowId = null;
+        if (attempt < 4) {
+          debugPrint(
+            'BarWindow: IPC "$method" attempt ${attempt + 1} failed: $e — retrying',
+          );
+          await Future.delayed(Duration(milliseconds: 300 * (attempt + 1)));
+        } else {
+          debugPrint(
+            'BarWindow: IPC "$method" to main failed after 5 attempts: $e — queuing',
+          );
+          _enqueueMessage(method, arguments);
+        }
       }
-      await WindowController.fromWindowId(_mainWindowId!).invokeMethod(method, arguments);
-    } catch (e) {
-      // If the cached ID went stale (e.g. main window recreated), clear it
-      // so the next call re-discovers.
-      _mainWindowId = null;
-      debugPrint('BarWindow: IPC "$method" to main failed: $e');
+    }
+  }
+
+  void _enqueueMessage(String method, dynamic arguments) {
+    if (_messageQueue.length >= _maxQueueSize) {
+      _messageQueue.removeAt(0); // Drop oldest.
+      debugPrint('BarWindow: message queue full, dropped oldest');
+    }
+    _messageQueue.add(_QueuedMessage(method, arguments));
+    debugPrint('BarWindow: queued "$method" (${_messageQueue.length} pending)');
+    _startQueueDrain();
+  }
+
+  void _startQueueDrain() {
+    // Don't restart the timer if one is already running or drain is active.
+    if (_isDraining ||
+        (_queueDrainTimer != null && _queueDrainTimer!.isActive)) {
+      return;
+    }
+    _queueDrainTimer = Timer(const Duration(seconds: 2), _drainQueue);
+  }
+
+  Future<void> _drainQueue() async {
+    if (_messageQueue.isEmpty || _isDraining) return;
+    _isDraining = true;
+    try {
+      while (_messageQueue.isNotEmpty) {
+        final msg = _messageQueue.removeAt(0);
+        debugPrint(
+          'BarWindow: draining queued "${msg.method}" (${_messageQueue.length} remaining)',
+        );
+        await invokeMain(msg.method, msg.arguments);
+      }
+    } finally {
+      _isDraining = false;
     }
   }
 
@@ -80,7 +155,9 @@ class BarWindowAppIpc {
     try {
       _mainWindowId ??= await _discoverMainWindowId();
       if (_mainWindowId == null) return;
-      await WindowController.fromWindowId(_mainWindowId!).invokeMethod('sub_window_closed');
+      await WindowController.fromWindowId(
+        _mainWindowId!,
+      ).invokeMethod('sub_window_closed');
     } catch (_) {}
   }
 

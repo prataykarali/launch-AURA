@@ -71,10 +71,11 @@ class VisionService {
   DateTime? _stuckStartedAt;
   DateTime? _lastStuckOcrAt;
   int _motionStreak = 0;
+  int _passiveOcrCounter = 0;
   String? _lastScreenText;
   final List<VisionDetection> _lastAndroidDetections = const [];
   final BoundedWorkBucket<Uint8List> _frameBucket =
-      BoundedWorkBucket<Uint8List>(name: 'vision_frames', capacity: 2);
+      BoundedWorkBucket<Uint8List>(name: 'vision_frames', capacity: 8);
 
   // Poll intervals
   static const Duration _kIdleInterval = Duration(seconds: 4);
@@ -102,18 +103,9 @@ class VisionService {
   /// Linux samples screen context. Android vision is intentionally disabled for
   /// now so camera/ML Kit cannot compete with LLM, overlay, STT or TTS.
   void start() {
-    if (_running) return;
-    final profile = deviceProfile;
-    if (profile == AuraVisionDeviceProfile.mobileMinimal) {
-      debugPrint('[Vision] mobile_minimal: listen-only, passive vision off');
-      return;
-    }
-    _running = true;
-    _healthPaused = false;
-    debugPrint(
-      '[Vision] passive context service started profile=${profile.name}',
-    );
-    _scheduleNext(_kIdleInterval);
+    // Passive background vision loop is disabled by design.
+    // Detections are only triggered via the explicit /see command.
+    return;
   }
 
   /// Stop the background vision loop.
@@ -134,6 +126,7 @@ class VisionService {
     _usageAccessRequested = false;
     _stuckStartedAt = null;
     _motionStreak = 0;
+    _passiveOcrCounter = 0;
     debugPrint('[Vision] service stopped');
   }
 
@@ -163,8 +156,7 @@ class VisionService {
 
   Future<void> _poll() => _pollImpl(this);
 
-  Future<void> _processFrame(Uint8List frame) =>
-      _processFrameImpl(this, frame);
+  Future<void> _processFrame(Uint8List frame) => _processFrameImpl(this, frame);
 
   bool consumeStuckEpisodeTrigger() => _consumeStuckEpisodeTrigger(this);
 }

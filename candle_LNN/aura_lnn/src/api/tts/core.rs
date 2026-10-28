@@ -5,26 +5,26 @@ use super::model::{find_file, find_voice_model};
 use super::online::try_online_tts;
 use super::TtsAudio;
 use anyhow::Result;
-use once_cell::sync::{Lazy, OnceCell};
 use sherpa_onnx::{
     GenerationConfig, OfflineTts, OfflineTtsConfig, OfflineTtsModelConfig,
     OfflineTtsVitsModelConfig,
 };
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering, Ordering as AtomicOrdering};
 use std::sync::{mpsc, Mutex};
+use std::sync::{LazyLock, OnceLock};
 use std::time::{Duration, Instant};
 
-static TTS_ENGINE: OnceCell<Mutex<OfflineTts>> = OnceCell::new();
-static AUDIO_TX: OnceCell<mpsc::Sender<AudioMsg>> = OnceCell::new();
-static TTS_TX: OnceCell<mpsc::Sender<TtsJob>> = OnceCell::new();
+static TTS_ENGINE: OnceLock<Mutex<OfflineTts>> = OnceLock::new();
+static AUDIO_TX: OnceLock<mpsc::Sender<AudioMsg>> = OnceLock::new();
+static TTS_TX: OnceLock<mpsc::Sender<TtsJob>> = OnceLock::new();
 static TTS_INIT_ATTEMPTED: AtomicBool = AtomicBool::new(false);
 static TTS_EPOCH: AtomicU64 = AtomicU64::new(0);
 
 // Anti-spam: suppress duplicate TTS requests for the same text within a short
 // window. The Flutter side already deduplicates, but guarding here too protects
 // against FFI callers, multiple surfaces, and rapid platform events.
-static LAST_SPOKEN: Lazy<Mutex<(String, Instant)>> =
-    Lazy::new(|| Mutex::new((String::new(), Instant::now() - Duration::from_secs(10))));
+static LAST_SPOKEN: LazyLock<Mutex<(String, Instant)>> =
+    LazyLock::new(|| Mutex::new((String::new(), Instant::now() - Duration::from_secs(10))));
 const DEDUP_WINDOW_MS: u64 = 2_000;
 
 struct TtsJob {
@@ -282,14 +282,21 @@ pub(super) fn available() -> bool {
 pub(super) fn clean_tts_text(text: &str) -> String {
     let mut r = text.to_string();
     // JSON tool blocks → skip TTS entirely if whole response is a tool call
-    if r.trim_start().starts_with("{\"tool\":") { return String::new(); }
+    if r.trim_start().starts_with("{\"tool\":") {
+        return String::new();
+    }
     if let Some(s) = r.find("{\"tool\":") {
-        if let Some(e) = r[s..].find('}') { r = format!("{}{}", &r[..s], &r[s + e + 1..]); }
+        if let Some(e) = r[s..].find('}') {
+            r = format!("{}{}", &r[..s], &r[s + e + 1..]);
+        }
     }
     // Thinking tags
     if let Some(s) = r.find("<|think|>") {
-        if let Some(e) = r.find("<|/think|>") { r = format!("{}{}", &r[..s], &r[e + 10..]); }
-        else { r.truncate(s); }
+        if let Some(e) = r.find("<|/think|>") {
+            r = format!("{}{}", &r[..s], &r[e + 10..]);
+        } else {
+            r.truncate(s);
+        }
     }
     // Markdown chars
     for c in ["**", "__", "~~", "`", "#", ">", "*", "_"] {
@@ -299,15 +306,29 @@ pub(super) fn clean_tts_text(text: &str) -> String {
     while let Some(s) = r.find('[') {
         if let Some(e) = r[s..].find(']') {
             let tag = &r[s..s + e + 1].to_lowercase();
-            if tag.starts_with("[memory:") || tag.starts_with("[internal:")
-                || tag.starts_with("[bar") || tag.starts_with("[brief") {
+            if tag.starts_with("[memory:")
+                || tag.starts_with("[know:")
+                || tag.starts_with("[internal:")
+                || tag.starts_with("[bar")
+                || tag.starts_with("[brief")
+            {
                 r = format!("{}{}", &r[..s], &r[s + e + 1..]);
-            } else { break; }
-        } else { break; }
+            } else {
+                break;
+            }
+        } else {
+            break;
+        }
     }
     // Collapse dots and spaces
-    while r.contains("...") { r = r.replace("...", "."); }
-    while r.contains("..") { r = r.replace("..", "."); }
-    while r.contains("  ") { r = r.replace("  ", " "); }
+    while r.contains("...") {
+        r = r.replace("...", ".");
+    }
+    while r.contains("..") {
+        r = r.replace("..", ".");
+    }
+    while r.contains("  ") {
+        r = r.replace("  ", " ");
+    }
     r.trim().to_string()
 }

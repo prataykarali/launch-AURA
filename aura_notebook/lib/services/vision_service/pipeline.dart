@@ -60,6 +60,19 @@ Future<void> _processFrameImpl(VisionService service, Uint8List frame) async {
   final detections = await _analyseFrame(service, frame);
   if (detections.isEmpty) return;
 
+  // Pass screen text to Rust via a special detection label.
+  // The Rust side strips this label and stores the text in the vision event.
+  final screenText = service._lastScreenText;
+  if (screenText != null && screenText.trim().isNotEmpty) {
+    final truncated = screenText.length > 500
+        ? '${screenText.substring(0, 500)}...'
+        : screenText;
+    detections.add(
+      VisionDetection(label: 'ocr_text:$truncated', confidence: 0.95),
+    );
+    service._lastScreenText = null; // Clear after sending.
+  }
+
   final accepted = await auraProcessVision(detections: detections);
   if (!accepted) {
     debugPrint('[Vision] Rust vision queue rejected detection batch');

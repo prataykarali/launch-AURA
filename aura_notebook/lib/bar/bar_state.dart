@@ -1,16 +1,7 @@
 import 'package:flutter/material.dart';
+import '../models/bar_state.dart';
 
-enum BarState {
-  idle,
-  listening,
-  speaking,
-  processing,
-  proactive,
-  learning,
-  wakeListening,
-  watching,
-  warning,
-}
+export '../models/bar_state.dart';
 
 extension BarStateX on BarState {
   bool get isActive =>
@@ -31,13 +22,10 @@ extension BarStateX on BarState {
       case BarState.proactive:
         return [Color(0xFF6EE7B7), Color(0xFF34D399)];
       case BarState.learning:
-        // Soft indigo-violet gradient for memory consolidation state
         return [Color(0xFF818CF8), Color(0xFFA78BFA)];
       case BarState.wakeListening:
-        // Ambient soft teal and cyan pulse colors
         return [Color(0xFF14B8A6), Color(0xFF06B6D4)];
       case BarState.watching:
-        // Electric cyan/teal — vision is active
         return [Color(0xFF00E5FF), Color(0xFF00BCD4), Color(0xFF26C6DA)];
       case BarState.warning:
         return [Color(0xFFFFD166), Color(0xFFFF6B6B)];

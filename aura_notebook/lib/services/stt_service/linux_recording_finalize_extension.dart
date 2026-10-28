@@ -73,9 +73,7 @@ extension _AuraSTTServiceLinuxFinalize on AuraSTTService {
       return '';
     }
 
-    debugPrint(
-      'STT Linux: transcribing WAV ($fileSize bytes) with whisper...',
-    );
+    debugPrint('STT Linux: transcribing WAV ($fileSize bytes) with whisper...');
     String text = '';
     try {
       text = await _transcribeWav(wavPath);
@@ -85,7 +83,9 @@ extension _AuraSTTServiceLinuxFinalize on AuraSTTService {
       } catch (_) {}
     }
 
-    debugPrint('STT Linux: whisper → "$text"');
+    if (kDebugMode) {
+      debugPrint('STT Linux: whisper → "$text"');
+    }
     return text;
   }
 }

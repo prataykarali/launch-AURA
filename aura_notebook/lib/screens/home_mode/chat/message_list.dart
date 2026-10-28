@@ -9,10 +9,10 @@ import 'chat_message.dart';
 // ─── Message list ─────────────────────────────────────────────────────────────
 
 class MsgList extends StatelessWidget {
-  final List<ChatMessage>         messages;
-  final ValueNotifier<String>     streamText;
-  final ValueNotifier<bool>       streaming;
-  final ScrollController          scroll;
+  final List<ChatMessage> messages;
+  final ValueNotifier<String> streamText;
+  final ValueNotifier<bool> streaming;
+  final ScrollController scroll;
   final Future<void> Function(String) onSuggestion;
 
   const MsgList({
@@ -202,7 +202,7 @@ class _ThinkingDotsState extends State<_ThinkingDots>
 
 class ChatBubble extends StatelessWidget {
   final String text;
-  final bool   isUser;
+  final bool isUser;
   const ChatBubble({super.key, required this.text, required this.isUser});
 
   @override
@@ -218,9 +218,9 @@ class ChatBubble extends StatelessWidget {
         decoration: BoxDecoration(
           color: isUser ? Colors.indigoAccent : Colors.white,
           borderRadius: BorderRadius.only(
-            topLeft:     const Radius.circular(20),
-            topRight:    const Radius.circular(20),
-            bottomLeft:  Radius.circular(isUser ? 20 : 4),
+            topLeft: const Radius.circular(20),
+            topRight: const Radius.circular(20),
+            bottomLeft: Radius.circular(isUser ? 20 : 4),
             bottomRight: Radius.circular(isUser ? 4 : 20),
           ),
           boxShadow: [

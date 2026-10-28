@@ -5,14 +5,24 @@ class _Dots extends StatefulWidget {
   @override
   State<_Dots> createState() => _DotsState();
 }
+
 class _DotsState extends State<_Dots> with SingleTickerProviderStateMixin {
   late final AnimationController _ac;
   @override
-  void initState() { super.initState();
-  _ac = AnimationController(vsync: this,
-      duration: const Duration(milliseconds: 900))..repeat();
+  void initState() {
+    super.initState();
+    _ac = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
   }
-  @override void dispose() { _ac.dispose(); super.dispose(); }
+
+  @override
+  void dispose() {
+    _ac.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
     animation: _ac,
@@ -23,7 +33,8 @@ class _DotsState extends State<_Dots> with SingleTickerProviderStateMixin {
         final o = (p < 0.5 ? p * 2 : (1 - p) * 2).clamp(0.25, 1.0);
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 2),
-          width: 5, height: 5,
+          width: 5,
+          height: 5,
           decoration: BoxDecoration(
             color: const Color(0xFF7C4DFF).withOpacity(o),
             shape: BoxShape.circle,

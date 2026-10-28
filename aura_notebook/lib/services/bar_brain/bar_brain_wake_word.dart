@@ -2,7 +2,8 @@ part of 'bar_brain.dart';
 
 extension AuraBarBrainWakeWord on AuraBarBrain {
   void startWakeWordListener() {
-    if (!AuraBarBrain.kWakeWordEnabled) return; // passive listening off — push-to-talk only
+    if (!AuraBarBrain.kWakeWordEnabled)
+      return; // passive listening off — push-to-talk only
     if (_wakeWordEnabled &&
         (_isWakeWordListening || _wakeWordRestartTimer?.isActive == true)) {
       return;
@@ -54,7 +55,9 @@ extension AuraBarBrainWakeWord on AuraBarBrain {
     await AuraSTTService.instance.startListening(
       onResult: (text, isFinal) {
         final lowerText = text.toLowerCase();
-        debugPrint('[WAKE WORD] Passive heard: "$lowerText"');
+        if (kDebugMode) {
+          debugPrint('[WAKE WORD] Passive heard: "$lowerText"');
+        }
         if (_isProcessing) {
           debugPrint('[WAKE WORD] Ignoring — LLM is actively processing.');
           return;

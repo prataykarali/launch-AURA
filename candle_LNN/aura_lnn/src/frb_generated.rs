@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.12.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 187957620;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1081188858;
 
 // Section: executor
 
@@ -531,6 +531,39 @@ fn wire__crate__api__memory__proactive__aura_get_buffer_status_impl(
         },
     )
 }
+fn wire__crate__api__vision__aura_get_latest_webcam_scene_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "aura_get_latest_webcam_scene",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::vision::aura_get_latest_webcam_scene())?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__memory__aura_get_memory_notes_json_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -691,6 +724,41 @@ fn wire__crate__api__memory__proactive__aura_get_proactive_context_impl(
                 transform_result_sse::<_, ()>((move || {
                     let output_ok = Result::<_, ()>::Ok(
                         crate::api::memory::proactive::aura_get_proactive_context(),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__vision__aura_get_recent_visual_context_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "aura_get_recent_visual_context",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_limit = <usize>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::api::vision::aura_get_recent_visual_context(api_limit),
                     )?;
                     Ok(output_ok)
                 })())
@@ -1205,6 +1273,74 @@ fn wire__crate__api__engine__aura_set_threads_impl(
         },
     )
 }
+fn wire__crate__api__vision__aura_start_webcam_thread_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "aura_start_webcam_thread",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok({
+                        crate::api::vision::aura_start_webcam_thread();
+                    })?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__vision__aura_stop_webcam_thread_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "aura_stop_webcam_thread",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok({
+                        crate::api::vision::aura_stop_webcam_thread();
+                    })?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__stt__aura_stt_available_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -1553,7 +1689,42 @@ fn wire__crate__api__memory__notes__aura_update_memory_note_impl(
         },
     )
 }
-fn wire__crate__api__chat__turn__build_memory_prefix_impl(
+fn wire__crate__api__chat__turn__prefix__build_conversation_recap_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "build_conversation_recap",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_memories = <Vec<String>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Result::<_, ()>::Ok(
+                        crate::api::chat::turn::prefix::build_conversation_recap(&api_memories),
+                    )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__chat__turn__prefix__build_memory_prefix_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -1580,8 +1751,46 @@ fn wire__crate__api__chat__turn__build_memory_prefix_impl(
             move |context| {
                 transform_result_sse::<_, ()>((move || {
                     let output_ok = Result::<_, ()>::Ok(
-                        crate::api::chat::turn::build_memory_prefix(&api_memories),
+                        crate::api::chat::turn::prefix::build_memory_prefix(&api_memories),
                     )?;
+                    Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__chat__turn__prefix__build_recall_prefill_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "build_recall_prefill",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_prompt = <String>::sse_decode(&mut deserializer);
+            let api_memories = <Vec<String>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::chat::turn::prefix::build_recall_prefill(
+                            &api_prompt,
+                            &api_memories,
+                        ))?;
                     Ok(output_ok)
                 })())
             }
@@ -2629,201 +2838,237 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        15 => wire__crate__api__memory__aura_get_memory_notes_json_impl(
+        15 => wire__crate__api__vision__aura_get_latest_webcam_scene_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        16 => wire__crate__api__memory__aura_get_notebook_insights_json_impl(
+        16 => wire__crate__api__memory__aura_get_memory_notes_json_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        17 => wire__crate__api__memory__aura_get_notebook_proactive_log_json_impl(
+        17 => wire__crate__api__memory__aura_get_notebook_insights_json_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        18 => wire__crate__api__memory__aura_get_overlay_config_impl(
+        18 => wire__crate__api__memory__aura_get_notebook_proactive_log_json_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        19 => wire__crate__api__memory__proactive__aura_get_proactive_context_impl(
+        19 => wire__crate__api__memory__aura_get_overlay_config_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        20 => wire__crate__api__vision__aura_get_webcam_gesture_impl(
+        20 => wire__crate__api__memory__proactive__aura_get_proactive_context_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        21 => wire__crate__api__engine__aura_init_impl(port, ptr, rust_vec_len, data_len),
-        22 => wire__crate__api__chat__aura_inject_impl(port, ptr, rust_vec_len, data_len),
-        23 => wire__crate__api__memory__proactive__aura_log_proactive_impl(
+        21 => wire__crate__api__vision__aura_get_recent_visual_context_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        24 => wire__crate__api__chat__aura_prefill_impl(port, ptr, rust_vec_len, data_len),
-        25 => wire__crate__api__vision__aura_process_vision_impl(port, ptr, rust_vec_len, data_len),
-        26 => wire__crate__api__file_read__aura_read_file_into_memory_impl(
+        22 => wire__crate__api__vision__aura_get_webcam_gesture_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        27 => wire__crate__api__memory__proactive__aura_record_engagement_impl(
+        23 => wire__crate__api__engine__aura_init_impl(port, ptr, rust_vec_len, data_len),
+        24 => wire__crate__api__chat__aura_inject_impl(port, ptr, rust_vec_len, data_len),
+        25 => wire__crate__api__memory__proactive__aura_log_proactive_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        28 => wire__crate__api__memory__notes__aura_recover_memory_note_impl(
+        26 => wire__crate__api__chat__aura_prefill_impl(port, ptr, rust_vec_len, data_len),
+        27 => wire__crate__api__vision__aura_process_vision_impl(port, ptr, rust_vec_len, data_len),
+        28 => wire__crate__api__file_read__aura_read_file_into_memory_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        29 => wire__crate__api__chat__aura_reset_state_impl(port, ptr, rust_vec_len, data_len),
-        30 => {
+        29 => wire__crate__api__memory__proactive__aura_record_engagement_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        30 => wire__crate__api__memory__notes__aura_recover_memory_note_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        31 => wire__crate__api__chat__aura_reset_state_impl(port, ptr, rust_vec_len, data_len),
+        32 => {
             wire__crate__api__memory__aura_search_relevant_impl(port, ptr, rust_vec_len, data_len)
         }
-        31 => wire__crate__api__engine__aura_set_backend_impl(port, ptr, rust_vec_len, data_len),
-        32 => {
+        33 => wire__crate__api__engine__aura_set_backend_impl(port, ptr, rust_vec_len, data_len),
+        34 => {
             wire__crate__api__engine__aura_set_context_size_impl(port, ptr, rust_vec_len, data_len)
         }
-        33 => wire__crate__api__engine__aura_set_threads_impl(port, ptr, rust_vec_len, data_len),
-        34 => wire__crate__api__stt__aura_stt_available_impl(port, ptr, rust_vec_len, data_len),
-        35 => wire__crate__api__stt__aura_stt_init_impl(port, ptr, rust_vec_len, data_len),
-        36 => wire__crate__api__stt__aura_stt_push_audio_impl(port, ptr, rust_vec_len, data_len),
-        37 => wire__crate__api__stt__aura_stt_reset_session_impl(port, ptr, rust_vec_len, data_len),
-        38 => wire__crate__api__tts__aura_tts_available_impl(port, ptr, rust_vec_len, data_len),
-        39 => wire__crate__api__tts__aura_tts_init_impl(port, ptr, rust_vec_len, data_len),
-        40 => wire__crate__api__tts__aura_tts_set_volume_impl(port, ptr, rust_vec_len, data_len),
-        41 => wire__crate__api__tts__aura_tts_speak_impl(port, ptr, rust_vec_len, data_len),
-        42 => wire__crate__api__tts__aura_tts_stop_impl(port, ptr, rust_vec_len, data_len),
-        43 => wire__crate__api__memory__notes__aura_update_memory_note_impl(
+        35 => wire__crate__api__engine__aura_set_threads_impl(port, ptr, rust_vec_len, data_len),
+        36 => wire__crate__api__vision__aura_start_webcam_thread_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        44 => wire__crate__api__chat__turn__build_memory_prefix_impl(
+        37 => wire__crate__api__vision__aura_stop_webcam_thread_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        45 => wire__crate__api__config__configure_rayon_threads_impl(
+        38 => wire__crate__api__stt__aura_stt_available_impl(port, ptr, rust_vec_len, data_len),
+        39 => wire__crate__api__stt__aura_stt_init_impl(port, ptr, rust_vec_len, data_len),
+        40 => wire__crate__api__stt__aura_stt_push_audio_impl(port, ptr, rust_vec_len, data_len),
+        41 => wire__crate__api__stt__aura_stt_reset_session_impl(port, ptr, rust_vec_len, data_len),
+        42 => wire__crate__api__tts__aura_tts_available_impl(port, ptr, rust_vec_len, data_len),
+        43 => wire__crate__api__tts__aura_tts_init_impl(port, ptr, rust_vec_len, data_len),
+        44 => wire__crate__api__tts__aura_tts_set_volume_impl(port, ptr, rust_vec_len, data_len),
+        45 => wire__crate__api__tts__aura_tts_speak_impl(port, ptr, rust_vec_len, data_len),
+        46 => wire__crate__api__tts__aura_tts_stop_impl(port, ptr, rust_vec_len, data_len),
+        47 => wire__crate__api__memory__notes__aura_update_memory_note_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        46 => wire__crate__api__worker_utils__rules__edge_cases__extract_impl(
+        48 => wire__crate__api__chat__turn__prefix__build_conversation_recap_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        47 => wire__crate__api__worker_utils__rules__emotions__extract_impl(
+        49 => wire__crate__api__chat__turn__prefix__build_memory_prefix_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        48 => wire__crate__api__worker_utils__rules__events__extract_impl(
+        50 => wire__crate__api__chat__turn__prefix__build_recall_prefill_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        49 => wire__crate__api__worker_utils__rules__family__extract_impl(
+        51 => wire__crate__api__config__configure_rayon_threads_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        50 => wire__crate__api__worker_utils__rules__goals__extract_impl(
+        52 => wire__crate__api__worker_utils__rules__edge_cases__extract_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        51 => wire__crate__api__worker_utils__rules__identity__extract_impl(
+        53 => wire__crate__api__worker_utils__rules__emotions__extract_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        52 => wire__crate__api__worker_utils__rules__location__extract_impl(
+        54 => wire__crate__api__worker_utils__rules__events__extract_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        53 => wire__crate__api__worker_utils__rules__pets__extract_impl(
+        55 => wire__crate__api__worker_utils__rules__family__extract_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        54 => wire__crate__api__worker_utils__rules__preferences__extract_impl(
+        56 => wire__crate__api__worker_utils__rules__goals__extract_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        55 => wire__crate__api__worker_utils__rules__extract_all_facts_impl(
+        57 => wire__crate__api__worker_utils__rules__identity__extract_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        56 => wire__crate__api__worker_utils__rules__extract_all_insights_impl(
+        58 => wire__crate__api__worker_utils__rules__location__extract_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        57 => wire__crate__api__worker_utils__rules__emotions__extract_insights_impl(
+        59 => wire__crate__api__worker_utils__rules__pets__extract_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        58 => wire__crate__api__worker_utils__rules__is_valid_fact_impl(
+        60 => wire__crate__api__worker_utils__rules__preferences__extract_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        59 => wire__crate__api__chat__persona_retrieval__match_memory_recall_impl(
+        61 => wire__crate__api__worker_utils__rules__extract_all_facts_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        60 => wire__crate__api__config__n_ctx_for_platform_impl(port, ptr, rust_vec_len, data_len),
-        61 => {
+        62 => wire__crate__api__worker_utils__rules__extract_all_insights_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        63 => wire__crate__api__worker_utils__rules__emotions__extract_insights_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        64 => wire__crate__api__worker_utils__rules__is_valid_fact_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        65 => wire__crate__api__chat__persona_retrieval__match_memory_recall_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        66 => wire__crate__api__config__n_ctx_for_platform_impl(port, ptr, rust_vec_len, data_len),
+        67 => {
             wire__crate__api__worker_utils__process_memory_impl(port, ptr, rust_vec_len, data_len)
         }
-        62 => wire__crate__api__chat__persona_retrieval__retrieve_persona_examples_impl(
+        68 => wire__crate__api__chat__persona_retrieval__retrieve_persona_examples_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        63 => wire__crate__api__config__smooth_performance_label_impl(
+        69 => wire__crate__api__config__smooth_performance_label_impl(
             port,
             ptr,
             rust_vec_len,

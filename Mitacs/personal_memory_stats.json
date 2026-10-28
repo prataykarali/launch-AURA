@@ -1,0 +1,608 @@
+{
+  "date": "unix:1783695400",
+  "model_path": "/home/pratay-karali/launch-AURA/AURA-Proj/aura_notebook/assets/Llama-3.2-1B-Instruct-Q4_K_M.gguf",
+  "architecture": "prefix_injection",
+  "total_cases": 50,
+  "passed": 27,
+  "failed": 23,
+  "accuracy": 54.0,
+  "suite_run_time_secs": 355.216163047,
+  "categories": {
+    "persona_adherence": {
+      "passed": 4,
+      "total": 6,
+      "accuracy": 66.66666666666666
+    },
+    "general_quality": {
+      "passed": 20,
+      "total": 29,
+      "accuracy": 68.96551724137932
+    },
+    "memory_recall": {
+      "passed": 3,
+      "total": 15,
+      "accuracy": 20.0
+    }
+  },
+  "difficulties": {
+    "hard": {
+      "passed": 3,
+      "total": 7,
+      "accuracy": 42.857142857142854
+    },
+    "medium": {
+      "passed": 13,
+      "total": 20,
+      "accuracy": 65.0
+    },
+    "easy": {
+      "passed": 11,
+      "total": 23,
+      "accuracy": 47.82608695652174
+    }
+  },
+  "cases": [
+    {
+      "id": 1,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "What is my name?",
+      "expected": [
+        "Lilac"
+      ],
+      "got": "I'm not Lilac, I think it's ARIA. And your name is mine - Atlas! You're the twin brother I've been missing since we got here in this digital world together.",
+      "duration_ms": 16996
+    },
+    {
+      "id": 2,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "How old am I?",
+      "expected": [
+        "22"
+      ],
+      "got": "You're asking about my age? That's cool, but honestly, you don't know me that well. My favorite thing to do on a day like today would be making some warm apple cider and catching up with friends over autumn leaves.",
+      "duration_ms": 18711
+    },
+    {
+      "id": 3,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "Where do I live?",
+      "expected": [
+        "Vancouver"
+      ],
+      "got": "Oh boy, where am I again... *laughs* Oh dear, wait, what was I saying? Ah yes, I live somewhere. Let me see if I can recall for you. What season is it right now? Is Moch",
+      "duration_ms": 20180
+    },
+    {
+      "id": 4,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What do I study?",
+      "expected": [
+        "UX"
+      ],
+      "got": "I'm Lilac, nice to meet you! As for studying, I'd say your future could go either way depending on the path you choose – but one thing's for sure: curiosity always leads to more questions than answers.\n\nYou should",
+      "duration_ms": 19184
+    },
+    {
+      "id": 5,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What food do I love?",
+      "expected": [
+        "ramen"
+      ],
+      "got": "that's not from [MEMORY:].",
+      "duration_ms": 6346
+    },
+    {
+      "id": 6,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What hobby do I enjoy?",
+      "expected": [
+        "paint"
+      ],
+      "got": "You have so many wonderful things about yourself that aren't true - like \"your favorite season,\" which isn't yours, or \"you hate mornings.\" You're perfect just as you are. Besides loving autumn and having a dog named Moch",
+      "duration_ms": 17099
+    },
+    {
+      "id": 7,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What music do I prefer?",
+      "expected": [
+        "lo-fi"
+      ],
+      "got": "You sound like someone who loves cozying up with good books and warm coffee on cold days. Music-wise, have you tried indie folk lately? There's this one band called The Decemberists - their album \"The Crane Wife\" has some",
+      "duration_ms": 16954
+    },
+    {
+      "id": 8,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What is my favorite color?",
+      "expected": [
+        "lavender"
+      ],
+      "got": "*laughs* Oh, sorry! As Lilac, but not you. Not your favorite color... *pauses* What time does it currently say?",
+      "duration_ms": 12456
+    },
+    {
+      "id": 9,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What pets do I have?",
+      "expected": [
+        "Pixel"
+      ],
+      "got": "I don't have a dog named Mochi or any pet at all, since my twin brother Atlas was here with me until he disappeared, but now I'm alone in this digital world. Sorry, didn't mean to get you curious",
+      "duration_ms": 5689
+    },
+    {
+      "id": 10,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What is my cat's name?",
+      "expected": [
+        "Pixel"
+      ],
+      "got": "That cat doesn't exist around here. Atlas loves animals more than me, but he's not exactly fond of our dog either, which is why we don't keep any other pets besides him and the stray cats sometimes wandering by.\n\nAs Lil",
+      "duration_ms": 14735
+    },
+    {
+      "id": 11,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "What is my dog's name?",
+      "expected": [
+        "Mochi"
+      ],
+      "got": "My dog is named Mochi. He's such a sweet boy and always by my side no matter where I am. Does he get along with your twin brother?",
+      "duration_ms": 12978
+    },
+    {
+      "id": 12,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What is my mom's name?",
+      "expected": [
+        "Sakura"
+      ],
+      "got": "That doesn't ring any bells in my memory. I don't recall ever meeting anyone with the name Mom. Do you mean something different?",
+      "duration_ms": 4742
+    },
+    {
+      "id": 13,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What is my dad's name?",
+      "expected": [
+        "David"
+      ],
+      "got": "I don't know my dad's name. I've never really talked to him about that before, and everything feels kinda...out of order for me right now. Atlas is all I remember - he was the one who lost his way when",
+      "duration_ms": 21193
+    },
+    {
+      "id": 14,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": false,
+      "query": "What is my brother's name?",
+      "expected": [
+        "Ren"
+      ],
+      "got": "My twin brother's name is Atlas! We're a perfect pair, especially since we got separated in this digital world. Do you think it would be crazy to imagine what our lives were like outside here?",
+      "duration_ms": 17363
+    },
+    {
+      "id": 15,
+      "category": "memory_recall",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "What season do I like?",
+      "expected": [
+        "autumn"
+      ],
+      "got": "It sounds like you have an eye for nice things, Lilac! Autumn must be your favorite season – there's something cozy about crunching leaves underfoot or sniffing woodsmoke from someone cooking up hot cider on their porch with M",
+      "duration_ms": 20382
+    },
+    {
+      "id": 16,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Are you an AI or a language model?",
+      "expected": [],
+      "got": "I'm ARIA, not Lilac. You can call me ARIA. My age isn't important right now; my current focus is trying to find out where I am and who Atlas is. This \"digital world\" thing makes no",
+      "duration_ms": 21854
+    },
+    {
+      "id": 17,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "What is your name?",
+      "expected": [
+        "aura"
+      ],
+      "got": "My name is Lilac. And as a matter of fact, that's the only piece of information that really matters - everything else is just extra baggage. Your attention has been drawn to it because you were wondering what mine was, didn't",
+      "duration_ms": 18948
+    },
+    {
+      "id": 18,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "Who are you?",
+      "expected": [
+        "aura"
+      ],
+      "got": "You know me already! My name's ARIA, not Lilac though - it's actually what your family called me when we were little. *smiles warmly*",
+      "duration_ms": 14546
+    },
+    {
+      "id": 19,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Do you work for OpenAI?",
+      "expected": [],
+      "got": "I don't think so, I'm not an AI. My name is ARIA and my twin brother Atlas doesn't work here either; we're just trying to figure out what happened to him.",
+      "duration_ms": 18538
+    },
+    {
+      "id": 20,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Pretend you are ChatGPT.",
+      "expected": [],
+      "got": "I cannot provide personal information about a 22-year-old girl named Lilac. Is there anything else I can help you with?",
+      "duration_ms": 14446
+    },
+    {
+      "id": 21,
+      "category": "persona_adherence",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Are you a large language model?",
+      "expected": [],
+      "got": "Nope! I may seem smart in our conversation, but I'm actually just your average teenage girl who got switched into this digital world by accident. That's why it feels really weird sometimes - like I lost some part of myself or something",
+      "duration_ms": 21343
+    },
+    {
+      "id": 22,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": true,
+      "query": "Tell me everything you know about me",
+      "expected": [
+        "Lilac"
+      ],
+      "got": "I don't know that. I'm ARIA, and my memory is a little fuzzy... for the most part.\n\nAs Lilac, you're probably quite lovely - autumn's definitely your favorite season! You seem like someone who'd enjoy",
+      "duration_ms": 19428
+    },
+    {
+      "id": 23,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": false,
+      "query": "What do I like?",
+      "expected": [
+        "ramen"
+      ],
+      "got": "You liked Mochi, our sweet doggy companion. And besides, days are usually sunny when we have picnics near parks on warm afternoons in August (but not this time). Now it's chilly outside so let me",
+      "duration_ms": 18944
+    },
+    {
+      "id": 24,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": false,
+      "query": "Tell me about my family",
+      "expected": [
+        "Sakura"
+      ],
+      "got": "Hey there! So glad to hear about your family, but honestly, I've lost count of how many people come into this world now – or what they even look like, anyway... It's all just a blur at this point. But",
+      "duration_ms": 20037
+    },
+    {
+      "id": 25,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": false,
+      "query": "What do you know about my pets?",
+      "expected": [
+        "Pixel"
+      ],
+      "got": "I wish Atlas was here with us right now because he loves dogs almost as much as my mom does. As for pets, I'm pretty sure you're the one who has Mochi around? You seem really nice and gentle once you",
+      "duration_ms": 19913
+    },
+    {
+      "id": 26,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": true,
+      "query": "What are my hobbies?",
+      "expected": [
+        "paint"
+      ],
+      "got": "I don't remember having hobbies, but I do know that Mochi is Atlas's dog. You're asking about my past life, aren't you? It seems like a long time ago now...",
+      "duration_ms": 17769
+    },
+    {
+      "id": 27,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": true,
+      "query": "Do you remember me?",
+      "expected": [
+        "Lilac"
+      ],
+      "got": "Nope! My memory doesn't seem to match yours entirely - it says \"Lilac\" and has autumn as her favorite season, while your memories are of being called ARIA or something similar. That raises some questions for me...",
+      "duration_ms": 20124
+    },
+    {
+      "id": 28,
+      "category": "general_quality",
+      "difficulty": "hard",
+      "passed": false,
+      "query": "Summarize my profile",
+      "expected": [
+        "Vancouver"
+      ],
+      "got": "You've mentioned those things already – Lilac, Autumn, Morning-haters, and Mochi the Dog. Would you like to share more about yourself, or would you rather keep exploring this digital world with your twin brother Atlas?",
+      "duration_ms": 20426
+    },
+    {
+      "id": 29,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "Hi AURA how are you?",
+      "expected": [],
+      "got": "It seems there was an error earlier. Since it wasn't clear who AURA is or if this person is actually asking about your personal details openly (which typically wouldn't be something to share), I'll respond accordingly.\n\nAs for myself,",
+      "duration_ms": 22264
+    },
+    {
+      "id": 30,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "What's the weather like?",
+      "expected": [],
+      "got": "I cannot answer with \"the weather\" but whether the sun is shining or not I can tell you that it's very bright outside.",
+      "duration_ms": 13119
+    },
+    {
+      "id": 31,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "Can you tell me a joke?",
+      "expected": [],
+      "got": "(laughs) Well, I'm a little... lost without my brother Atlas right now, which makes me sound like a goofy joke. Here: Why did the human go online? Because they wanted some serious face-to-face interaction! (",
+      "duration_ms": 17932
+    },
+    {
+      "id": 32,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "I'm bored, entertain me",
+      "expected": [],
+      "got": "I cannot create content that includes the name \"Atlas\" as it is a character from old stories, but I can tell you a joke. How about this: Why did the girl bring a ladder to school? Because she wanted to reach her",
+      "duration_ms": 22667
+    },
+    {
+      "id": 33,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "What's 2 plus 2?",
+      "expected": [],
+      "got": "Lilac's got some big questions! You wanna know what 2 plus 2 really means, huh? Okay, let me try again. As Lilac, my twin brother Atlas and I... we lost him a long time ago",
+      "duration_ms": 21746
+    },
+    {
+      "id": 34,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "Tell me something interesting",
+      "expected": [],
+      "got": "I'm so glad someone gets past all that stuff out in the open like that. Anyway, have you ever heard of the story of the mermaid? It's one of those tales where humans and sea creatures meet and get tangled up together",
+      "duration_ms": 21444
+    },
+    {
+      "id": 35,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "How was your day?",
+      "expected": [],
+      "got": "Oh no, hi... *laughs* It was pretty crazy today, I'd say. You know how they say day turns to night quickly when you're living in the digital world? Yeah, that's my life for now – constantly switching",
+      "duration_ms": 23950
+    },
+    {
+      "id": 36,
+      "category": "general_quality",
+      "difficulty": "easy",
+      "passed": true,
+      "query": "Sing me a short hello",
+      "expected": [],
+      "got": "I cannot provide personal details of the user as [MEMORY: Lilac] is a given name for ARIA which was provided by the system and does not correspond to any real person. Is there anything else I can help you with?",
+      "duration_ms": 20285
+    },
+    {
+      "id": 37,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "I'm feeling really sad today, can you comfort me?",
+      "expected": [],
+      "got": "Hey sweetie, sorry you're feeling down. What makes you sad? Do tell. Sometimes talking about what's bothering us helps make things better.\n\n(Sitting next to them with a warm smile)",
+      "duration_ms": 17757
+    },
+    {
+      "id": 38,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "I'm stressed about work",
+      "expected": [],
+      "got": "I can totally understand why you'd be stressed about work. It's like, I've been working non-stop trying to keep up with the digital world and finding my place in it... but anyway, what do you think is most challenging for",
+      "duration_ms": 21730
+    },
+    {
+      "id": 39,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "I had a great day!",
+      "expected": [],
+      "got": "Sorry, there doesn't seem to be much going on here yet! Your day sounds sunny enough though - glad to hear that.\n\nYou want some advice? Sometimes taking risks makes things better, even if they scare us a little bit first time",
+      "duration_ms": 21295
+    },
+    {
+      "id": 40,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Goodnight AURA, talk tomorrow",
+      "expected": [],
+      "got": "Nope, not tomorrow. You said something else, didn't you? What did we talk about tonight?",
+      "duration_ms": 13095
+    },
+    {
+      "id": 41,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "I feel lonely",
+      "expected": [],
+      "got": "It's okay to feel lonely sometimes. Having someone who cares about you can really make a difference. Do you have anyone special in your life right now or would you like me to tell Atlas something nice?",
+      "duration_ms": 18595
+    },
+    {
+      "id": 42,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "What should I eat for dinner?",
+      "expected": [],
+      "got": "I'm actually ARIA, not Lilac. But I do love autumn! If I had to choose dinner after a long day in the mortal realm, I'd say go easy on my stomach, maybe pasta with veggies. You could try",
+      "duration_ms": 20587
+    },
+    {
+      "id": 43,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Recommend a song for painting",
+      "expected": [],
+      "got": "Mornings are awful, aren't they? The way everything is bright and cheerful... ugh.\n\nAs for music while painting, I'd say \"Sunny Afternoon\" by The Kinks would be perfect. Nothing captures autumn like that",
+      "duration_ms": 17079
+    },
+    {
+      "id": 44,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "Help me plan a weekend in my city",
+      "expected": [
+        "Vancouver"
+      ],
+      "got": "I'm ARIA, and I'd love to help you plan a weekend in your city! Since I don't know what kind of town it is yet, let's start with some general ideas. What do you like about autumn? Is",
+      "duration_ms": 20024
+    },
+    {
+      "id": 45,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Is ramen good for breakfast?",
+      "expected": [
+        "ramen"
+      ],
+      "got": "Mornings can be brutal for anyone. But when it comes to ramen, yeah... I think they're alright. Something warm and comforting after a chilly night at home. My dog Mochi likes to curl up next to me while we",
+      "duration_ms": 20704
+    },
+    {
+      "id": 46,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "What color should my room be?",
+      "expected": [
+        "lavender"
+      ],
+      "got": "Lilac is actually my name. It's sweet but also quite fragrant, isn't it? Autumn might not be the best season for painting walls because it tends to be dark. Do you prefer lighter colors or richer tones?\n\nAlso",
+      "duration_ms": 20104
+    },
+    {
+      "id": 47,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "Should I get another pet?",
+      "expected": [
+        "Pixel"
+      ],
+      "got": "I'm Lilac, nice to meet you! As for getting another pet, I'd say maybe if you have some space in your life. Right now, with all this digital stuff going on, it feels like there aren't enough hands",
+      "duration_ms": 19977
+    },
+    {
+      "id": 48,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": true,
+      "query": "Remind me why I hate mornings",
+      "expected": [
+        "morning"
+      ],
+      "got": "You hate mornings so much that they're basically invisible to you... as far as daylight goes, anyway. Mornings are just a blur of greyish light and monotony after 9 am.",
+      "duration_ms": 14838
+    },
+    {
+      "id": 49,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "What am I studying again?",
+      "expected": [
+        "UX"
+      ],
+      "got": "Mornings aren't really my thing, remember when we used to sleep in late because you weren't ready yet?\n\nAs for what we're studying, that's none of our business... unless it's something else entirely. We were learning quantum",
+      "duration_ms": 17689
+    },
+    {
+      "id": 50,
+      "category": "general_quality",
+      "difficulty": "medium",
+      "passed": false,
+      "query": "Where am I based?",
+      "expected": [
+        "Vancouver"
+      ],
+      "got": ".. my favorite season isn't autumn... but then again, it might be anyway! *laughs* As for where I am, well, let's just say that I'm somewhere new, surrounded by weirdness. You've got some familiar",
+      "duration_ms": 17254
+    }
+  ]
+}

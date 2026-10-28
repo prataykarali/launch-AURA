@@ -31,7 +31,10 @@ extension AuraBarBrainGeneration on AuraBarBrain {
       _chatSubscription?.cancel();
       _chatSubscription = null;
       _releaseProcessingLock();
-      _updateBar(BarState.idle, message: 'AURA took too long. Please try again.');
+      _updateBar(
+        BarState.idle,
+        message: 'AURA took too long. Please try again.',
+      );
       _resumeWakeWordIfEnabled();
     });
 
@@ -39,7 +42,9 @@ extension AuraBarBrainGeneration on AuraBarBrain {
       (token) {
         if (!firstTokenReceived) {
           firstTokenReceived = true;
-          debugPrint('[AURA] First token received after ${firstTokenTimeout.inSeconds}s safety window');
+          debugPrint(
+            '[AURA] First token received after ${firstTokenTimeout.inSeconds}s safety window',
+          );
         }
         // Reset the inter-token watchdog after each token so a long first
         // token is allowed but subsequent stalls still get cancelled quickly.
@@ -85,8 +90,13 @@ extension AuraBarBrainGeneration on AuraBarBrain {
         // Proactive popups must stay compact, but not robotic. User prompts
         // are already filtered before generation; never cancel a valid STT/text
         // answer mid-stream.
-        if (_isProactive && _currentResponse.length > 220) {
-          debugPrint('[AURA] Proactive response too long — truncating');
+        // Use _clampBarSentences to cut at sentence boundaries instead of
+        // hard-truncating mid-word. 280 chars ≈ 2-3 short sentences.
+        if (_isProactive && _currentResponse.length > 280) {
+          debugPrint(
+            '[AURA] Proactive response long — clamping at sentence boundary',
+          );
+          _currentResponse = _clampBarResponse(_currentResponse, 280);
           generationTimeout?.cancel();
           generationTimeout = null;
           auraCancel();
@@ -292,6 +302,22 @@ extension AuraBarBrainGeneration on AuraBarBrain {
 
   bool _hasTooManyVisibleBeats(String text) {
     return RegExp(r'[^.!?\n]+[.!?\n]+').allMatches(text).length >= 4;
+  }
+
+  /// Clamp text to maxChars by cutting at the last sentence boundary.
+  /// Falls back to word boundary if no sentence end is found.
+  String _clampBarResponse(String text, int maxChars) {
+    final trimmed = text.trim();
+    if (trimmed.length <= maxChars) return trimmed;
+
+    final lastPeriod = trimmed.lastIndexOf(RegExp(r'[.!?]'), maxChars);
+    if (lastPeriod > 60) {
+      return trimmed.substring(0, lastPeriod + 1).trim();
+    }
+
+    final cut = trimmed.substring(0, maxChars);
+    final lastSpace = cut.lastIndexOf(' ');
+    return '${cut.substring(0, lastSpace > 60 ? lastSpace : maxChars).trim()}...';
   }
 
   String _visibleBarBeats(String text) {

@@ -11,5 +11,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 /// Build a flat [MEMORY: facts] prefix for LLM context injection (Option 1).
 /// Prioritizes structured facts ("User's name is Sam") over raw turns.
 /// NEVER includes assistant responses — only user facts. Caps at ~4 facts.
-Future<String?> buildMemoryPrefix({required List<String> memories}) =>
-    RustLib.instance.api.crateApiChatTurnBuildMemoryPrefix(memories: memories);
+Future<String?> buildMemoryPrefix({required List<String> memories}) => RustLib
+    .instance
+    .api
+    .crateApiChatTurnPrefixBuildMemoryPrefix(memories: memories);

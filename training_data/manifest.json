@@ -1,0 +1,43 @@
+{
+  "source": "/home/pratay-karali/launch-AURA/aura_dataset_v2.json",
+  "seed": 3407,
+  "train_ratio": 0.8,
+  "files": {
+    "aura_chat_sft": {
+      "train": "/home/pratay-karali/launch-AURA/training_data/aura_chat_sft_train.jsonl",
+      "test": "/home/pratay-karali/launch-AURA/training_data/aura_chat_sft_test.jsonl",
+      "train_rows": 2564,
+      "test_rows": 642
+    },
+    "aura_memory_sft": {
+      "train": "/home/pratay-karali/launch-AURA/training_data/aura_memory_sft_train.jsonl",
+      "test": "/home/pratay-karali/launch-AURA/training_data/aura_memory_sft_test.jsonl",
+      "train_rows": 1387,
+      "test_rows": 347
+    },
+    "aura_nomemory_sft": {
+      "train": "/home/pratay-karali/launch-AURA/training_data/aura_nomemory_sft_train.jsonl",
+      "test": "/home/pratay-karali/launch-AURA/training_data/aura_nomemory_sft_test.jsonl",
+      "train_rows": 1177,
+      "test_rows": 295
+    },
+    "aura_command_intent": {
+      "train": "/home/pratay-karali/launch-AURA/training_data/aura_command_intent_train.jsonl",
+      "test": "/home/pratay-karali/launch-AURA/training_data/aura_command_intent_test.jsonl",
+      "train_rows": 108,
+      "test_rows": 27
+    },
+    "aura_proactive_sft": {
+      "train": "/home/pratay-karali/launch-AURA/training_data/aura_proactive_sft_train.jsonl",
+      "test": "/home/pratay-karali/launch-AURA/training_data/aura_proactive_sft_test.jsonl",
+      "train_rows": 18,
+      "test_rows": 5
+    },
+    "aura_vision_sft": {
+      "train": "/home/pratay-karali/launch-AURA/training_data/aura_vision_sft_train.jsonl",
+      "test": "/home/pratay-karali/launch-AURA/training_data/aura_vision_sft_test.jsonl",
+      "train_rows": 12,
+      "test_rows": 3
+    }
+  }
+}

@@ -8,17 +8,22 @@ class _SelectButton extends StatefulWidget {
   State<_SelectButton> createState() => _SelectButtonState();
 }
 
-class _SelectButtonState extends State<_SelectButton> with SingleTickerProviderStateMixin {
+class _SelectButtonState extends State<_SelectButton>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _ac;
   late final Animation<double> _scale;
 
   @override
   void initState() {
     super.initState();
-    _ac = AnimationController(vsync: this, duration: const Duration(milliseconds: 100));
-    _scale = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _ac, curve: Curves.easeOut),
+    _ac = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
     );
+    _scale = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(parent: _ac, curve: Curves.easeOut));
   }
 
   @override

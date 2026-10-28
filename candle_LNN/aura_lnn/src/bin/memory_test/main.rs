@@ -92,7 +92,8 @@ fn main() {
     println!("AURA Personal AI Memory Evaluation Suite (1000 cases)");
     println!("==================================================");
 
-    let dataset_path = "/home/pratay-karali/launch-AURA/Mitacs/personal_memory_dataset.json";
+    let dataset_path =
+        "/home/pratay-karali/launch-AURA/Mitacs/research/test_suites/personal_memory_dataset.json";
     let dataset_content = fs::read_to_string(dataset_path)
         .unwrap_or_else(|e| panic!("Failed to read {dataset_path}: {e}"));
 

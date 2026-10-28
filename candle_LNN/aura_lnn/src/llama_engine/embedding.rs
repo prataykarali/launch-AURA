@@ -15,7 +15,11 @@ pub(super) struct StoreEmbedJob {
 pub(super) fn spawn_store_embed_worker(
     embedder: Arc<dyn Embedder + Send + Sync>,
 ) -> Option<SyncSender<StoreEmbedJob>> {
-    let (tx, rx) = mpsc::sync_channel::<StoreEmbedJob>(8);
+    // FIX: Increased capacity from8 to50 to prevent queue overflow under load.
+    // Under heavy load (vision + chat + memory simultaneously), the embed worker
+    // falls behind and the8-slot queue fills up, dropping embeddings silently.
+    // With50 slots, the queue can absorb bursts without losing data.
+    let (tx, rx) = mpsc::sync_channel::<StoreEmbedJob>(50);
 
     std::thread::Builder::new()
         .name("aura-store-embed".into())
@@ -51,17 +55,46 @@ impl LlamaEngine {
         let dir = std::path::Path::new(model_path)
             .parent()
             .unwrap_or_else(|| std::path::Path::new("."));
-        let onnx = dir.join("bge_model.onnx");
-        let tok = dir.join("bge_tokenizer.json");
+        let manifest_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        let mut candidates = Vec::new();
+        if let (Ok(model), Ok(tok)) = (
+            std::env::var("AURA_EMBED_MODEL_PATH"),
+            std::env::var("AURA_EMBED_TOKENIZER_PATH"),
+        ) {
+            candidates.push((model.into(), tok.into()));
+        }
+        candidates.extend([
+            (dir.join("bge_model.onnx"), dir.join("bge_tokenizer.json")),
+            (dir.join("model_quantized.onnx"), dir.join("tokenizer.json")),
+            (
+                manifest_dir.join("../../assets/embedder/model_quantized.onnx"),
+                manifest_dir.join("../../assets/embedder/tokenizer.json"),
+            ),
+            (
+                manifest_dir.join("../../aura_notebook/assets/embedder/model_quantized.onnx"),
+                manifest_dir.join("../../aura_notebook/assets/embedder/tokenizer.json"),
+            ),
+        ]);
+        let (onnx, tok) = candidates
+            .into_iter()
+            .find(|(model, tok)| model.exists() && tok.exists())
+            .ok_or_else(|| {
+                format!(
+                    "embedder files not found; tried env AURA_EMBED_* plus sibling files next to {} and repo assets/embedder",
+                    model_path
+                )
+            })?;
         // BgeTextEmbedder::new returns EmbedResult (Box<dyn Error + Send + Sync>);
         // map to a plain string error so it fits this fn's Box<dyn Error> return.
         let embedder = BgeTextEmbedder::new(
             onnx.to_str().ok_or("non-utf8 embedder path")?,
             tok.to_str().ok_or("non-utf8 tokenizer path")?,
         )
-        .map_err(|e: Box<dyn std::error::Error + Send + Sync>| -> Box<dyn Error> {
-            e.to_string().into()
-        })?;
+        .map_err(
+            |e: Box<dyn std::error::Error + Send + Sync>| -> Box<dyn Error> {
+                e.to_string().into()
+            },
+        )?;
         Ok(std::sync::Arc::new(embedder))
     }
 
@@ -87,15 +120,30 @@ impl LlamaEngine {
     /// uses the same shared bge embedder (~150ms off-thread). If the queue is
     /// full or the worker is dead, the job is silently dropped (memory RAG
     /// degrades gracefully to recency-only retrieval).
+    ///
+    /// FIX: Retry once after a short delay if the queue is full, instead of
+    /// immediately dropping. This handles bursts where the embed worker is
+    /// temporarily backed up.
     pub fn store_embed(&self, text: String, store: Arc<MemoryStore>) {
         let Some(tx) = self.store_embed_tx.as_ref() else {
             eprintln!("[LLM] store_embed skipped — worker unavailable");
             return;
         };
-        if let Err(e) = tx.try_send(StoreEmbedJob { text, store }) {
-            // Queue full (worker backed up) or disconnected (worker died).
-            // Either way: drop the job; next turn will retry.
-            eprintln!("[LLM] store_embed dropped (queue full/disconnected): {e}");
+        match tx.try_send(StoreEmbedJob {
+            text: text.clone(),
+            store: store.clone(),
+        }) {
+            Ok(()) => {}
+            Err(mpsc::TrySendError::Full(_)) => {
+                // Queue full — retry once after 100ms.
+                std::thread::sleep(std::time::Duration::from_millis(100));
+                if let Err(e) = tx.try_send(StoreEmbedJob { text, store }) {
+                    eprintln!("[LLM] store_embed dropped after retry (queue still full): {e}");
+                }
+            }
+            Err(e) => {
+                eprintln!("[LLM] store_embed dropped (disconnected): {e}");
+            }
         }
     }
 }

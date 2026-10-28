@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:crypto/crypto.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:aura_notebook/utils/path_manager.dart';
 import 'package:aura_notebook/src/rust/api.dart';
@@ -13,6 +14,8 @@ import 'package:aura_notebook/services/tts_service.dart';
 import 'package:aura_notebook/utils/responsive.dart';
 import 'package:aura_notebook/services/bar_brain.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:media_kit/media_kit.dart';
+import 'package:media_kit_video/media_kit_video.dart';
 
 part 'constants.dart';
 part 'file_helpers.dart';
@@ -37,6 +40,10 @@ class LoadingScreen extends StatefulWidget {
 
 class _LoadingScreenState extends State<LoadingScreen>
     with TickerProviderStateMixin {
+  late final Player _player;
+  late final VideoController _videoCtrl;
+  bool _isTransitioning = false;
+
   late final AnimationController _shimmerCtrl;
   late final AnimationController _quoteCtrl;
   late final Animation<double> _quoteFade;
@@ -93,6 +100,11 @@ class _LoadingScreenState extends State<LoadingScreen>
   @override
   void initState() {
     super.initState();
+    _player = Player();
+    _videoCtrl = VideoController(_player);
+    _player.setPlaylistMode(PlaylistMode.loop);
+    _player.open(Media('asset:///Assets/videos/load_AURA.mp4'));
+
     _shuffledQuotes = List.of(_kQuotes)..shuffle(_random);
     _shimmerCtrl = AnimationController(
       vsync: this,
@@ -116,7 +128,39 @@ class _LoadingScreenState extends State<LoadingScreen>
     _stopWarmupCreep();
     _shimmerCtrl.dispose();
     _quoteCtrl.dispose();
+    _player.dispose();
     super.dispose();
+  }
+
+  Future<void> _playTransitVideo() async {
+    if (!mounted) return;
+    _updateState(() {
+      _isTransitioning = true;
+    });
+
+    try {
+      final completer = Completer<void>();
+      late final StreamSubscription sub;
+      sub = _player.stream.completed.listen((completed) {
+        if (completed && !completer.isCompleted) {
+          completer.complete();
+        }
+      });
+
+      await _player.setPlaylistMode(PlaylistMode.none);
+      await _player.open(Media('asset:///Assets/videos/transit_load.mp4'));
+
+      // Transit video duration is 8.0s. Use timeout guard so startup never hangs.
+      await completer.future.timeout(
+        const Duration(seconds: 9),
+        onTimeout: () {
+          debugPrint('[AURA] Transit video finished (timeout guard)');
+        },
+      );
+      await sub.cancel();
+    } catch (e) {
+      debugPrint('[AURA] Transit video playback error: $e');
+    }
   }
 
   @override
@@ -132,101 +176,114 @@ class _LoadingScreenState extends State<LoadingScreen>
             Positioned.fill(
               child: Image.asset(
                 'Assets/images/AURA_load.png',
-                fit: R.isDesktop ? BoxFit.fitWidth : BoxFit.cover,
+                fit: BoxFit.cover,
                 alignment: Alignment.center,
               ),
             ),
-            Positioned(
+            Positioned.fill(
+              child: Video(
+                controller: _videoCtrl,
+                fit: BoxFit.cover,
+                controls: NoVideoControls,
+              ),
+            ),
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
               left: 0,
               right: 0,
-              bottom: 0,
-              child: R.maxWidth(
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    24,
-                    0,
-                    24,
-                    60,
-                  ), // Lowered from 130
-                  child: _errorMsg != null
-                      ? _ErrorCard(
-                          message: _errorMsg!,
-                          onRetry: () {
-                            setState(() => _errorMsg = null);
-                            _loadingLock = false;
-                            _load();
-                          },
-                        )
-                      : Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            FadeTransition(
-                              opacity: _quoteFade,
-                              child: ShaderMask(
-                                shaderCallback: (bounds) =>
-                                    const LinearGradient(
-                                      colors: [
-                                        Color(0xFFFF9CEE),
-                                        Color(0xFFD5A3FF),
-                                        Color(0xFF90F0DF),
+              bottom: _isTransitioning ? -200 : 0,
+              child: AnimatedOpacity(
+                opacity: _isTransitioning ? 0.0 : 1.0,
+                duration: const Duration(milliseconds: 300),
+                child: R.maxWidth(
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      24,
+                      0,
+                      24,
+                      60,
+                    ), // Lowered from 130
+                    child: _errorMsg != null
+                        ? _ErrorCard(
+                            message: _errorMsg!,
+                            onRetry: () {
+                              setState(() => _errorMsg = null);
+                              _loadingLock = false;
+                              _load();
+                            },
+                          )
+                        : Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              FadeTransition(
+                                opacity: _quoteFade,
+                                child: ShaderMask(
+                                  shaderCallback: (bounds) =>
+                                      const LinearGradient(
+                                        colors: [
+                                          Color(0xFFFF9CEE),
+                                          Color(0xFFD5A3FF),
+                                          Color(0xFF90F0DF),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ).createShader(bounds),
+                                  child: Text(
+                                    _shuffledQuotes[_quoteIndex],
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 0.5,
+                                      height: 1.3,
+                                      shadows: [
+                                        Shadow(
+                                          color: Colors.black87,
+                                          blurRadius: 10,
+                                          offset: Offset(2, 2),
+                                        ),
+                                        Shadow(
+                                          color: Colors.black87,
+                                          blurRadius: 20,
+                                          offset: Offset(0, 2),
+                                        ),
                                       ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ).createShader(bounds),
-                                child: Text(
-                                  _shuffledQuotes[_quoteIndex],
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 0.5,
-                                    height: 1.3,
-                                    shadows: [
-                                      Shadow(
-                                        color: Colors.black87,
-                                        blurRadius: 10,
-                                        offset: Offset(2, 2),
-                                      ),
-                                      Shadow(
-                                        color: Colors.black87,
-                                        blurRadius: 20,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 24),
-                            TweenAnimationBuilder<double>(
-                              tween: Tween<double>(
-                                begin: 0,
-                                end: _effectiveProgress,
+                              const SizedBox(height: 24),
+                              TweenAnimationBuilder<double>(
+                                tween: Tween<double>(
+                                  begin: 0,
+                                  end: _effectiveProgress,
+                                ),
+                                duration: const Duration(milliseconds: 600),
+                                curve: Curves.easeOut,
+                                builder: (_, value, __) => _ProgressBar(
+                                  progress: value,
+                                  shimmerCtrl: _shimmerCtrl,
+                                ),
                               ),
-                              duration: const Duration(milliseconds: 600),
-                              curve: Curves.easeOut,
-                              builder: (_, value, __) => _ProgressBar(
-                                progress: value,
-                                shimmerCtrl: _shimmerCtrl,
+                              const SizedBox(height: 10),
+                              Text(
+                                _statusLabel,
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.55),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.3,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              _statusLabel,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.55),
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                          ],
-                        ),
+                              const SizedBox(height: 4),
+                            ],
+                          ),
+                  ),
+                  max: 600,
                 ),
-                max: 600,
               ),
             ),
           ],

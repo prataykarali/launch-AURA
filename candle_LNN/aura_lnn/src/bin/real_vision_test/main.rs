@@ -1,11 +1,13 @@
-use std::time::{Duration, Instant};
-use aura_lnn::vision::events::{detections_to_semantic_event, semantic_event_to_memory_text, VisionEvent};
-use aura_lnn::vision::gate::VisionGate;
-use aura_lnn::vision::store::{store_visual_event, get_recent_visual_context};
 use aura_lnn::memory::store::MemoryStore;
+use aura_lnn::vision::events::{
+    detections_to_semantic_event, semantic_event_to_memory_text, VisionEvent,
+};
+use aura_lnn::vision::gate::VisionGate;
+use aura_lnn::vision::store::{get_recent_visual_context, store_visual_event};
+use std::time::{Duration, Instant};
 
-mod webcam;
 mod browser;
+mod webcam;
 
 fn main() {
     std::env::set_var("AURA_NOTEBOOK_PATH", "/dev/null");
@@ -48,7 +50,10 @@ fn main() {
         println!("    Activity: {} / {}", ev.activity, ev.subactivity);
         println!("    Screen: {}", ev.screen);
         println!("    Objects: {:?}", ev.objects);
-        println!("    Importance: {} (conf: {:.2})", ev.importance, ev.confidence);
+        println!(
+            "    Importance: {} (conf: {:.2})",
+            ev.importance, ev.confidence
+        );
         println!("    Memory: {}", mem);
         let ve = VisionEvent::new(&dets, 0.6);
         store_visual_event(&store, &ve).unwrap();
@@ -86,8 +91,19 @@ fn main() {
     // ── Phase 6: Emotion detection ───────────────────────────────────
     println!("\n[6] Emotion detection (FER+):");
     let scene2 = webcam::get_scene();
-    let emotions = ["smiling", "surprised", "tired", "sad", "focused", "strained"];
-    let found: Vec<&str> = emotions.iter().filter(|e| scene2.to_lowercase().contains(*e)).copied().collect();
+    let emotions = [
+        "smiling",
+        "surprised",
+        "tired",
+        "sad",
+        "focused",
+        "strained",
+    ];
+    let found: Vec<&str> = emotions
+        .iter()
+        .filter(|e| scene2.to_lowercase().contains(*e))
+        .copied()
+        .collect();
     if !found.is_empty() {
         println!("    Emotions detected: {:?}", found);
         println!("    Scene: {}", scene2);
@@ -111,7 +127,10 @@ fn main() {
     // ── Phase 9: Can AURA answer "what do you see?" ──────────────────
     println!("\n[9] Can AURA answer 'what do you see?' with stored visual memory:");
     if !ctx.is_empty() {
-        println!("    Yes — AURA has {} visual memory entries to draw from.", ctx.len());
+        println!(
+            "    Yes — AURA has {} visual memory entries to draw from.",
+            ctx.len()
+        );
         println!("    When user asks 'what do you see?', these are injected into the LLM:");
         for c in &ctx {
             println!("      >> {}", c);

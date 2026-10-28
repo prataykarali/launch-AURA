@@ -20,3 +20,34 @@ pub fn aura_get_webcam_gesture() -> String {
     crate::vision::webcam::start_gesture_watch();
     crate::vision::webcam::take_pending_gesture()
 }
+
+/// Returns recent visual context entries from the vision store.
+/// Used by proactive idle prompts to know what the user was doing before going idle.
+pub fn aura_get_recent_visual_context(limit: usize) -> String {
+    match TX.get() {
+        None => String::new(),
+        Some(tx) => {
+            let (reply_tx, reply_rx) = std::sync::mpsc::sync_channel(1);
+            let _ = tx.try_send(EngineMsg::GetRecentVisualContext {
+                limit,
+                reply: reply_tx,
+            });
+            reply_rx
+                .recv_timeout(std::time::Duration::from_secs(2))
+                .unwrap_or_default()
+        }
+    }
+}
+
+pub fn aura_start_webcam_thread() {
+    crate::vision::webcam::state::GESTURE_ONLY.store(false, std::sync::atomic::Ordering::Relaxed);
+    crate::vision::start_webcam_thread();
+}
+
+pub fn aura_stop_webcam_thread() {
+    crate::vision::stop_webcam_thread();
+}
+
+pub fn aura_get_latest_webcam_scene() -> String {
+    crate::vision::store::get_latest_webcam_scene()
+}

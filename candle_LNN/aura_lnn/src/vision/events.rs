@@ -1,4 +1,9 @@
-use chrono::Utc;
+fn now_timestamp() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0)
+}
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -48,14 +53,27 @@ pub fn detections_to_event_text(detections: &[VisionDetection]) -> String {
 }
 
 pub fn detections_to_semantic_event(detections: &[VisionDetection]) -> SemanticVisionEvent {
-    let mut objects: Vec<String> = detections.iter().map(|d| d.label.clone()).collect();
+    let mut objects: Vec<String> = Vec::new();
+    let mut screen_text = String::new();
+
+    for d in detections {
+        if d.label.starts_with("ocr_text:") {
+            screen_text = d.label[9..].trim().to_string();
+        } else {
+            objects.push(d.label.clone());
+        }
+    }
     objects.sort();
     objects.dedup();
 
-    let confidence = if detections.is_empty() {
+    let vision_detections: Vec<&VisionDetection> = detections
+        .iter()
+        .filter(|d| !d.label.starts_with("ocr_text:"))
+        .collect();
+    let confidence = if vision_detections.is_empty() {
         0.0
     } else {
-        detections.iter().map(|d| d.confidence).sum::<f32>() / detections.len() as f32
+        vision_detections.iter().map(|d| d.confidence).sum::<f32>() / vision_detections.len() as f32
     }
     .clamp(0.0, 1.0);
 
@@ -67,7 +85,12 @@ pub fn detections_to_semantic_event(detections: &[VisionDetection]) -> SemanticV
     };
     let has_any = |labels: &[&str]| labels.iter().any(|label| has(label));
 
-    let (activity, subactivity) = if has_contains("wave") || has_contains("gesture") {
+    let (activity, subactivity) = if has_contains("wave")
+        || has_contains("gesture")
+        || has_contains("hand_pose")
+        || has_contains("hands_raised")
+        || has_contains("open_palm")
+    {
         ("present", "greeting gesture")
     } else if has("person") && has_any(&["laptop", "keyboard", "mouse", "tv"]) {
         ("coding", "debugging")
@@ -99,16 +122,18 @@ pub fn detections_to_semantic_event(detections: &[VisionDetection]) -> SemanticV
         "low"
     };
 
+    let has_screen_text = !screen_text.is_empty();
+
     SemanticVisionEvent {
-        timestamp: Utc::now().timestamp(),
+        timestamp: now_timestamp(),
         activity: activity.to_string(),
         subactivity: subactivity.to_string(),
         screen: screen.to_string(),
-        text: String::new(),
+        text: screen_text,
         objects,
         importance: importance.to_string(),
         confidence,
-        source: "camera".to_string(),
+        source: if has_screen_text { "screen" } else { "camera" }.to_string(),
     }
 }
 

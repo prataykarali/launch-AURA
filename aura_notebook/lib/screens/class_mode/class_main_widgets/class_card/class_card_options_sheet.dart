@@ -2,14 +2,11 @@ part of 'class_card.dart';
 
 class _CardOptionsSheet extends StatelessWidget {
   final ClassData data;
-  final String classCode;
-  final VoidCallback onOpen, onShare;
+  final VoidCallback onOpen;
   final VoidCallback? onDelete;
   const _CardOptionsSheet({
     required this.data,
-    required this.classCode,
     required this.onOpen,
-    required this.onShare,
     this.onDelete,
   });
 
@@ -42,7 +39,7 @@ class _CardOptionsSheet extends StatelessWidget {
           ),
         ),
 
-        // Class header
+        // Course header
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
           child: Row(
@@ -83,105 +80,19 @@ class _CardOptionsSheet extends StatelessWidget {
           ),
         ),
 
-        // Class code banner
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: data.color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: data.color.withOpacity(0.25)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.key_rounded, color: data.accent, size: 18),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'CLASS CODE',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.35),
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        classCode,
-                        style: TextStyle(
-                          color: data.accent,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 4,
-                        ),
-                      ),
-                      Text(
-                        'Share this code with students to join',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.3),
-                          fontSize: 10,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(text: classCode));
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Code "$classCode" copied!'),
-                        backgroundColor: const Color(0xFF1A1A2E),
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: data.accent.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.copy_rounded,
-                      size: 16,
-                      color: data.accent,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
         Divider(color: Colors.white.withOpacity(0.06)),
 
         // Action buttons
         _SheetAction(
-          Icons.open_in_new_rounded,
-          'Open Class',
+          Icons.menu_book_rounded,
+          'Open Notes & Study Hub',
           data.accent,
           onOpen,
-        ),
-        _SheetAction(
-          Icons.share_rounded,
-          'Share Class Code',
-          const Color(0xFF26A69A),
-          onShare,
         ),
         if (onDelete != null)
           _SheetAction(
             Icons.delete_outline_rounded,
-            'Delete Class',
+            'Delete Course',
             Colors.redAccent,
             onDelete!,
           ),

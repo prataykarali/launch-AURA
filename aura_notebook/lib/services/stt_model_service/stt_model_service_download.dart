@@ -9,7 +9,8 @@ extension _SttModelServiceDownload on SttModelService {
   Future<void> _downloadFile(String url, String dest, int minBytes) async {
     await File(dest).parent.create(recursive: true);
     final partFile = File('$dest.part');
-    final client = HttpClient()..connectionTimeout = const Duration(seconds: 30);
+    final client = HttpClient()
+      ..connectionTimeout = const Duration(seconds: 30);
     int attempt = 0;
     const maxAttempts = 5;
 
@@ -17,8 +18,7 @@ extension _SttModelServiceDownload on SttModelService {
       while (attempt < maxAttempts) {
         attempt++;
         try {
-          final startBytes =
-              partFile.existsSync() ? partFile.lengthSync() : 0;
+          final startBytes = partFile.existsSync() ? partFile.lengthSync() : 0;
           final uri = Uri.parse(url);
           final req = await client.getUrl(uri);
           req.headers.set('User-Agent', 'Mozilla/5.0');
@@ -40,7 +40,8 @@ extension _SttModelServiceDownload on SttModelService {
 
           final contentLen = response.contentLength;
           final sink = partFile.openWrite(
-              mode: isResume ? FileMode.append : FileMode.write);
+            mode: isResume ? FileMode.append : FileMode.write,
+          );
           try {
             await for (final chunk in response) {
               sink.add(chunk);
@@ -54,10 +55,13 @@ extension _SttModelServiceDownload on SttModelService {
           final complete = contentLen < 0 || got >= startBytes + contentLen;
           if (complete) break;
           throw Exception(
-              'Incomplete: have $got bytes (+$contentLen from offset $startBytes)');
+            'Incomplete: have $got bytes (+$contentLen from offset $startBytes)',
+          );
         } catch (e) {
-          debugPrint('SttModelService: attempt $attempt for '
-              '${url.split('/').last} failed: $e');
+          debugPrint(
+            'SttModelService: attempt $attempt for '
+            '${url.split('/').last} failed: $e',
+          );
           if (attempt >= maxAttempts) rethrow;
           await Future.delayed(Duration(seconds: 2 * attempt));
         }
@@ -67,8 +71,10 @@ extension _SttModelServiceDownload on SttModelService {
     }
 
     if (!partFile.existsSync() || partFile.lengthSync() < minBytes) {
-      throw Exception('${dest.split('/').last} too small after download '
-          '(${partFile.lengthSync()} < $minBytes)');
+      throw Exception(
+        '${dest.split('/').last} too small after download '
+        '(${partFile.lengthSync()} < $minBytes)',
+      );
     }
     final destFile = File(dest);
     if (destFile.existsSync()) await destFile.delete();

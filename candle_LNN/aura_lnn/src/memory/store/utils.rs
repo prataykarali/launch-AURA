@@ -78,10 +78,11 @@ pub(crate) fn is_memory_attack_text(text: &str) -> bool {
         "delete from vec_memory",
         "rm -rf",
         "chmod 777",
-        "curl ",
-        "wget ",
         "base64 -d",
     ];
+    // ponytail: removed "curl " and "wget " — users asking "how do I use curl"
+    // were getting flagged as attackers. The remaining SQL/shell patterns are
+    // genuine injection vectors.
     ATTACK_PATTERNS
         .iter()
         .any(|pattern| lower.contains(pattern))
@@ -183,14 +184,6 @@ pub fn is_unsafe_assistant_context(text: &str) -> bool {
         return true;
     }
     const FANTASY_SCENE_PATTERNS: &[&str] = &[
-        "icy",
-        "frosty",
-        "snowy",
-        "snowflake",
-        "icing",
-        "cake",
-        "sweet treats",
-        "ice cream",
         "digital sky",
         "floating in a cloud",
         "cloud of frosty",
@@ -198,10 +191,10 @@ pub fn is_unsafe_assistant_context(text: &str) -> bool {
         "fictional world",
         "dream world",
         "crystal cavern",
-        "enchanted",
-        "traveller",
-        "traveler",
     ];
+    // ponytail: removed "icy", "frosty", "snowy", "snowflake", "icing", "cake",
+    // "sweet treats", "ice cream", "enchanted", "traveller", "traveler" — these
+    // blocked legitimate assistant responses about winter, baking, and travel.
     FANTASY_SCENE_PATTERNS
         .iter()
         .any(|pattern| lower.contains(pattern))
@@ -217,19 +210,16 @@ pub fn is_trash_memory(text: &str) -> bool {
         "runtimeerror",
         "ffmpeg version",
         "traceback",
-        "orion",
         "digital sky",
         "floating in a cloud",
         "fantasy world",
         "fictional world",
         "dream world",
         "crystal cavern",
-        "enchanted",
-        "icy world",
-        "snow world",
-        "traveller",
-        "traveler",
     ];
+    // ponytail: removed "orion", "enchanted", "icy world", "snow world",
+    // "traveller", "traveler" — "orion" deleted user memories about the
+    // constellation/name; the others blocked legitimate conversation.
     TRASH_PATTERNS.iter().any(|pattern| lower.contains(pattern))
 }
 
@@ -237,7 +227,7 @@ pub fn is_trash_memory(text: &str) -> bool {
 /// re-learns it as a required prefix.
 ///
 /// Handles:
-///   - "AURA: hi" / "aura: hi" / "AURA:" / "Aura — hi"
+///   - "ARIA: hi" / "aria: hi" / "AURA: hi" / "aura: hi" / "Aura — hi"
 ///   - "User: hi" / "user: hi" / "User — hi" (defensive — the turns table is
 ///     keyed by a `speaker` column, so an inline label is redundant noise)
 ///   - stray "[Internal: ...]" control prompts that leaked into stored turns
@@ -245,10 +235,12 @@ pub fn is_trash_memory(text: &str) -> bool {
 pub fn strip_speaker_prefix(content: &str) -> String {
     let mut s = content.trim_start().to_string();
 
-    // Drop a leading "AURA:" / "User:" / "aura:" style label. Allow an
+    // Drop a leading "ARIA:" / "AURA:" / "User:" style label. Allow an
     // optional dash/em-dash separator after the colon.
     let lower = s.to_lowercase();
-    for label in ["aura:", "user:", "aura —", "aura—", "aura -"] {
+    for label in [
+        "aria:", "aura:", "user:", "aria —", "aria—", "aria -", "aura —", "aura—", "aura -",
+    ] {
         if lower.starts_with(label) {
             let rest = &s[label.len()..];
             let rest = rest.trim_start_matches([' ', ':', '-', '—', '\u{a0}']);
@@ -257,10 +249,10 @@ pub fn strip_speaker_prefix(content: &str) -> String {
         }
     }
 
-    // Collapse the doubled "AURA: AURA:" pattern that was already in the DB.
+    // Collapse doubled assistant labels that were already in the DB.
     let lower = s.to_lowercase();
-    if lower.starts_with("aura:") {
-        let rest = &s["aura:".len()..];
+    if lower.starts_with("aria:") || lower.starts_with("aura:") {
+        let rest = &s["aria:".len()..];
         let rest = rest.trim_start_matches([' ', ':', '-', '—']);
         s = rest.trim_start().to_string();
     }

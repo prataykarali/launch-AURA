@@ -10,7 +10,8 @@ impl MemoryStore {
         let mut stmt = conn.prepare(
             "SELECT session, speaker, content, timestamp 
              FROM turns 
-             ORDER BY timestamp ASC",
+             ORDER BY timestamp DESC
+             LIMIT 10",
         )?;
 
         let rows = stmt
@@ -44,7 +45,8 @@ impl MemoryStore {
         let mut stmt = conn.prepare(
             "SELECT session, summary, timestamp 
              FROM summaries 
-             ORDER BY timestamp ASC",
+             ORDER BY timestamp DESC
+             LIMIT 5",
         )?;
 
         let rows = stmt

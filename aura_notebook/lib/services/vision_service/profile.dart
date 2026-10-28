@@ -17,8 +17,7 @@ AuraVisionDeviceProfile _deviceProfile() {
         : AuraVisionDeviceProfile.mobileMinimal;
   }
 
-  final desktopFull =
-      processors >= 8 && (totalGiB == null || totalGiB >= 12.0);
+  final desktopFull = processors >= 8 && (totalGiB == null || totalGiB >= 12.0);
   return desktopFull
       ? AuraVisionDeviceProfile.desktopFull
       : AuraVisionDeviceProfile.desktopMinimal;

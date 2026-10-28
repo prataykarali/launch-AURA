@@ -87,6 +87,7 @@ class SttModelService {
       final f = File('$dir/$name');
       return f.existsSync() && f.lengthSync() >= minBytes;
     }
+
     return ok(_kEncoder, _kEncoderMin) &&
         ok(_kDecoder, _kDecoderMin) &&
         ok(_kJoiner, _kJoinerMin) &&
@@ -95,7 +96,9 @@ class SttModelService {
 
   Future<bool> ensureDownloaded({void Function(double)? onProgress}) async {
     if (Platform.isAndroid) {
-      debugPrint('SttModelService: skipping download on Android (voice feature disabled)');
+      debugPrint(
+        'SttModelService: skipping download on Android (voice feature disabled)',
+      );
       return false;
     }
     if (_ready) return true;
@@ -141,7 +144,9 @@ class SttModelService {
           debugPrint('SttModelService: download FAILED for $name: $e');
           final part = File('$dest.part');
           if (part.existsSync()) {
-            try { await part.delete(); } catch (_) {}
+            try {
+              await part.delete();
+            } catch (_) {}
           }
           return false;
         }
@@ -150,11 +155,15 @@ class SttModelService {
       }
 
       if (await isPresent()) {
-        debugPrint('SttModelService: download complete — initializing sherpa engine...');
+        debugPrint(
+          'SttModelService: download complete — initializing sherpa engine...',
+        );
         await _markReady();
         return _ready;
       }
-      debugPrint('SttModelService: download finished but presence check failed');
+      debugPrint(
+        'SttModelService: download finished but presence check failed',
+      );
       return false;
     } finally {
       _downloadInFlight = false;

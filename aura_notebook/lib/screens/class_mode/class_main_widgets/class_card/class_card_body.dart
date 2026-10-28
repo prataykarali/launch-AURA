@@ -26,12 +26,12 @@ class _Body extends StatelessWidget {
           child: Row(
             children: [
               _Stat(
-                Icons.people_outline_rounded,
-                '${d.students} students',
+                Icons.book_outlined,
+                'Personal Notes',
                 d.accent,
               ),
               const SizedBox(width: 16),
-              _Stat(Icons.assignment_outlined, 'Assignments', d.accent),
+              _Stat(Icons.quiz_outlined, 'AI Study Prep', d.accent),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -44,7 +44,7 @@ class _Body extends StatelessWidget {
                   border: Border.all(color: d.accent.withOpacity(0.3)),
                 ),
                 child: Text(
-                  'Active',
+                  'Active Course',
                   style: TextStyle(
                     color: d.accent,
                     fontSize: 10,
@@ -55,7 +55,7 @@ class _Body extends StatelessWidget {
             ],
           ),
         ),
-        // Teacher row
+        // Teacher/Instructor row
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
           child: Row(
@@ -96,7 +96,7 @@ class _Body extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Class Teacher',
+                      'Instructor / Reference',
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.38),
                         fontSize: 10.5,
@@ -150,11 +150,11 @@ class _Body extends StatelessWidget {
             children: [
               _QA(Icons.menu_book_outlined, 'Lessons', d.accent),
               VerticalDivider(width: 1, color: _cardLine),
-              _QA(Icons.people_outline_rounded, 'Students', d.accent),
+              _QA(Icons.help_outline_rounded, 'Doubts', d.accent),
               VerticalDivider(width: 1, color: _cardLine),
-              _QA(Icons.assignment_outlined, 'Tasks', d.accent),
+              _QA(Icons.psychology_outlined, 'AI Quiz', d.accent),
               VerticalDivider(width: 1, color: _cardLine),
-              _QA(Icons.campaign_outlined, 'Stream', d.accent),
+              _QA(Icons.folder_open_outlined, 'Resources', d.accent),
             ],
           ),
         ),

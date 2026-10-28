@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:aura_notebook/src/rust/api/tts.dart' as rust_tts;
+import 'package:aura_notebook/services/preferences_service.dart';
+import 'package:aura_notebook/services/tts_service/edge_tts_client.dart';
 
 // AuraTTSService split into a directory module. Public API unchanged.
 part 'online.dart';
@@ -27,7 +29,6 @@ class AuraTTSService {
   bool _useRustTts = false;
   int _activeSpeakCalls = 0;
   bool _playbackSuppressed = false;
-  Future<void> _androidSpeakChain = Future<void>.value();
 
   // TTS anti-spam: skip duplicate text within a short window and reject very
   // short repeated utterances. This prevents the same response from being spoken
@@ -50,9 +51,28 @@ class AuraTTSService {
   String _lastProvider = 'idle';
   String get lastProvider => _lastProvider;
 
-  void setOnlineVoice(String voiceName) {}
+  String _edgeVoice = EdgeTTSClient.defaultVoice;
+
+  void setOnlineVoice(String voiceName) {
+    final trimmed = voiceName.trim();
+    if (trimmed.isEmpty) return;
+    _edgeVoice = trimmed;
+  }
+
+  // Refreshed from SharedPreferences to check user preferences
+  bool _onlineServicesAllowed = true;
+
+  Future<void> _refreshOnlineServicesAllowed() async {
+    try {
+      _onlineServicesAllowed = await PreferencesService.instance
+          .getOnlineServicesEnabled();
+    } catch (e) {
+      _onlineServicesAllowed = true;
+    }
+  }
 
   bool get _canTryOnlineTts {
+    if (!_onlineServicesAllowed) return false;
     final backoffUntil = _onlineBackoffUntil;
     return backoffUntil == null || DateTime.now().isAfter(backoffUntil);
   }
@@ -180,8 +200,7 @@ class AuraTTSService {
   }
 
   void volumeUp() => setVolume((_volume + 0.2).clamp(kMinVolume, kMaxVolume));
-  void volumeDown() =>
-      setVolume((_volume - 0.2).clamp(kMinVolume, kMaxVolume));
+  void volumeDown() => setVolume((_volume - 0.2).clamp(kMinVolume, kMaxVolume));
 
   // ── Speak ─────────────────────────────────────────────────────────────────
   Future<void> speak(
@@ -223,28 +242,13 @@ class AuraTTSService {
     _lastSpokenText = cleanText;
     _lastSpokenAt = DateTime.now();
 
-    if (Platform.isAndroid) {
-      // Fire-and-forget: don't await the speak future. This prevents TTS
-      // from blocking the generation loop and input handler.
-      unawaited(_enqueueAndroidSpeak(
-        cleanText,
-        interrupt,
-        onComplete,
-        volume: _muted ? 0.0 : 1.0,
-      ));
-      return;
-    }
-
-    final preferOnline =
-        Platform.environment['AURA_PREFER_ONLINE_TTS'] == '1';
-
-    if (!preferOnline && _useRustTts) {
-      _lastProvider = 'offline_rust_tts';
-      await _speakRust(cleanText, interrupt, onComplete);
-      return;
-    }
+    // Consult the user's opt-in before any decision that could reach online TTS.
+    await _refreshOnlineServicesAllowed();
 
     if (_canTryOnlineTts) {
+      if (await _speakEdge(cleanText, interrupt, onComplete)) {
+        return;
+      }
       if (await _speakConfiguredOnline(cleanText, interrupt, onComplete)) {
         return;
       }
@@ -253,9 +257,23 @@ class AuraTTSService {
       }
     }
 
+    if (Platform.isAndroid) {
+      // Fire-and-forget: don't await the speak future. This prevents TTS
+      // from blocking the generation loop and input handler.
+      unawaited(
+        _enqueueAndroidSpeak(
+          cleanText,
+          interrupt,
+          onComplete,
+          volume: _muted ? 0.0 : 1.0,
+        ),
+      );
+      return;
+    }
+
     if (_useRustTts) {
       _lastProvider = 'offline_rust_tts';
-      debugPrint('AuraTTS: online TTS unavailable — using offline Rust TTS');
+      debugPrint('AuraTTS: Edge TTS unavailable — using offline Rust TTS');
       await _speakRust(cleanText, interrupt, onComplete);
       return;
     }
@@ -269,7 +287,6 @@ class AuraTTSService {
     _playbackTimer = null;
     _isPlaying = false;
     _activeSpeakCalls = 0;
-    _androidSpeakChain = Future<void>.value();
     _lastSpokenText = null;
     _lastSpokenAt = DateTime.fromMillisecondsSinceEpoch(0);
 

@@ -72,9 +72,11 @@ pub(crate) fn report_results(
     }
     println!("==================================================");
 
+    let date = format!("{:?}", std::time::SystemTime::now());
+
     // Write final structured JSON stats
     let stats_json = MemoryTestStats {
-        date: chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string(),
+        date: date.clone(),
         total_cases,
         passed: passed_count,
         failed: failed_count,
@@ -103,7 +105,7 @@ pub(crate) fn report_results(
         - Suite Run Time: {:.2}s\n\
         - Matching: Jaro-Winkler fuzzy (threshold={:.2})\n\
         - Optimizations: XML Profile Isolation + Assistant Pre-filling\n",
-        chrono::Local::now().format("%Y-%m-%d %H:%M:%S"),
+        date,
         total_cases,
         passed_count,
         failed_count,

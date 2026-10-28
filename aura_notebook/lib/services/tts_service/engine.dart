@@ -5,11 +5,16 @@ extension _AuraTTSServiceEngine on AuraTTSService {
   Future<bool> _warmupAndroidTts() async {
     final deadline = DateTime.now().add(const Duration(seconds: 12));
     while (DateTime.now().isBefore(deadline)) {
-      final ready = await AuraTTSService._androidTtsChannel.invokeMethod<bool>('warmup');
+      final ready = await AuraTTSService._androidTtsChannel.invokeMethod<bool>(
+        'warmup',
+      );
       if (ready == true) return true;
       await Future<void>.delayed(const Duration(milliseconds: 250));
     }
-    return await AuraTTSService._androidTtsChannel.invokeMethod<bool>('warmup') == true;
+    return await AuraTTSService._androidTtsChannel.invokeMethod<bool>(
+          'warmup',
+        ) ==
+        true;
   }
 
   Future<void> _syncVolume() async {
@@ -62,7 +67,6 @@ extension _AuraTTSServiceEngine on AuraTTSService {
     double volume = 1.0,
   }) {
     if (interrupt) {
-      _androidSpeakChain = Future<void>.value();
       return _speakAndroid(text, true, onComplete, volume: volume);
     }
 
@@ -84,10 +88,10 @@ extension _AuraTTSServiceEngine on AuraTTSService {
       }
       _activeSpeakCalls++;
       _isPlaying = true;
-      final ok = await AuraTTSService._androidTtsChannel.invokeMethod<bool>('speak', {
-        'text': text,
-        'volume': volume,
-      });
+      final ok = await AuraTTSService._androidTtsChannel.invokeMethod<bool>(
+        'speak',
+        {'text': text, 'volume': volume},
+      );
       if (ok != true) {
         debugPrint('AuraTTS Android: platform speak() reported failure');
       }
@@ -97,14 +101,17 @@ extension _AuraTTSServiceEngine on AuraTTSService {
       _playbackTimer?.cancel();
       final timerId = DateTime.now().millisecondsSinceEpoch;
       _lastTimerId = timerId;
-      _playbackTimer = Timer(Duration(milliseconds: _estimateDurationMs(text)), () {
-        if (_lastTimerId != timerId) return;
-        _activeSpeakCalls = (_activeSpeakCalls - 1).clamp(0, 999);
-        if (_activeSpeakCalls == 0) {
-          _isPlaying = false;
-        }
-        onComplete?.call();
-      });
+      _playbackTimer = Timer(
+        Duration(milliseconds: _estimateDurationMs(text)),
+        () {
+          if (_lastTimerId != timerId) return;
+          _activeSpeakCalls = (_activeSpeakCalls - 1).clamp(0, 999);
+          if (_activeSpeakCalls == 0) {
+            _isPlaying = false;
+          }
+          onComplete?.call();
+        },
+      );
     } catch (e) {
       debugPrint('AuraTTS Android: speak error: $e');
       _activeSpeakCalls = (_activeSpeakCalls - 1).clamp(0, 999);
@@ -120,10 +127,12 @@ extension _AuraTTSServiceEngine on AuraTTSService {
     _lastProvider = 'unavailable';
     missingDependencyNotifier.value = _missingDependency;
     _playbackTimer?.cancel();
-    debugPrint(
-      'AuraTTS: no offline desktop TTS available and online fallback failed; '
-      'not simulating speech for "${text.length > 48 ? '${text.substring(0, 48)}...' : text}"',
-    );
+    if (kDebugMode) {
+      debugPrint(
+        'AuraTTS: no offline desktop TTS available and online fallback failed; '
+        'not simulating speech for "${text.length > 48 ? '${text.substring(0, 48)}...' : text}"',
+      );
+    }
     _isPlaying = false;
     onComplete?.call();
   }

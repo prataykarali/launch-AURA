@@ -1,0 +1,73 @@
+<svg width="650" height="380" viewBox="0 0 650 380" xmlns="http://www.w3.org/2000/svg" style="background:#0f172a; border-radius:12px; font-family:'Outfit', 'Inter', sans-serif;">
+
+    <defs>
+        <filter id="drop-shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.4"/>
+        </filter>
+        <linearGradient id="grid-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#1e293b" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#0f172a" stop-opacity="1"/>
+        </linearGradient>
+    </defs>
+    
+
+    <style>
+        .title { fill: #f8fafc; font-size: 18px; font-weight: 700; }
+        .axis-label { fill: #94a3b8; font-size: 12px; }
+        .tick-label { fill: #64748b; font-size: 11px; }
+        .grid-line { stroke: #334155; stroke-dasharray: 4,4; stroke-width: 0.8; }
+        .bar-label { fill: #f8fafc; font-size: 12px; font-weight: 600; text-anchor: middle; opacity: 0; animation: fadeIn 0.5s ease forwards 0.8s; }
+        .bar { filter: url(#drop-shadow); transition: all 0.3s ease; transform-origin: bottom; animation: growUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .bar:hover { filter: brightness(1.2) url(#drop-shadow); cursor: pointer; }
+        @keyframes growUp {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+    
+<text x="325.0" y="35" text-anchor="middle" class="title">Accuracy by Query Difficulty</text>
+<line x1="80" y1="320.0" x2="620" y2="320.0" class="grid-line"/>
+<text x="65" y="324.0" text-anchor="end" class="tick-label">0%</text>
+<line x1="80" y1="268.0" x2="620" y2="268.0" class="grid-line"/>
+<text x="65" y="272.0" text-anchor="end" class="tick-label">20%</text>
+<line x1="80" y1="216.0" x2="620" y2="216.0" class="grid-line"/>
+<text x="65" y="220.0" text-anchor="end" class="tick-label">40%</text>
+<line x1="80" y1="164.0" x2="620" y2="164.0" class="grid-line"/>
+<text x="65" y="168.0" text-anchor="end" class="tick-label">60%</text>
+<line x1="80" y1="112.0" x2="620" y2="112.0" class="grid-line"/>
+<text x="65" y="116.0" text-anchor="end" class="tick-label">80%</text>
+<line x1="80" y1="60.0" x2="620" y2="60.0" class="grid-line"/>
+<text x="65" y="64.0" text-anchor="end" class="tick-label">100%</text>
+
+        <linearGradient id="bar-grad-0" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#10b981"/>
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.4"/>
+        </linearGradient>
+        
+<rect x="116.0" y="78.19999999999999" width="108.0" height="241.8" rx="6" ry="6" fill="url(#bar-grad-0)" class="bar" style="transform-origin: 170.0px 320px;"/>
+<text x="170.0" y="70.19999999999999" class="bar-label">93.0%</text>
+<text x="170.0" y="345" text-anchor="middle" class="axis-label">Simple</text>
+
+        <linearGradient id="bar-grad-1" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.4"/>
+        </linearGradient>
+        
+<rect x="296.0" y="115.9" width="108.0" height="204.1" rx="6" ry="6" fill="url(#bar-grad-1)" class="bar" style="transform-origin: 350.0px 320px;"/>
+<text x="350.0" y="107.9" class="bar-label">78.5%</text>
+<text x="350.0" y="345" text-anchor="middle" class="axis-label">Medium</text>
+
+        <linearGradient id="bar-grad-2" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.4"/>
+        </linearGradient>
+        
+<rect x="476.0" y="130.20000000000002" width="108.0" height="189.79999999999998" rx="6" ry="6" fill="url(#bar-grad-2)" class="bar" style="transform-origin: 530.0px 320px;"/>
+<text x="530.0" y="122.20000000000002" class="bar-label">73.0%</text>
+<text x="530.0" y="345" text-anchor="middle" class="axis-label">Hard</text>
+<line x1="80" y1="60" x2="80" y2="320" stroke="#334155" stroke-width="1.5"/>
+<line x1="80" y1="320" x2="620" y2="320" stroke="#334155" stroke-width="1.5"/>
+</svg>

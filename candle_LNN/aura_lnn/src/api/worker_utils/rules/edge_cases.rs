@@ -18,10 +18,13 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             let rest = &cleaned[idx + anchor.len()..];
             let end = rest.find(['.', '!', '?', ',']).unwrap_or(rest.len());
             let thing = rest[..end].trim();
-            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count()) {
+            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count())
+            {
                 let orig = restore_case(thing, original);
                 let f = format!("{}{}", fact_prefix, orig);
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
         }
     }
@@ -32,12 +35,16 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
     if let Some(idx) = cleaned.find("i live in ") {
         let rest = &cleaned[idx + 10..];
         // Extract city (up to " with " or end)
-        let city_end = rest.find(" with ").unwrap_or_else(|| rest.find(['.', '!', '?', ',']).unwrap_or(rest.len()));
+        let city_end = rest
+            .find(" with ")
+            .unwrap_or_else(|| rest.find(['.', '!', '?', ',']).unwrap_or(rest.len()));
         let city = rest[..city_end].trim();
         if city.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&city.chars().count()) {
             let orig = restore_case(city, original);
             let f = format!("User lives in {}", orig);
-            if is_valid_fact(&f) { facts.push(f); }
+            if is_valid_fact(&f) {
+                facts.push(f);
+            }
         }
 
         // Now look for "with my cat/dog named X" in the rest
@@ -46,7 +53,9 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             let pat = format!("with my {} ", animal);
             if let Some(aidx) = after_with.find(&pat) {
                 let name_rest = &after_with[aidx + pat.len()..];
-                let name_end = name_rest.find(['.', '!', '?', ',']).unwrap_or(name_rest.len());
+                let name_end = name_rest
+                    .find(['.', '!', '?', ','])
+                    .unwrap_or(name_rest.len());
                 let alt_end = name_rest.find(" and ");
                 let name_end = alt_end.map(|e| e.min(name_end)).unwrap_or(name_end);
                 let name = name_rest[..name_end].trim();
@@ -54,11 +63,15 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
                     // Check if it says "named X" or just "X"
                     let actual_name = if name.starts_with("named ") {
                         &name[6..]
-                    } else { name };
+                    } else {
+                        name
+                    };
                     if actual_name.chars().any(|c| c.is_alphabetic()) {
                         let orig_name = restore_case(actual_name, original);
                         let f = format!("User has a {} named {}", animal, orig_name);
-                        if is_valid_fact(&f) { facts.push(f); }
+                        if is_valid_fact(&f) {
+                            facts.push(f);
+                        }
                     }
                 }
             }
@@ -66,12 +79,17 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
     }
 
     // ── Temporal: "i used to X" → store as interest ──────────────────
-    for anchor in &["i used to live in ", "i used to work at ", "i used to study "] {
+    for anchor in &[
+        "i used to live in ",
+        "i used to work at ",
+        "i used to study ",
+    ] {
         if let Some(idx) = cleaned.find(anchor) {
             let rest = &cleaned[idx + anchor.len()..];
             let end = rest.find(['.', '!', '?', ',']).unwrap_or(rest.len());
             let thing = rest[..end].trim();
-            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count()) {
+            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count())
+            {
                 let orig = restore_case(thing, original);
                 let f = if anchor.contains("live") {
                     format!("User is from {}", orig)
@@ -80,23 +98,35 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
                 } else {
                     format!("User studies {}", orig)
                 };
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
         }
     }
 
     // ── Quantified pets: "i have two/three cats" ─────────────────────
     let number_words = [
-        ("two", 2), ("three", 3), ("four", 4), ("five", 5),
-        ("2", 2), ("3", 3), ("4", 4), ("5", 5),
+        ("two", 2),
+        ("three", 3),
+        ("four", 4),
+        ("five", 5),
+        ("2", 2),
+        ("3", 3),
+        ("4", 4),
+        ("5", 5),
     ];
-    let animals = ["cats", "dogs", "birds", "fish", "rabbits", "hamsters", "turtles"];
+    let animals = [
+        "cats", "dogs", "birds", "fish", "rabbits", "hamsters", "turtles",
+    ];
     for (num_word, num) in &number_words {
         for animal in &animals {
             let pat = format!("i have {} {}", num_word, animal);
             if cleaned.contains(&pat) {
                 let f = format!("User has {} {}", num, animal);
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
         }
     }
@@ -126,7 +156,9 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             if name.chars().any(|c| c.is_alphabetic()) && name.len() >= 2 {
                 let orig = restore_case(name, original);
                 let f = format!("{}{}", fact_prefix, orig);
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
             break;
         }
@@ -136,8 +168,13 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
     // (handled by not matching — the "i have" patterns require "a/an" after)
 
     // ── Conditional: "i usually like X" → extract X ──────────────────
-    for anchor in &["i usually like ", "i typically like ", "i normally like ",
-                    "i mostly like ", "i generally like "] {
+    for anchor in &[
+        "i usually like ",
+        "i typically like ",
+        "i normally like ",
+        "i mostly like ",
+        "i generally like ",
+    ] {
         if let Some(idx) = cleaned.find(anchor) {
             let rest = &cleaned[idx + anchor.len()..];
             // Cut at " but " or " sometimes " or end
@@ -146,10 +183,13 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             let alt_end = rest.find(" but ").or_else(|| rest.find(" sometimes "));
             let end = alt_end.map(|e| e.min(end)).unwrap_or(end);
             let thing = rest[..end].trim();
-            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count()) {
+            if thing.chars().any(|c| c.is_alphabetic()) && (3..=40).contains(&thing.chars().count())
+            {
                 let orig = restore_case(thing, original);
                 let f = format!("User likes {}", orig);
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
         }
     }
@@ -176,19 +216,30 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
                     let end = rest.find(['.', '!', '?', ',']).unwrap_or(rest.len());
                     let thing = rest[..end].trim();
                     // Cut at " and " / " but " / " so " to avoid grabbing extra clauses
-                    let thing = thing.split(" and ").next().unwrap_or(thing)
-                        .split(" but ").next().unwrap_or(thing)
-                        .split(" so ").next().unwrap_or(thing)
+                    let thing = thing
+                        .split(" and ")
+                        .next()
+                        .unwrap_or(thing)
+                        .split(" but ")
+                        .next()
+                        .unwrap_or(thing)
+                        .split(" so ")
+                        .next()
+                        .unwrap_or(thing)
                         .trim();
                     if thing.chars().any(|c| c.is_alphabetic()) && thing.len() >= 2 {
                         let orig = restore_case(thing, original);
                         let f = format!("{}{}", fact_prefix, orig);
-                        if is_valid_fact(&f) { facts.push(f); }
+                        if is_valid_fact(&f) {
+                            facts.push(f);
+                        }
                     }
                 }
             } else {
                 let f = fact_prefix.to_string();
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
         }
     }
@@ -201,10 +252,14 @@ fn restore_case(value_lower: &str, original: &str) -> String {
     if let Some(pos) = orig_lower.find(value_lower) {
         original[pos..pos + value_lower.len()].to_string()
     } else {
-        value_lower.split_whitespace().map(|w| {
-            let mut c = w.chars();
-            c.next().unwrap_or(' ').to_uppercase().collect::<String>() + c.as_str()
-        }).collect::<Vec<_>>().join(" ")
+        value_lower
+            .split_whitespace()
+            .map(|w| {
+                let mut c = w.chars();
+                c.next().unwrap_or(' ').to_uppercase().collect::<String>() + c.as_str()
+            })
+            .collect::<Vec<_>>()
+            .join(" ")
     }
 }
 

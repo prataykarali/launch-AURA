@@ -1,15 +1,16 @@
-// notebook_file.rs — Durable, uninstall-safe memory mirror.
+// notebook_file.rs — App-private, human-readable memory mirror.
 //
 // AURA's working memory is a SQLite DB (facts / turns / summaries /
-// vec_memory) that lives in the app's data dir and is WIPED on uninstall. To
-// make AURA "still remember you after a delete + reinstall", we ALSO keep a
-// human-readable JSONL mirror in a location that survives app uninstall:
+// vec_memory) that lives in the app's private data dir. We ALSO keep a
+// human-readable JSONL mirror alongside it for re-seeding and backup:
 //
 //   • Linux desktop  → $XDG_DATA_HOME/AURA/notebook.jsonl
 //                      (falls back to ~/.local/share/AURA/notebook.jsonl)
-//   • Android        → /sdcard/AURA/notebook.jsonl (external storage survives
-//                      uninstall), then the app's external files dir, then
-//                      the app-private dir as a last resort.
+//   • Android        → app-private internal storage
+//                      (/data/data/<pkg>/app_flutter/notebook.jsonl, etc.).
+//                      NOT /sdcard — external storage is world-readable and
+//                      would expose unencrypted user memory to any app.
+//                      Deleted on uninstall (correct privacy behavior).
 //
 // Every durable write (fact / turn / summary / note) appends ONE line here, so
 // the file is an append-only transcript. On a FRESH install — when the DB is

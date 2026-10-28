@@ -2,11 +2,9 @@ part of 'class_card.dart';
 
 class _Header extends StatelessWidget {
   final ClassData d;
-  final String classCode;
   final VoidCallback onOptions;
   const _Header({
     required this.d,
-    required this.classCode,
     required this.onOptions,
   });
 

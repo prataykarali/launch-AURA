@@ -6,20 +6,29 @@ part of 'vision_service.dart';
 // Tier 1: heuristic pixel stats + window title labels.
 // Tier 2: OCR text extraction from screen frames (tesseract).
 
-Future<List<VisionDetection>> _analyseFrame(VisionService service, Uint8List frame) async {
+Future<List<VisionDetection>> _analyseFrame(
+  VisionService service,
+  Uint8List frame,
+) async {
   final luma = _averageLuma(frame);
   final detections = <VisionDetection>[];
 
   if (luma > 180) {
-    detections.add(const VisionDetection(label: 'bright_scene', confidence: 0.45));
+    detections.add(
+      const VisionDetection(label: 'bright_scene', confidence: 0.45),
+    );
   } else if (luma < 40) {
     detections.add(const VisionDetection(label: 'dim_scene', confidence: 0.45));
   } else {
-    detections.add(const VisionDetection(label: 'normal_scene', confidence: 0.4));
+    detections.add(
+      const VisionDetection(label: 'normal_scene', confidence: 0.4),
+    );
   }
 
   if (Platform.isLinux) {
-    detections.add(const VisionDetection(label: 'screen_visible', confidence: 0.55));
+    detections.add(
+      const VisionDetection(label: 'screen_visible', confidence: 0.55),
+    );
     for (final label in _labelsFromWindowTitle(service._lastActiveWindow)) {
       detections.add(VisionDetection(label: label, confidence: 0.5));
     }
@@ -27,10 +36,9 @@ Future<List<VisionDetection>> _analyseFrame(VisionService service, Uint8List fra
     final ocrText = await _extractScreenText(frame);
     if (ocrText != null && ocrText.trim().isNotEmpty) {
       service._lastScreenText = ocrText.trim();
-      detections.add(VisionDetection(
-        label: 'screen_text_available',
-        confidence: 0.9,
-      ));
+      detections.add(
+        VisionDetection(label: 'screen_text_available', confidence: 0.9),
+      );
     }
   } else if (Platform.isAndroid) {
     detections.addAll(service._lastAndroidDetections);
@@ -47,7 +55,10 @@ Future<String?> _extractScreenText(Uint8List frame) async {
   try {
     await File(tmp).writeAsBytes(frame, flush: true);
     final result = await Process.run('tesseract', [
-      tmp, 'stdout', '--psm', '6',
+      tmp,
+      'stdout',
+      '--psm',
+      '6',
     ]).timeout(const Duration(seconds: 5));
     if (result.exitCode != 0) return null;
     final text = result.stdout.toString().trim();
@@ -58,7 +69,9 @@ Future<String?> _extractScreenText(Uint8List frame) async {
   } catch (_) {
     return null;
   } finally {
-    try { await File(tmp).delete(); } catch (_) {}
+    try {
+      await File(tmp).delete();
+    } catch (_) {}
   }
 }
 
@@ -74,7 +87,7 @@ List<VisionDetection> _dedupeDetections(List<VisionDetection> detections) {
   }
   final values = byLabel.values.toList()
     ..sort((a, b) => b.confidence.compareTo(a.confidence));
-  return values.take(6).toList(growable: false);
+  return values.take(6).toList();
 }
 
 List<String> _labelsFromWindowTitle(String? title) {

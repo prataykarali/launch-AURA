@@ -1,13 +1,13 @@
 use super::model::{model_paths, resolve_model_dir, runtime_cache_dir};
 use super::vad;
 use anyhow::Result;
-use once_cell::sync::OnceCell;
 use sherpa_onnx::{OnlineRecognizer, OnlineRecognizerConfig, OnlineStream};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
+use std::sync::OnceLock;
 
-static STT_ENGINE: OnceCell<Mutex<OnlineRecognizer>> = OnceCell::new();
-static STT_STREAM: OnceCell<Mutex<OnlineStream>> = OnceCell::new();
+static STT_ENGINE: OnceLock<Mutex<OnlineRecognizer>> = OnceLock::new();
+static STT_STREAM: OnceLock<Mutex<OnlineStream>> = OnceLock::new();
 static STT_TOTAL_SAMPLES: AtomicU64 = AtomicU64::new(0);
 static STT_DECODE_TOTAL: AtomicU64 = AtomicU64::new(0);
 // Text committed at prior endpoints during the current utterance. get_result()
@@ -15,7 +15,7 @@ static STT_DECODE_TOTAL: AtomicU64 = AtomicU64::new(0);
 // it here an endpoint that fires mid-utterance would discard everything
 // decoded before it — exactly the "hears speech, emits empty text" symptom.
 // This mirrors stt_diag.rs's `accumulated` buffer (which decodes correctly).
-static STT_COMMITTED: OnceCell<Mutex<String>> = OnceCell::new();
+static STT_COMMITTED: OnceLock<Mutex<String>> = OnceLock::new();
 
 fn epoch_millis() -> i64 {
     std::time::SystemTime::now()

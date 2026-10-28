@@ -27,8 +27,8 @@ class NoteCard extends StatelessWidget {
         border: isDeleted
             ? Border.all(color: Colors.red.shade100.withOpacity(0.5))
             : isPinned
-                ? Border.all(color: Colors.indigo.shade200, width: 1.5)
-                : null,
+            ? Border.all(color: Colors.indigo.shade200, width: 1.5)
+            : null,
         boxShadow: [
           BoxShadow(
             color: Colors.indigo.withOpacity(0.03),
@@ -61,18 +61,13 @@ class NoteCard extends StatelessWidget {
                       color: isDeleted
                           ? Colors.grey.shade500
                           : Colors.indigo.shade900,
-                      decoration: isDeleted
-                          ? TextDecoration.lineThrough
-                          : null,
+                      decoration: isDeleted ? TextDecoration.lineThrough : null,
                     ),
                   ),
                 ),
                 Text(
                   formatShort(date),
-                  style: TextStyle(
-                    color: Colors.grey.shade400,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade400, fontSize: 11),
                 ),
               ],
             ),

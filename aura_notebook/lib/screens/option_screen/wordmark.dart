@@ -15,7 +15,12 @@ class _Wordmark extends StatelessWidget {
             shaderCallback: (rect) => LinearGradient(
               begin: Alignment(t * 3 - 2, 0),
               end: Alignment(t * 3, 0),
-              colors: const [Colors.white, Color(0xFFE0BBFF), Colors.white, Colors.white],
+              colors: const [
+                Colors.white,
+                Color(0xFFE0BBFF),
+                Colors.white,
+                Colors.white,
+              ],
               stops: const [0.0, 0.45, 0.55, 1.0],
             ).createShader(rect),
             child: const Text(

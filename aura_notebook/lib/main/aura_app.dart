@@ -10,6 +10,8 @@ import 'package:aura_notebook/main/aura_root.dart';
 import 'package:aura_notebook/main/open_main_app.dart';
 import 'package:aura_notebook/services/android_overlay_service.dart';
 import 'package:aura_notebook/services/bar_brain.dart';
+import 'package:aura_notebook/services/character_bus.dart';
+import 'package:aura_notebook/services/plugin_registry.dart';
 import 'package:aura_notebook/services/resource_guard_service.dart';
 import 'package:aura_notebook/services/stt_service.dart';
 import 'package:aura_notebook/services/tts_service.dart';
@@ -52,6 +54,10 @@ class _AuraAppState extends State<AuraApp>
       WidgetsBinding.instance.addObserver(this);
     }
     _installWindowMethodHandler();
+    // Boot seam for future agents/tools + the character drive-layer.
+    // No plugins registered yet — registry stays empty, cost is negligible.
+    unawaited(PluginRegistry.initAll());
+    CharacterBus.instance.setPose(CharacterPose.idle);
   }
 
   @override
@@ -67,6 +73,7 @@ class _AuraAppState extends State<AuraApp>
       windowManager.removeListener(this);
     }
     ResourceGuardService.instance.stop();
+    PluginRegistry.shutdownAll();
     super.dispose();
   }
 

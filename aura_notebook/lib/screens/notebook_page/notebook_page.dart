@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:aura_notebook/src/rust/api.dart';
 import '../../services/bar_brain.dart';
 import '../../services/file_sense_service.dart';
+import '../settings_screen.dart';
 import 'body.dart';
 import 'models.dart';
 
@@ -192,6 +193,16 @@ class _NotebookPageState extends State<NotebookPage>
           color: Colors.indigo.shade300,
           tooltip: 'Refresh',
           onPressed: _load,
+        ),
+        IconButton(
+          icon: const Icon(Icons.settings_rounded),
+          color: Colors.indigo.shade300,
+          tooltip: 'Settings',
+          onPressed: () {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+          },
         ),
       ],
     ),

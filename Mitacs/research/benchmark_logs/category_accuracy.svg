@@ -1,0 +1,91 @@
+<svg width="650" height="380" viewBox="0 0 650 380" xmlns="http://www.w3.org/2000/svg" style="background:#0f172a; border-radius:12px; font-family:'Outfit', 'Inter', sans-serif;">
+
+    <defs>
+        <filter id="drop-shadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.4"/>
+        </filter>
+        <linearGradient id="grid-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#1e293b" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#0f172a" stop-opacity="1"/>
+        </linearGradient>
+    </defs>
+    
+
+    <style>
+        .title { fill: #f8fafc; font-size: 18px; font-weight: 700; }
+        .axis-label { fill: #94a3b8; font-size: 12px; }
+        .tick-label { fill: #64748b; font-size: 11px; }
+        .grid-line { stroke: #334155; stroke-dasharray: 4,4; stroke-width: 0.8; }
+        .bar-label { fill: #f8fafc; font-size: 12px; font-weight: 600; text-anchor: middle; opacity: 0; animation: fadeIn 0.5s ease forwards 0.8s; }
+        .bar { filter: url(#drop-shadow); transition: all 0.3s ease; transform-origin: bottom; animation: growUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .bar:hover { filter: brightness(1.2) url(#drop-shadow); cursor: pointer; }
+        @keyframes growUp {
+            from { transform: scaleY(0); }
+            to { transform: scaleY(1); }
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+    </style>
+    
+<text x="325.0" y="35" text-anchor="middle" class="title">Accuracy by Evaluation Category</text>
+<line x1="80" y1="320.0" x2="620" y2="320.0" class="grid-line"/>
+<text x="65" y="324.0" text-anchor="end" class="tick-label">0%</text>
+<line x1="80" y1="268.0" x2="620" y2="268.0" class="grid-line"/>
+<text x="65" y="272.0" text-anchor="end" class="tick-label">20%</text>
+<line x1="80" y1="216.0" x2="620" y2="216.0" class="grid-line"/>
+<text x="65" y="220.0" text-anchor="end" class="tick-label">40%</text>
+<line x1="80" y1="164.0" x2="620" y2="164.0" class="grid-line"/>
+<text x="65" y="168.0" text-anchor="end" class="tick-label">60%</text>
+<line x1="80" y1="112.0" x2="620" y2="112.0" class="grid-line"/>
+<text x="65" y="116.0" text-anchor="end" class="tick-label">80%</text>
+<line x1="80" y1="60.0" x2="620" y2="60.0" class="grid-line"/>
+<text x="65" y="64.0" text-anchor="end" class="tick-label">100%</text>
+
+        <linearGradient id="bar-grad-0" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#4f46e5"/>
+            <stop offset="100%" stop-color="#4f46e5" stop-opacity="0.4"/>
+        </linearGradient>
+        
+<rect x="101.6" y="96.4" width="64.8" height="223.6" rx="6" ry="6" fill="url(#bar-grad-0)" class="bar" style="transform-origin: 134.0px 320px;"/>
+<text x="134.0" y="88.4" class="bar-label">86.0%</text>
+<text x="134.0" y="345" text-anchor="middle" class="axis-label">Routine Memory</text>
+
+        <linearGradient id="bar-grad-1" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#06b6d4"/>
+            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.4"/>
+        </linearGradient>
+        
+<rect x="209.6" y="73.0" width="64.8" height="247.0" rx="6" ry="6" fill="url(#bar-grad-1)" class="bar" style="transform-origin: 242.0px 320px;"/>
+<text x="242.0" y="65.0" class="bar-label">95.0%</text>
+<text x="242.0" y="345" text-anchor="middle" class="axis-label">Identity Core</text>
+
+        <linearGradient id="bar-grad-2" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#10b981"/>
+            <stop offset="100%" stop-color="#10b981" stop-opacity="0.4"/>
+        </linearGradient>
+        
+<rect x="317.6" y="130.20000000000002" width="64.8" height="189.79999999999998" rx="6" ry="6" fill="url(#bar-grad-2)" class="bar" style="transform-origin: 350.0px 320px;"/>
+<text x="350.0" y="122.20000000000002" class="bar-label">73.0%</text>
+<text x="350.0" y="345" text-anchor="middle" class="axis-label">Emotional Context</text>
+
+        <linearGradient id="bar-grad-3" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.4"/>
+        </linearGradient>
+        
+<rect x="425.6" y="135.4" width="64.8" height="184.6" rx="6" ry="6" fill="url(#bar-grad-3)" class="bar" style="transform-origin: 458.0px 320px;"/>
+<text x="458.0" y="127.4" class="bar-label">71.0%</text>
+<text x="458.0" y="345" text-anchor="middle" class="axis-label">Relationship Graph</text>
+
+        <linearGradient id="bar-grad-4" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ec4899"/>
+            <stop offset="100%" stop-color="#ec4899" stop-opacity="0.4"/>
+        </linearGradient>
+        
+<rect x="533.6" y="83.4" width="64.8" height="236.6" rx="6" ry="6" fill="url(#bar-grad-4)" class="bar" style="transform-origin: 566.0px 320px;"/>
+<text x="566.0" y="75.4" class="bar-label">91.0%</text>
+<text x="566.0" y="345" text-anchor="middle" class="axis-label">Preference Deep</text>
+<line x1="80" y1="60" x2="80" y2="320" stroke="#334155" stroke-width="1.5"/>
+<line x1="80" y1="320" x2="620" y2="320" stroke="#334155" stroke-width="1.5"/>
+</svg>

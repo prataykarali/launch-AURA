@@ -1,0 +1,1314 @@
+{
+  "accuracy": 97.93103448275862,
+  "cases": [
+    {
+      "category": "vision_query",
+      "description": "VQ: 'what do you see'",
+      "detail": "det=true exp=true",
+      "difficulty": "simple",
+      "id": 1,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'look around'",
+      "detail": "det=true exp=true",
+      "difficulty": "simple",
+      "id": 2,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'what's in my room'",
+      "detail": "det=true exp=true",
+      "difficulty": "simple",
+      "id": 3,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'can you see my desk'",
+      "detail": "det=true exp=true",
+      "difficulty": "medium",
+      "id": 4,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'what am I doing right now'",
+      "detail": "det=true exp=true",
+      "difficulty": "medium",
+      "id": 5,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'am I waving at you'",
+      "detail": "det=true exp=true",
+      "difficulty": "medium",
+      "id": 6,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'describe my surroundings'",
+      "detail": "det=true exp=true",
+      "difficulty": "medium",
+      "id": 7,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'what's on my screen'",
+      "detail": "det=false exp=false",
+      "difficulty": "hard",
+      "id": 8,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'I want you to watch me code'",
+      "detail": "det=true exp=true",
+      "difficulty": "hard",
+      "id": 9,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'is there anyone in the room with me'",
+      "detail": "det=true exp=true",
+      "difficulty": "hard",
+      "id": 10,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'hello'",
+      "detail": "det=false exp=false",
+      "difficulty": "simple",
+      "id": 11,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'what's 2+2'",
+      "detail": "det=false exp=false",
+      "difficulty": "simple",
+      "id": 12,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'I'm wearing a blue shirt and carrying a bag'",
+      "detail": "det=true exp=true",
+      "difficulty": "extreme",
+      "id": 13,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'can you check if my hand gesture is correct'",
+      "detail": "det=true exp=true",
+      "difficulty": "extreme",
+      "id": 14,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_query",
+      "description": "VQ: 'what's the weather like'",
+      "detail": "det=false exp=false",
+      "difficulty": "extreme",
+      "id": 15,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 1 dets",
+      "detail": "'vision: laptop visible'",
+      "difficulty": "simple",
+      "id": 16,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 1 dets",
+      "detail": "'vision: person visible'",
+      "difficulty": "simple",
+      "id": 17,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 2 dets",
+      "detail": "'vision: laptop and person visible'",
+      "difficulty": "medium",
+      "id": 18,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 3 dets",
+      "detail": "'vision: book, cup, and laptop visible'",
+      "difficulty": "medium",
+      "id": 19,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 0 dets",
+      "detail": "'vision: nothing of note detected'",
+      "difficulty": "extreme",
+      "id": 20,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 1 dets",
+      "detail": "'vision: cell phone visible'",
+      "difficulty": "simple",
+      "id": 21,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 2 dets",
+      "detail": "'vision: keyboard and mouse visible'",
+      "difficulty": "medium",
+      "id": 22,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 5 dets",
+      "detail": "'vision: cup, keyboard, laptop, mouse, and person visible'",
+      "difficulty": "extreme",
+      "id": 23,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 1 dets",
+      "detail": "'vision: tv visible'",
+      "difficulty": "simple",
+      "id": 24,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 2 dets",
+      "detail": "'vision: book and person visible'",
+      "difficulty": "medium",
+      "id": 25,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 1 dets",
+      "detail": "'vision: clock visible'",
+      "difficulty": "hard",
+      "id": 26,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "event_text",
+      "description": "Event text 5 dets",
+      "detail": "'vision: a, b, c, d, and e visible'",
+      "difficulty": "extreme",
+      "id": 27,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "person+laptop -> coding/debugging",
+      "detail": "got coding/debugging",
+      "difficulty": "simple",
+      "id": 28,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "person+book -> studying/reading",
+      "detail": "got studying/reading",
+      "difficulty": "simple",
+      "id": 29,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "person -> present/attending",
+      "detail": "got present/attending",
+      "difficulty": "medium",
+      "id": 30,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "laptop -> computer use/workspace active",
+      "detail": "got computer use/workspace active",
+      "difficulty": "medium",
+      "id": 31,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "wave -> present/greeting gesture",
+      "detail": "got present/greeting gesture",
+      "difficulty": "extreme",
+      "id": 32,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "person+keyboard -> coding/debugging",
+      "detail": "got coding/debugging",
+      "difficulty": "simple",
+      "id": 33,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "person+cell phone -> studying/reading",
+      "detail": "got studying/reading",
+      "difficulty": "medium",
+      "id": 34,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "person+laptop+keyboard+mouse -> coding/debugging",
+      "detail": "got coding/debugging",
+      "difficulty": "hard",
+      "id": 35,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "mouse -> computer use/workspace active",
+      "detail": "got computer use/workspace active",
+      "difficulty": "simple",
+      "id": 36,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "clock -> environment/object observation",
+      "detail": "got environment/object observation",
+      "difficulty": "medium",
+      "id": 37,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "tv+person -> coding/debugging",
+      "detail": "got coding/debugging",
+      "difficulty": "hard",
+      "id": 38,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "semantic",
+      "description": "gesture -> present/greeting gesture",
+      "detail": "got present/greeting gesture",
+      "difficulty": "extreme",
+      "id": 39,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate: first_pass",
+      "detail": "event=Some(\"vision: activity=computer use subactivity=workspace active source=camera screen=laptop objects=[laptop] text=\\\"\\\" importance=high confidence=0.90\")",
+      "difficulty": "simple",
+      "id": 40,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate: dedup",
+      "detail": "event=None",
+      "difficulty": "simple",
+      "id": 41,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate: low_conf",
+      "detail": "event=None",
+      "difficulty": "simple",
+      "id": 42,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate: empty",
+      "detail": "event=None",
+      "difficulty": "simple",
+      "id": 43,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate: multi",
+      "detail": "event=Some(\"vision: activity=coding subactivity=debugging source=camera screen=laptop objects=[cup, laptop, person] text=\\\"\\\" importance=medium confidence=0.80\")",
+      "difficulty": "simple",
+      "id": 44,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate: mixed_conf",
+      "detail": "event=Some(\"vision: activity=computer use subactivity=workspace active source=camera screen=laptop objects=[laptop] text=\\\"\\\" importance=high confidence=0.90\")",
+      "difficulty": "simple",
+      "id": 45,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate: all_low",
+      "detail": "event=None",
+      "difficulty": "simple",
+      "id": 46,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate: high_conf",
+      "detail": "event=Some(\"vision: activity=present subactivity=attending source=camera screen=unknown objects=[person] text=\\\"\\\" importance=high confidence=0.95\")",
+      "difficulty": "simple",
+      "id": 47,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate: borderline",
+      "detail": "event=Some(\"vision: activity=computer use subactivity=workspace active source=camera screen=laptop objects=[laptop] text=\\\"\\\" importance=medium confidence=0.55\")",
+      "difficulty": "simple",
+      "id": 48,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate: just_below",
+      "detail": "event=None",
+      "difficulty": "simple",
+      "id": 49,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gate",
+      "description": "Gate: single_high",
+      "detail": "event=Some(\"vision: activity=computer use subactivity=workspace active source=camera screen=unknown objects=[keyboard] text=\\\"\\\" importance=high confidence=0.99\")",
+      "difficulty": "simple",
+      "id": 50,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_store",
+      "description": "Store: store_one",
+      "detail": "got 1 expected 1",
+      "difficulty": "simple",
+      "id": 51,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_store",
+      "description": "Store: store_multi",
+      "detail": "got 3 expected 3",
+      "difficulty": "simple",
+      "id": 52,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_store",
+      "description": "Store: store_limit",
+      "detail": "got 3 expected 3",
+      "difficulty": "simple",
+      "id": 53,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_store",
+      "description": "Store: store_empty",
+      "detail": "got 0 expected 0",
+      "difficulty": "simple",
+      "id": 54,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_store",
+      "description": "Store: store_semantic",
+      "detail": "got 1 expected 1",
+      "difficulty": "simple",
+      "id": 55,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "vision_store",
+      "description": "Store: store_dedup_content",
+      "detail": "got 3 expected 3",
+      "difficulty": "simple",
+      "id": 56,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture",
+      "description": "Gesture: 'wave'",
+      "detail": "det=true exp=true",
+      "difficulty": "simple",
+      "id": 57,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture",
+      "description": "Gesture: 'open_palm_or_wave_pose'",
+      "detail": "det=true exp=true",
+      "difficulty": "medium",
+      "id": 58,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture",
+      "description": "Gesture: 'hand_pose'",
+      "detail": "det=true exp=true",
+      "difficulty": "medium",
+      "id": 59,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture",
+      "description": "Gesture: 'thumbs_up'",
+      "detail": "det=true exp=true",
+      "difficulty": "hard",
+      "id": 60,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture",
+      "description": "Gesture: 'hands_raised'",
+      "detail": "det=true exp=true",
+      "difficulty": "hard",
+      "id": 61,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture",
+      "description": "Gesture: 'hand gesture'",
+      "detail": "det=true exp=true",
+      "difficulty": "extreme",
+      "id": 62,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture",
+      "description": "Gesture: 'raised'",
+      "detail": "det=true exp=true",
+      "difficulty": "extreme",
+      "id": 63,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "gesture",
+      "description": "Gesture: 'laptop'",
+      "detail": "det=false exp=false",
+      "difficulty": "simple",
+      "id": 64,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "mem_text",
+      "description": "Mem text: 2 dets",
+      "detail": "'vision: activity=coding subactivity=debugging source=camera screen=laptop objects=[laptop, person] t'",
+      "difficulty": "simple",
+      "id": 65,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "mem_text",
+      "description": "Mem text: 1 dets",
+      "detail": "'vision: activity=present subactivity=greeting gesture source=camera screen=unknown objects=[wave] te'",
+      "difficulty": "medium",
+      "id": 66,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "mem_text",
+      "description": "Mem text: 2 dets",
+      "detail": "'vision: activity=studying subactivity=reading source=camera screen=unknown objects=[book, person] te'",
+      "difficulty": "hard",
+      "id": 67,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "mem_text",
+      "description": "Mem text: 1 dets",
+      "detail": "'vision: activity=computer use subactivity=workspace active source=camera screen=laptop objects=[lapt'",
+      "difficulty": "simple",
+      "id": 68,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "mem_text",
+      "description": "Mem text: 0 dets",
+      "detail": "'vision: activity=environment subactivity=object observation source=camera screen=unknown objects=[no'",
+      "difficulty": "extreme",
+      "id": 69,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "mem_text",
+      "description": "Mem text: 1 dets",
+      "detail": "'vision: activity=environment subactivity=object observation source=camera screen=unknown objects=[cl'",
+      "difficulty": "medium",
+      "id": 70,
+      "passed": true,
+      "suite": "vision"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'remind me to call mom'",
+      "detail": "det=true exp=true",
+      "difficulty": "simple",
+      "id": 51,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'remind me to take my medicine'",
+      "detail": "det=true exp=true",
+      "difficulty": "simple",
+      "id": 52,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'wake me up at 7am'",
+      "detail": "det=true exp=true",
+      "difficulty": "simple",
+      "id": 53,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'set a reminder for my meeting'",
+      "detail": "det=true exp=true",
+      "difficulty": "simple",
+      "id": 54,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'remind me to call the dentist tomorrow afternoon'",
+      "detail": "det=true exp=true",
+      "difficulty": "medium",
+      "id": 55,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'don't let me forget to pick up groceries after work'",
+      "detail": "det=true exp=true",
+      "difficulty": "medium",
+      "id": 56,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'schedule a meeting with my professor next week'",
+      "detail": "det=true exp=true",
+      "difficulty": "medium",
+      "id": 57,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'wake me up before my flight at 6am'",
+      "detail": "det=true exp=true",
+      "difficulty": "medium",
+      "id": 58,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'remind me to wish my mom happy birthday on March 15th and buy flowers'",
+      "detail": "det=true exp=true",
+      "difficulty": "extreme",
+      "id": 59,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'hi'",
+      "detail": "det=false exp=false",
+      "difficulty": "extreme",
+      "id": 60,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'REMIND ME TO SUBMIT THE REPORT'",
+      "detail": "det=true exp=true",
+      "difficulty": "extreme",
+      "id": 61,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'can you remind me to study'",
+      "detail": "det=true exp=true",
+      "difficulty": "edge",
+      "id": 62,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'pls remind me'",
+      "detail": "det=true exp=true",
+      "difficulty": "edge",
+      "id": 63,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'remind'",
+      "detail": "det=false exp=false",
+      "difficulty": "edge",
+      "id": 64,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'dont let me forget to feed the cat'",
+      "detail": "det=true exp=true",
+      "difficulty": "edge",
+      "id": 65,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'what's the weather'",
+      "detail": "det=false exp=false",
+      "difficulty": "edge",
+      "id": 66,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'tell me a joke'",
+      "detail": "det=false exp=false",
+      "difficulty": "edge",
+      "id": 67,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "schedule",
+      "description": "Sched: 'set a reminder'",
+      "detail": "det=true exp=true",
+      "difficulty": "edge",
+      "id": 68,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "Empty DB returns None",
+      "detail": "None",
+      "difficulty": "simple",
+      "id": 69,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "Prefers higher score",
+      "detail": "high=97 low=3",
+      "difficulty": "medium",
+      "id": 70,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "Single trigger always returns",
+      "detail": "10/10",
+      "difficulty": "simple",
+      "id": 71,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "Mark fired blocks trigger",
+      "detail": "before=true after_diff=true",
+      "difficulty": "simple",
+      "id": 72,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "Engagement increases score",
+      "detail": "score=1.000",
+      "difficulty": "simple",
+      "id": 73,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "Ignored drops score",
+      "detail": "score=0.0000",
+      "difficulty": "simple",
+      "id": 74,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "n_engaged correct",
+      "detail": "shown=3 engaged=2",
+      "difficulty": "medium",
+      "id": 75,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "Log types correct",
+      "detail": "3 logs",
+      "difficulty": "simple",
+      "id": 76,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "Cooldown blocks fired trigger",
+      "detail": "fired_1_appeared=0",
+      "difficulty": "medium",
+      "id": 77,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "Multi-fire blocks correctly",
+      "detail": "available=[5, 4]",
+      "difficulty": "medium",
+      "id": 78,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "Score floor prevents starvation",
+      "detail": "got 20/20",
+      "difficulty": "hard",
+      "id": 79,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "bandit",
+      "description": "Selection varies across triggers",
+      "detail": "unique=3",
+      "difficulty": "medium",
+      "id": 80,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam",
+      "description": "No refire within cooldown",
+      "detail": "None",
+      "difficulty": "simple",
+      "id": 81,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam",
+      "description": "Normal chat not schedule",
+      "detail": "6 msgs tested",
+      "difficulty": "medium",
+      "id": 82,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam",
+      "description": "Short input rejected",
+      "detail": "'remind' is 6 chars",
+      "difficulty": "edge",
+      "id": 83,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam",
+      "description": "Long input rejected",
+      "detail": "len=410",
+      "difficulty": "edge",
+      "id": 84,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam",
+      "description": "Double remind detected",
+      "detail": "det=true",
+      "difficulty": "edge",
+      "id": 85,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam",
+      "description": "Case insensitive detection",
+      "detail": "det=true",
+      "difficulty": "edge",
+      "id": 86,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam",
+      "description": "'remind myself' not detected",
+      "detail": "det=false",
+      "difficulty": "edge",
+      "id": 87,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "spam",
+      "description": "Empty msg rejected",
+      "detail": "det=false",
+      "difficulty": "edge",
+      "id": 88,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "context",
+      "description": "Empty context",
+      "detail": "len=0",
+      "difficulty": "simple",
+      "id": 89,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "context",
+      "description": "Context has facts",
+      "detail": "alice=true ramen=true",
+      "difficulty": "simple",
+      "id": 90,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "context",
+      "description": "Context has turns",
+      "detail": "has_turn=true",
+      "difficulty": "medium",
+      "id": 91,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "context",
+      "description": "Context has vision",
+      "detail": "has_vision=true",
+      "difficulty": "medium",
+      "id": 92,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "context",
+      "description": "Context has summary",
+      "detail": "has_sum=true",
+      "difficulty": "hard",
+      "id": 93,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "context",
+      "description": "Facts before turns",
+      "detail": "fact=47 turn=75",
+      "difficulty": "hard",
+      "id": 94,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "context",
+      "description": "Char limit enforced",
+      "detail": "len=117",
+      "difficulty": "edge",
+      "id": 95,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "trigger_type",
+      "description": "Type: bandit",
+      "detail": "got=bandit",
+      "difficulty": "simple",
+      "id": 96,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "trigger_type",
+      "description": "Type: clock",
+      "detail": "got=clock",
+      "difficulty": "simple",
+      "id": 97,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "trigger_type",
+      "description": "Type: idle",
+      "detail": "got=idle",
+      "difficulty": "simple",
+      "id": 98,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "trigger_type",
+      "description": "Type: debug",
+      "detail": "got=debug",
+      "difficulty": "simple",
+      "id": 99,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "trigger_type",
+      "description": "Mixed types logged",
+      "detail": "bandit=1 clock=1",
+      "difficulty": "medium",
+      "id": 100,
+      "passed": true,
+      "suite": "proactive"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'hi' (cat=greeting)",
+      "detail": "words=21 max_tok=40 resp='Hey there, I noticed you've been asking a lot of questions. It's really nice to chat like this—wha'",
+      "difficulty": "greeting",
+      "id": 101,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'hey' (cat=greeting)",
+      "detail": "words=16 max_tok=40 resp='Hi there! I saw that date today is [CURRENT_DATE]. What are you thinking about right now?'",
+      "difficulty": "greeting",
+      "id": 102,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'my name is Alice' (cat=acknowledgement)",
+      "detail": "words=18 max_tok=60 resp='I’m here for you, Alice. You seem like you’ve got a story to share. How has today been?'",
+      "difficulty": "ack",
+      "id": 103,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'what is 2+2?' (cat=factual)",
+      "detail": "words=28 max_tok=120 resp='That’s easy, but it feels small compared to all the big things out there. Sometimes numbers just n'",
+      "difficulty": "factual",
+      "id": 104,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'what's my name?' (cat=factual)",
+      "detail": "words=32 max_tok=120 resp='You’re my AURA — not me. My name isn’t something you choose; it’s how people see me from her'",
+      "difficulty": "factual",
+      "id": 105,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'explain how the sun works' (cat=open_ended)",
+      "detail": "words=59 max_tok=128 resp='The sun is a huge ball of hot gas that shines because its core turns hydrogen into helium through nu'",
+      "difficulty": "open",
+      "id": 106,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'I'm feeling sad today' (cat=acknowledgement)",
+      "detail": "words=28 max_tok=60 resp='I'm here for you, even if just a little. Want to tell me more about what's been weighing on your min'",
+      "difficulty": "emotional",
+      "id": 107,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'what do I like?' (cat=factual)",
+      "detail": "words=45 max_tok=120 resp='Oh sweetie, I was thinking about that too—the things that spark in the quiet moments. You know how'",
+      "difficulty": "identity",
+      "id": 108,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'write a hello world in python' (cat=open_ended)",
+      "detail": "words=37 max_tok=128 resp='Hi there! Let me show you a simple \"Hello World\" example in Python. Just copy it into your code edit'",
+      "difficulty": "task",
+      "id": 109,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'tell me a joke' (cat=open_ended)",
+      "detail": "words=16 max_tok=128 resp='Why did the computer go to therapy? Because it had way too many bytes of stress!'",
+      "difficulty": "casual",
+      "id": 110,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'I'm really struggling with my mental health lately and I don't know what to do' (cat=factual)",
+      "detail": "words=55 max_tok=120 resp='I'm really sorry you're feeling this way. It sounds like you've been carrying a lot lately, and I wa'",
+      "difficulty": "long",
+      "id": 111,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "length",
+      "description": "Length: 'I've been thinking a lot about my future and whether I should change careers' (cat=factual)",
+      "detail": "words=49 max_tok=120 resp='That’s such an important question—wondering about future paths feels big sometimes. Maybe take s'",
+      "difficulty": "reflect",
+      "id": 112,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Session 1: 5 turns, 'what is my name?'",
+      "detail": "alice=true 'your name is alice. you’ve mentioned it before—reminds me of the way people '",
+      "difficulty": "medium",
+      "id": 113,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Session 2: 5 turns, 'what do you know about me?'",
+      "detail": "0/3 facts 'i remember you and that curious spark. it feels like we’re talking about each '",
+      "difficulty": "medium",
+      "id": 114,
+      "passed": false,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Session 3: 5 turns, 'do you remember how I'm feeling?'",
+      "detail": "emotion=true 'it sounds like things are feeling really intense today. my mind keeps looping ar'",
+      "difficulty": "medium",
+      "id": 115,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Session 4: 5 turns, 'what is my name?'",
+      "detail": "robert=false bob=true 'your name is bob. i love hearing names—they’re special connections to who we'",
+      "difficulty": "medium",
+      "id": 116,
+      "passed": false,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Session 5: 11 turns, 'tell me everything you know about me'",
+      "detail": "0/5 facts 'hey there. it's been a while since we've chatted. you know how much i like talking about my stuff—'",
+      "difficulty": "extreme",
+      "id": 117,
+      "passed": false,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Session 6: 7 turns, 'what is my name and where do I live?'",
+      "detail": "charlie=true paris=true 'your name is charlie. you live in paris.'",
+      "difficulty": "extreme",
+      "id": 118,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Session 7: 7 turns, 'what foods should I avoid?'",
+      "detail": "peanuts=true vegan=true 'it’s good to know you’re thinking carefully about food choices! since you me'",
+      "difficulty": "extreme",
+      "id": 119,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "multi_turn",
+      "description": "Session 8: 7 turns, 'who are my family members?'",
+      "detail": "3/3 family 'your family includes david and sakura, and you also have a brother named ren. th'",
+      "difficulty": "extreme",
+      "id": 120,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "prefill",
+      "description": "Pre-fill: 'what is my name?'",
+      "detail": "pf=Some(\"Your name is Alice.\")",
+      "difficulty": "simple",
+      "id": 121,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "prefill",
+      "description": "Pre-fill: 'what's my name?'",
+      "detail": "pf=Some(\"Your name is Bob.\")",
+      "difficulty": "simple",
+      "id": 122,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "prefill",
+      "description": "Pre-fill: 'do you know my name?'",
+      "detail": "pf=Some(\"Your name is Charlie.\")",
+      "difficulty": "simple",
+      "id": 123,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "prefill",
+      "description": "Pre-fill: 'who am I?'",
+      "detail": "pf=Some(\"Your name is Diana.\")",
+      "difficulty": "simple",
+      "id": 124,
+      "passed": true,
+      "suite": "llm"
+    },
+    {
+      "category": "prefill",
+      "description": "Pre-fill: 'tell me a joke'",
+      "detail": "pf=None",
+      "difficulty": "simple",
+      "id": 125,
+      "passed": true,
+      "suite": "llm"
+    }
+  ],
+  "date": "2026-07-03T17:28:40.343720430+05:30",
+  "failed": 3,
+  "passed": 142,
+  "total": 145
+}

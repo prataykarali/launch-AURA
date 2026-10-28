@@ -1,5 +1,5 @@
-use once_cell::sync::Lazy;
 use std::collections::{HashMap, HashSet};
+use std::sync::LazyLock;
 use std::sync::Mutex;
 
 fn memory_topic_key(layer: &str, text: &str) -> String {
@@ -30,8 +30,8 @@ fn memory_topic_key(layer: &str, text: &str) -> String {
 /// Consecutive-turn guard for all memory items (facts, RAG, etc.). Allows a
 /// memory to be injected at most twice in a row; after that it is dropped from
 /// the slate so the next relevant memory can surface when the chat drifts.
-static CONSECUTIVE_MEMORY_GUARD: Lazy<Mutex<ConsecutiveMemoryGuard>> =
-    Lazy::new(|| Mutex::new(ConsecutiveMemoryGuard::default()));
+static CONSECUTIVE_MEMORY_GUARD: LazyLock<Mutex<ConsecutiveMemoryGuard>> =
+    LazyLock::new(|| Mutex::new(ConsecutiveMemoryGuard::default()));
 
 #[derive(Default)]
 struct ConsecutiveMemoryGuard {
@@ -81,6 +81,16 @@ pub(crate) fn begin_memory_turn() {
 }
 
 pub(crate) fn should_inject_memory_item(text: &str) -> bool {
+    // Identity facts (name, age, birthday) are ALWAYS allowed — they must
+    // never be suppressed by the consecutive guard.
+    let lower = text.to_lowercase();
+    if lower.starts_with("user's name is ")
+        || lower.starts_with("user's age is ")
+        || lower.starts_with("user's birthday is ")
+        || lower.contains(" name is ")
+    {
+        return true;
+    }
     CONSECUTIVE_MEMORY_GUARD
         .lock()
         .map(|mut guard| guard.try_use(text))

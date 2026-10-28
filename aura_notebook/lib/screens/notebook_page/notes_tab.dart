@@ -8,11 +8,7 @@ class NotesTabContent extends StatelessWidget {
   final List<Map<String, dynamic>> notes;
   final VoidCallback onLoad;
 
-  const NotesTabContent({
-    super.key,
-    required this.notes,
-    required this.onLoad,
-  });
+  const NotesTabContent({super.key, required this.notes, required this.onLoad});
 
   @override
   Widget build(BuildContext context) {

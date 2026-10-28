@@ -15,16 +15,19 @@ pub fn aura_get_available_backends() -> String {
 }
 
 pub fn aura_set_backend(backend_name: String) -> bool {
+    // ponytail: stub — logs only, does nothing. Keep for FRB compat.
     eprintln!("[AURA_ENGINE] Requested backend change to: {backend_name}");
     true
 }
 
 pub fn aura_set_threads(threads: i32) -> bool {
+    // ponytail: stub — logs only, does nothing. Keep for FRB compat.
     eprintln!("[AURA_ENGINE] Requested thread count: {threads}");
     true
 }
 
 pub fn aura_set_context_size(n_ctx: u32) -> bool {
+    // ponytail: stub — logs only, does nothing. Keep for FRB compat.
     eprintln!("[AURA_ENGINE] Requested context size: {n_ctx}");
     true
 }
@@ -40,31 +43,51 @@ pub fn aura_clear_memory() -> bool {
             let _ = std::fs::remove_file(path);
         }
 
-        if let Some(parent) = std::path::Path::new(db_path).parent() {
-            let _ = std::fs::remove_file(parent.join("notebook.jsonl"));
-        }
-        if let Ok(p) = std::env::var("AURA_NOTEBOOK_PATH") {
-            if !p.trim().is_empty() {
-                let _ = std::fs::remove_file(p);
+        let notebook_locations: Vec<std::path::PathBuf> = {
+            let mut paths = Vec::new();
+            if let Some(parent) = std::path::Path::new(db_path).parent() {
+                paths.push(parent.join("notebook.jsonl"));
             }
-        }
-        if let Ok(xdg) = std::env::var("XDG_DATA_HOME") {
-            if !xdg.trim().is_empty() {
-                let _ = std::fs::remove_file(
-                    std::path::Path::new(&xdg)
-                        .join("AURA")
-                        .join("notebook.jsonl"),
-                );
+            if let Ok(p) = std::env::var("AURA_NOTEBOOK_PATH") {
+                if !p.trim().is_empty() {
+                    paths.push(std::path::PathBuf::from(p));
+                }
             }
-        }
-        if let Ok(home) = std::env::var("HOME") {
-            if !home.trim().is_empty() {
-                let _ = std::fs::remove_file(
-                    std::path::Path::new(&home)
-                        .join(".local/share/AURA")
-                        .join("notebook.jsonl"),
-                );
+            if let Ok(xdg) = std::env::var("XDG_DATA_HOME") {
+                if !xdg.trim().is_empty() {
+                    paths.push(
+                        std::path::Path::new(&xdg)
+                            .join("AURA")
+                            .join("notebook.jsonl"),
+                    );
+                }
             }
+            if let Ok(home) = std::env::var("HOME") {
+                if !home.trim().is_empty() {
+                    paths.push(
+                        std::path::Path::new(&home)
+                            .join(".local/share/AURA")
+                            .join("notebook.jsonl"),
+                    );
+                }
+            }
+            // Android app-private storage paths (secure, not world-readable)
+            paths.push(std::path::PathBuf::from(
+                "/data/data/com.example.aura_notebook/app_flutter/notebook.jsonl",
+            ));
+            paths.push(std::path::PathBuf::from(
+                "/data/user/0/com.example.aura_notebook/app_flutter/notebook.jsonl",
+            ));
+            paths.push(std::path::PathBuf::from(
+                "/data/data/com.example.aura_notebook/files/notebook.jsonl",
+            ));
+            paths.push(std::path::PathBuf::from(
+                "/data/user/0/com.example.aura_notebook/files/notebook.jsonl",
+            ));
+            paths
+        };
+        for path in &notebook_locations {
+            let _ = std::fs::remove_file(path);
         }
         return true;
     }

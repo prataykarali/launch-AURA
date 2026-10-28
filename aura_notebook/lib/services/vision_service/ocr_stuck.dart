@@ -1,6 +1,9 @@
 part of 'vision_service.dart';
 
-Future<void> _updateStuckDetection(VisionService service, Uint8List frame) async {
+Future<void> _updateStuckDetection(
+  VisionService service,
+  Uint8List frame,
+) async {
   final profile = service.deviceProfile;
   if (!_canRunTier3For(profile)) return;
   final now = DateTime.now();
@@ -76,7 +79,8 @@ int _stuckDurationMins(VisionService service) {
 }
 
 bool _consumeStuckEpisodeTrigger(VisionService service) {
-  if (service._sameOcrHashCount < 10 || service._stuckEpisodeFired) return false;
+  if (service._sameOcrHashCount < 10 || service._stuckEpisodeFired)
+    return false;
   service._stuckEpisodeFired = true;
   return true;
 }

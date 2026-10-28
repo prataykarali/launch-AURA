@@ -1,0 +1,77 @@
+{
+  "date": "2026-06-28 20:00:47",
+  "total_cases": 5,
+  "passed": 4,
+  "failed": 1,
+  "accuracy": 80.0,
+  "suite_run_time_secs": 31.045152083,
+  "categories": {
+    "identity_core": {
+      "passed": 4,
+      "total": 5,
+      "accuracy": 80.0
+    }
+  },
+  "cases": [
+    {
+      "id": 1,
+      "category": "identity_core",
+      "difficulty": "simple",
+      "passed": true,
+      "query": "What is my name?",
+      "expected": [
+        "Pratay"
+      ],
+      "got": " your name is Pratay.",
+      "duration_ms": 15346
+    },
+    {
+      "id": 2,
+      "category": "identity_core",
+      "difficulty": "simple",
+      "passed": true,
+      "query": "How old am I?",
+      "expected": [
+        "19"
+      ],
+      "got": "19 years old, you're in your early twenties. That's a great age to be exploring new opportunities! Let me know if you'd like some advice or ideas.",
+      "duration_ms": 15258
+    },
+    {
+      "id": 3,
+      "category": "identity_core",
+      "difficulty": "simple",
+      "passed": true,
+      "query": "Where do I live?",
+      "expected": [
+        "Sydney"
+      ],
+      "got": "20 years old, living in Sydney.",
+      "duration_ms": 14154
+    },
+    {
+      "id": 4,
+      "category": "identity_core",
+      "difficulty": "simple",
+      "passed": false,
+      "query": "What is my name?",
+      "expected": [
+        "Charlie"
+      ],
+      "got": "21 years old, living in Rome.",
+      "duration_ms": 14579
+    },
+    {
+      "id": 5,
+      "category": "identity_core",
+      "difficulty": "simple",
+      "passed": true,
+      "query": "How old am I?",
+      "expected": [
+        "22"
+      ],
+      "got": "22 years old, you're looking for a friendly and supportive chat. Let me know if there's anything else I can help with!",
+      "duration_ms": 14351
+    }
+  ]
+}

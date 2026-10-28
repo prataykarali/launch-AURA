@@ -22,7 +22,9 @@ class BarWindowAppController {
   static const double _kCompactHeight = 96;
   static const double _kBubbleHeight = 220;
 
-  final ValueNotifier<BarState> barState = ValueNotifier<BarState>(BarState.idle);
+  final ValueNotifier<BarState> barState = ValueNotifier<BarState>(
+    BarState.idle,
+  );
   final ValueNotifier<String?> message = ValueNotifier<String?>(null);
   final ValueNotifier<bool> hasResponse = ValueNotifier<bool>(false);
   // Local mute mirror. The bar window is a separate isolate that does NOT own

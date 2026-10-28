@@ -8,7 +8,6 @@ pub enum DeviceBackend {
     Cuda,
     Metal,
     Vulkan,
-    Npu,
 }
 
 impl DeviceBackend {
@@ -23,7 +22,6 @@ impl DeviceBackend {
         #[cfg(target_os = "android")]
         {
             v.push(Self::Vulkan);
-            v.push(Self::Npu);
         }
         v
     }

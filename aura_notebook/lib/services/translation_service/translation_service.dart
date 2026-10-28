@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 
+import '../preferences_service.dart';
 import 'translation_result.dart';
 import 'transliteration.dart';
 
@@ -37,20 +38,9 @@ class TranslationService {
     final cached = _cache[trimmed];
     if (cached != null) return cached;
 
-    final online = await _translateOnline(trimmed);
-    if (online != null && online.trim().isNotEmpty) {
-      final translated = online.trim();
-      debugPrint('[AURA TRANSLATION] online "$trimmed" -> "$translated"');
-      return _remember(
-        trimmed,
-        TranslationResult(
-          original: text,
-          english: translated,
-          changed: translated != trimmed,
-          source: 'google_translate',
-        ),
-      );
-    }
+    // PRIVACY FIX: Try offline translation FIRST, before any network call.
+    // This ensures we only hit the network when absolutely necessary and
+    // the user has explicitly opted in.
 
     if (!Transliteration.looksNonEnglish(trimmed)) {
       return _remember(
@@ -66,9 +56,11 @@ class TranslationService {
 
     final fallback = Transliteration.offlineFallback(trimmed);
     if (fallback != trimmed) {
-      debugPrint(
-        '[AURA TRANSLATION] offline fallback "$trimmed" -> "$fallback"',
-      );
+      if (kDebugMode) {
+        debugPrint(
+          '[AURA TRANSLATION] offline fallback "$trimmed" -> "$fallback"',
+        );
+      }
       return _remember(
         trimmed,
         TranslationResult(
@@ -80,7 +72,41 @@ class TranslationService {
       );
     }
 
-    debugPrint('[AURA TRANSLATION] no translation available; passing raw text');
+    // PRIVACY FIX: Only attempt online translation if:
+    // 1. Offline methods failed (text looks non-English and transliteration didn't help)
+    // 2. User has explicitly opted in via settings (default is OFF)
+    final onlineEnabled = await PreferencesService.instance
+        .getOnlineTranslationEnabled();
+    if (onlineEnabled) {
+      final online = await _translateOnline(trimmed);
+      if (online != null && online.trim().isNotEmpty) {
+        final translated = online.trim();
+        if (kDebugMode) {
+          debugPrint('[AURA TRANSLATION] online "$trimmed" -> "$translated"');
+        }
+        return _remember(
+          trimmed,
+          TranslationResult(
+            original: text,
+            english: translated,
+            changed: translated != trimmed,
+            source: 'google_translate',
+          ),
+        );
+      }
+    } else {
+      if (kDebugMode) {
+        debugPrint(
+          '[AURA TRANSLATION] online translation disabled by user preference',
+        );
+      }
+    }
+
+    if (kDebugMode) {
+      debugPrint(
+        '[AURA TRANSLATION] no translation available; passing raw text',
+      );
+    }
     return _remember(
       trimmed,
       TranslationResult(

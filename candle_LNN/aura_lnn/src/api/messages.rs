@@ -97,4 +97,9 @@ pub(crate) enum EngineMsg {
     HealMemory {
         reply: Option<mpsc::SyncSender<String>>,
     },
+    /// Recent visual context from vision store (for proactive idle prompts).
+    GetRecentVisualContext {
+        limit: usize,
+        reply: mpsc::SyncSender<String>,
+    },
 }

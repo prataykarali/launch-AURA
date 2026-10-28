@@ -1,6 +1,6 @@
-use once_cell::sync::OnceCell;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::Mutex;
+use std::sync::OnceLock;
 
 // ── VAD gate: do not feed audio into the recognizer until the user is
 // actually speaking. This fixes the symptom where STT "starts processing"
@@ -8,7 +8,7 @@ use std::sync::Mutex;
 //
 // Pre-speech audio is buffered for a short window so that the first few
 // milliseconds of speech are not clipped when the gate opens.
-static STT_PRE_SPEECH_BUFFER: OnceCell<Mutex<Vec<f32>>> = OnceCell::new();
+static STT_PRE_SPEECH_BUFFER: OnceLock<Mutex<Vec<f32>>> = OnceLock::new();
 static STT_SPEECH_ACTIVE: AtomicBool = AtomicBool::new(false);
 static STT_VAD_CHUNK_COUNT: AtomicU32 = AtomicU32::new(0);
 

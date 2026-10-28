@@ -34,11 +34,6 @@ pub struct ReplyPlan {
     pub level: u8,
     /// Coarse message category that chose the token budget.
     pub category: &'static str,
-    /// Future extension hook for character animation.
-    pub affect: &'static str,
-    /// Future extension hook for character placement on screen.
-    pub anchor_x: f32,
-    pub anchor_y: f32,
 }
 
 impl ReplyPlan {

@@ -5,12 +5,14 @@ pub mod pool;
 
 pub mod bandit;
 pub mod core;
+pub mod edges;
 pub mod facts;
 pub mod inserts;
 pub mod insights;
 pub mod json_export;
 pub mod maintenance;
 pub mod mirror;
+pub mod nodes;
 pub mod notebook_paired;
 pub mod notebook_ro;
 pub mod notes;
@@ -22,6 +24,8 @@ pub mod utils;
 pub mod vec_memory;
 
 pub use core::MemoryStore;
+pub use edges::{GraphEdge, TraversedContext};
+pub use nodes::GraphNode;
 pub use rows::{InsightRow, MemoryNoteRow, ProactiveLogRow};
 
 // Re-export public helpers so they stay at `crate::memory::store::*`.

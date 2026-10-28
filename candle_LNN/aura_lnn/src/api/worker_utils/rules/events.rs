@@ -5,7 +5,12 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
     let mut facts = Vec::new();
 
     // Birthday: "my birthday is X", "my birthday's on X", "i was born on X"
-    let anchors = ["my birthday is ", "my birthday's on ", "my birthday is on ", "i was born on "];
+    let anchors = [
+        "my birthday is ",
+        "my birthday's on ",
+        "my birthday is on ",
+        "i was born on ",
+    ];
     for anchor in &anchors {
         if let Some(idx) = cleaned.find(anchor) {
             let rest = &cleaned[idx + anchor.len()..];
@@ -14,7 +19,9 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             if date.len() >= 3 && date.chars().any(|c| c.is_alphanumeric()) {
                 let orig = restore_case(date, original);
                 let f = format!("User's birthday is {}", orig);
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
             break;
         }
@@ -51,7 +58,10 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
         ("interview next ", "User has an interview next "),
         // Presentations
         ("my presentation is ", "User has a presentation on "),
-        ("my presentation is tomorrow", "User has a presentation tomorrow"),
+        (
+            "my presentation is tomorrow",
+            "User has a presentation tomorrow",
+        ),
         ("i have a presentation ", "User has a presentation "),
         ("presentation tomorrow", "User has a presentation tomorrow"),
         ("presentation at ", "User has a presentation at "),
@@ -68,8 +78,14 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
         // Appointments
         ("my appointment is at ", "User has an appointment at "),
         ("my appointment is on ", "User has an appointment on "),
-        ("i have a dentist appointment ", "User has a dentist appointment "),
-        ("i have a doctor appointment ", "User has a doctor appointment "),
+        (
+            "i have a dentist appointment ",
+            "User has a dentist appointment ",
+        ),
+        (
+            "i have a doctor appointment ",
+            "User has a doctor appointment ",
+        ),
         // Meetings
         ("my meeting is at ", "User has a meeting at "),
         ("my meeting is on ", "User has a meeting on "),
@@ -82,21 +98,30 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
             let end = rest.find(['.', '!', '?', ',']).unwrap_or(rest.len());
             let detail = rest[..end].trim();
             // Cut at " and " / " but " / " so " / " i'm " to avoid grabbing extra clauses
-            let detail = detail.strip_prefix("and ")
+            let detail = detail
+                .strip_prefix("and ")
                 .or_else(|| detail.strip_prefix("but "))
                 .or_else(|| detail.strip_prefix("so "))
                 .or_else(|| detail.strip_prefix("i'm "))
                 .or_else(|| detail.strip_prefix("i am "))
                 .or_else(|| detail.strip_prefix("i "))
                 .unwrap_or(detail)
-                .split(" and ").next().unwrap_or(detail)
-                .split(" but ").next().unwrap_or(detail)
-                .split(" so ").next().unwrap_or(detail)
+                .split(" and ")
+                .next()
+                .unwrap_or(detail)
+                .split(" but ")
+                .next()
+                .unwrap_or(detail)
+                .split(" so ")
+                .next()
+                .unwrap_or(detail)
                 .trim();
             if detail.is_empty() {
                 // No detail — just use the prefix (e.g. "User has an interview next week")
                 let f = fact_prefix.to_string();
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             } else if detail.chars().any(|c| c.is_alphanumeric()) && detail.len() >= 2 {
                 let orig = restore_case(detail, original);
                 let f = if fact_prefix.ends_with(' ') {
@@ -104,7 +129,9 @@ pub fn extract(cleaned: &str, original: &str) -> Vec<String> {
                 } else {
                     format!("{} {}", fact_prefix, orig)
                 };
-                if is_valid_fact(&f) { facts.push(f); }
+                if is_valid_fact(&f) {
+                    facts.push(f);
+                }
             }
             break; // one event per anchor group
         }
@@ -118,9 +145,13 @@ fn restore_case(value_lower: &str, original: &str) -> String {
     if let Some(pos) = orig_lower.find(value_lower) {
         original[pos..pos + value_lower.len()].to_string()
     } else {
-        value_lower.split_whitespace().map(|w| {
-            let mut c = w.chars();
-            c.next().unwrap_or(' ').to_uppercase().collect::<String>() + c.as_str()
-        }).collect::<Vec<_>>().join(" ")
+        value_lower
+            .split_whitespace()
+            .map(|w| {
+                let mut c = w.chars();
+                c.next().unwrap_or(' ').to_uppercase().collect::<String>() + c.as_str()
+            })
+            .collect::<Vec<_>>()
+            .join(" ")
     }
 }

@@ -135,8 +135,7 @@ class _ClassScreenBody extends StatelessWidget {
               const SliverToBoxAdapter(child: SizedBox(height: 120)),
             ],
           ),
-          if (overlayOpen)
-            _AiOverlay(onClose: onCloseOverlay),
+          if (overlayOpen) _AiOverlay(onClose: onCloseOverlay),
         ],
       ),
     );

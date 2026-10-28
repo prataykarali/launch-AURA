@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:aura_notebook/src/rust/api.dart' show auraAddMemoryNote;
-import 'package:aura_notebook/src/rust/api/memory.dart' show auraUpdateMemoryNote;
+import 'package:aura_notebook/src/rust/api/memory.dart'
+    show auraUpdateMemoryNote;
 
-Future<void> showAddNoteDialog(BuildContext context, VoidCallback onLoad) async {
+Future<void> showAddNoteDialog(
+  BuildContext context,
+  VoidCallback onLoad,
+) async {
   final titleController = TextEditingController();
   final contentController = TextEditingController();
   bool pinned = false;
@@ -11,15 +15,10 @@ Future<void> showAddNoteDialog(BuildContext context, VoidCallback onLoad) async 
     context: context,
     builder: (ctx) => StatefulBuilder(
       builder: (context, setStateDialog) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(
-              Icons.sticky_note_2_outlined,
-              color: Colors.indigo.shade800,
-            ),
+            Icon(Icons.sticky_note_2_outlined, color: Colors.indigo.shade800),
             const SizedBox(width: 8),
             const Text('Add New Note'),
           ],
@@ -109,15 +108,10 @@ Future<void> showEditNoteDialog(
     context: context,
     builder: (ctx) => StatefulBuilder(
       builder: (context, setStateDialog) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
-            Icon(
-              Icons.edit_outlined,
-              color: Colors.indigo.shade800,
-            ),
+            Icon(Icons.edit_outlined, color: Colors.indigo.shade800),
             const SizedBox(width: 8),
             const Text('Edit Note'),
           ],

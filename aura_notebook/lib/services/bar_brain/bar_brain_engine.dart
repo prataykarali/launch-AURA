@@ -28,12 +28,7 @@ extension AuraBarBrainEngine on AuraBarBrain {
   }
 
   void onBarVisible() {
-    if (Platform.isLinux &&
-        _gestureWatchTimer == null &&
-        Platform.environment['AURA_CAMERA_OFF'] != '1') {
-      debugPrint('[AURA] Bar visible — starting gesture watch');
-      _startGestureWatch();
-    }
+    // Background gesture watch is disabled by design.
   }
 
   void onBarHidden() {
@@ -57,7 +52,9 @@ extension AuraBarBrainEngine on AuraBarBrain {
   }
 
   Future<void> _pollWebcamGesture() async {
-    if (_isProcessing || _state == BarState.listening || _state == BarState.processing) {
+    if (_isProcessing ||
+        _state == BarState.listening ||
+        _state == BarState.processing) {
       return;
     }
     try {
@@ -66,7 +63,8 @@ extension AuraBarBrainEngine on AuraBarBrain {
       // Cooldown so a single wave is one greeting, not a burst.
       final now = DateTime.now();
       if (_lastGestureGreetingAt != null &&
-          now.difference(_lastGestureGreetingAt!) < const Duration(seconds: 12)) {
+          now.difference(_lastGestureGreetingAt!) <
+              const Duration(seconds: 12)) {
         return;
       }
       _lastGestureGreetingAt = now;
@@ -81,7 +79,11 @@ extension AuraBarBrainEngine on AuraBarBrain {
   void _flushPending() {
     if (_promptQueue.isEmpty) return;
     final queued = _promptQueue.removeAt(0);
-    debugPrint('AuraBarBrain: engine ready — flushing queued prompt: "${queued.text}"');
+    if (kDebugMode) {
+      debugPrint(
+        'AuraBarBrain: engine ready — flushing queued prompt: "${queued.text}"',
+      );
+    }
     unawaited(processUserPrompt(queued.text, source: queued.source));
   }
 
@@ -96,8 +98,12 @@ extension AuraBarBrainEngine on AuraBarBrain {
     // Replay the next queued prompt (if any). FIFO order.
     if (_promptQueue.isNotEmpty) {
       final queued = _promptQueue.removeAt(0);
-      debugPrint('AuraBarBrain: replaying queued prompt: "${queued.text}"');
-      Future.microtask(() => processUserPrompt(queued.text, source: queued.source));
+      if (kDebugMode) {
+        debugPrint('AuraBarBrain: replaying queued prompt: "${queued.text}"');
+      }
+      Future.microtask(
+        () => processUserPrompt(queued.text, source: queued.source),
+      );
     }
   }
 }

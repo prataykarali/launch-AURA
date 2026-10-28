@@ -32,7 +32,8 @@ class AuraVisionContext {
     'vision_context': {
       'activity': activity,
       if (detail != null && detail!.trim().isNotEmpty) 'detail': detail,
-      if (screenText != null && screenText!.trim().isNotEmpty) 'screen_text': screenText,
+      if (screenText != null && screenText!.trim().isNotEmpty)
+        'screen_text': screenText,
       'stuck': stuck,
       'stuck_duration_mins': stuckDurationMins,
       'source_tier': sourceTier,
@@ -45,7 +46,8 @@ class AuraVisionContext {
     final parts = [
       'activity=$activity',
       if (detail != null && detail!.trim().isNotEmpty) 'detail=$detail',
-      if (screenText != null && screenText!.trim().isNotEmpty) 'screen_text=${screenText!.substring(0, screenText!.length.clamp(0, 200))}',
+      if (screenText != null && screenText!.trim().isNotEmpty)
+        'screen_text=${screenText!.substring(0, screenText!.length.clamp(0, 200))}',
       if (stuck) 'stuck=${stuckDurationMins}m',
       'source_tier=$sourceTier',
       'device_profile=${deviceProfile.name}',

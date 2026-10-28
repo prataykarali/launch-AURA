@@ -82,7 +82,8 @@ extension _LoadingScreenAndroidLogic on _LoadingScreenState {
         '[AURA-DIAG]   ✓ USING private model cache ($canonicalModelLen bytes)',
       );
     }
-    if (modelSourcePath != null && modelSourcePath != canonicalModel.absolute.path) {
+    if (modelSourcePath != null &&
+        modelSourcePath != canonicalModel.absolute.path) {
       diagLog.writeln(
         '[AURA-DIAG]   ✓ larger model source found: $modelSourcePath ($largestSourceLen bytes)',
       );
@@ -228,7 +229,7 @@ extension _LoadingScreenAndroidLogic on _LoadingScreenState {
       _setStep(_Step.download);
       _updateState(() => _downloadProgress = 0.0);
       try {
-        await _download(_kModelUrl, modelPath);
+        await _download(_kModelUrl, modelPath, '');
       } catch (e) {
         if (File(modelPath).existsSync()) await File(modelPath).delete();
         // Show diagnostics ON SCREEN so failures are debuggable without
@@ -274,9 +275,9 @@ extension _LoadingScreenAndroidLogic on _LoadingScreenState {
       _updateState(() => _downloadProgress = 0.0);
       _setStep(_Step.download);
       try {
-        await _download(_kEmbedModelUrl, embedPath);
+        await _download(_kEmbedModelUrl, embedPath, _kEmbedModelSha256);
         if (!File(embedTokPath).existsSync()) {
-          await _download(_kEmbedTokUrl, embedTokPath);
+          await _download(_kEmbedTokUrl, embedTokPath, _kEmbedTokSha256);
         }
       } catch (e) {
         debugPrint('Embedder download failed: $e — continuing without');

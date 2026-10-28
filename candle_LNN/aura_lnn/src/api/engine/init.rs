@@ -17,8 +17,7 @@ pub(crate) fn initialize_engine(
     #[cfg(target_os = "android")]
     {
         android_logger::init_once(
-            android_logger::Config::default()
-                .with_max_level(log::LevelFilter::Info),
+            android_logger::Config::default().with_max_level(log::LevelFilter::Info),
         );
     }
     eprintln!(
@@ -53,12 +52,19 @@ pub(crate) fn initialize_engine(
                 eprintln!(
                     "[AURA_INIT] embedder unavailable on Android; using no-op embedder so chat can still load"
                 );
-                Arc::new(crate::memory::NoOpEmbedder::new(crate::memory::TEXT_EMBED_DIM))
+                Arc::new(crate::memory::NoOpEmbedder::new(
+                    crate::memory::TEXT_EMBED_DIM,
+                ))
             }
             #[cfg(not(target_os = "android"))]
             {
-                eprintln!("[AURA_WORKER_ERR] dedicated embedder is required for the memory architecture");
-                write_status(embed_model_path, "dedicated embedder is required for the memory architecture");
+                eprintln!(
+                    "[AURA_WORKER_ERR] dedicated embedder is required for the memory architecture"
+                );
+                write_status(
+                    embed_model_path,
+                    "dedicated embedder is required for the memory architecture",
+                );
                 return (None, None);
             }
         }
@@ -202,7 +208,9 @@ fn load_embedder_with_timeout(
     std::thread::Builder::new()
         .name("aura-embedder-load".into())
         .spawn(move || {
-            let result = BgeTextEmbedder::new(&model_path, &tok_path).ok().map(Arc::new);
+            let result = BgeTextEmbedder::new(&model_path, &tok_path)
+                .ok()
+                .map(Arc::new);
             let _ = tx.send(result);
         })
         .ok()?;

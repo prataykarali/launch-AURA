@@ -42,9 +42,7 @@ Widget? _buildBubble(_AuraBarState state) {
           onTap: () async {
             if (Platform.isAndroid) {
               try {
-                await FlutterOverlayWindow.updateFlag(
-                  OverlayFlag.focusPointer,
-                );
+                await FlutterOverlayWindow.updateFlag(OverlayFlag.focusPointer);
                 await Future<void>.delayed(const Duration(milliseconds: 60));
               } catch (e) {
                 debugPrint('AURA_BAR: pre-focus updateFlag failed: $e');

@@ -20,9 +20,9 @@ part 'results_screen.dart';
 class AiQuizTab extends StatefulWidget {
   final ClassData data;
   final List<dynamic> completedTopics; // Or your Topic model
-  final int topicsDone;     // Added this
-  final int topicsTotal;    // Added this
-  final int studentCount;   // Added this
+  final int topicsDone; // Added this
+  final int topicsTotal; // Added this
+  final int studentCount; // Added this
   final Function(int) onXpEarned;
 
   const AiQuizTab({
@@ -30,7 +30,7 @@ class AiQuizTab extends StatefulWidget {
     required this.data,
     required this.completedTopics,
     required this.onXpEarned,
-    this.topicsDone = 0,    // Default values to prevent errors
+    this.topicsDone = 0, // Default values to prevent errors
     this.topicsTotal = 0,
     this.studentCount = 0,
   });

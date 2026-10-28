@@ -76,10 +76,7 @@ class _ClassFloatingButtons extends StatelessWidget {
             icon: const Icon(Icons.add_rounded, weight: 800),
             label: const Text(
               'NEW CLASS',
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.0,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.0),
             ),
           ),
         ),

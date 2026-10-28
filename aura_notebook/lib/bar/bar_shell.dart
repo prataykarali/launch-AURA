@@ -62,9 +62,7 @@ class PillShell extends StatelessWidget {
         padding: const EdgeInsets.all(2),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(50),
-          child: RepaintBoundary(
-            child: child,
-          ),
+          child: RepaintBoundary(child: child),
         ),
       ),
     );

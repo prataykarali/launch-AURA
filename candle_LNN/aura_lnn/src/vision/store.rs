@@ -25,17 +25,17 @@ pub fn get_recent_visual_context(store: &MemoryStore, limit: usize) -> Result<Ve
     Ok(results)
 }
 
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::sync::Mutex;
 
-pub static LATEST_WEBCAM_SCENE: Lazy<Mutex<String>> = Lazy::new(|| {
+pub static LATEST_WEBCAM_SCENE: LazyLock<Mutex<String>> = LazyLock::new(|| {
     Mutex::new(
         "No visual scene summary available yet. Real-time camera feed is starting up.".to_string(),
     )
 });
 
-pub static LATEST_WEBCAM_DETECTIONS: Lazy<Mutex<Vec<VisionDetection>>> =
-    Lazy::new(|| Mutex::new(Vec::new()));
+pub static LATEST_WEBCAM_DETECTIONS: LazyLock<Mutex<Vec<VisionDetection>>> =
+    LazyLock::new(|| Mutex::new(Vec::new()));
 
 pub fn get_latest_webcam_scene() -> String {
     LATEST_WEBCAM_SCENE.lock().unwrap().clone()

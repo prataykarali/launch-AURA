@@ -89,7 +89,9 @@ class _AuraBarState extends State<AuraBar> with TickerProviderStateMixin {
     super.initState();
 
     if (Platform.isAndroid) {
-      const MethodChannel('x-slayer/overlay').setMethodCallHandler((call) async {
+      const MethodChannel('x-slayer/overlay').setMethodCallHandler((
+        call,
+      ) async {
         if (call.method == 'focusChanged') {
           final hasFocus = call.arguments as bool;
           if (!hasFocus && mounted && _focusNode.hasFocus) {
